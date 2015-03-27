@@ -32,13 +32,13 @@ class Menus {
 		} );
 
 		// Add submenu pages.
-		$db = new DB\Database( $this->wpdb );
-		foreach ( $db->get_table_names() as $table ) {
-			// The submenu adding is a bit odd, and should be explained.
-			$title = Text::titlecase( $table );
-			$slug = self::HOME_SLUG . '&controller=table&action=index&table=' . $table;
-			add_submenu_page( self::HOME_SLUG, $title, $title, 'read', $slug, 'nop' );
-		}
+//		$db = new DB\Database( $this->wpdb );
+//		foreach ( $db->get_table_names() as $table ) {
+//			// The submenu adding is a bit odd, and should be explained.
+//			$title = Text::titlecase( $table );
+//			$slug = self::HOME_SLUG . '&controller=table&action=index&table=' . $table;
+//			add_submenu_page( self::HOME_SLUG, $title, $title, 'read', $slug, 'nop' );
+//		}
 	}
 
 	/**

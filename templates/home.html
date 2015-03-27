@@ -1,4 +1,36 @@
 {% extends "base.html" %}
 {% block content %}
 
+<div id="dashboard-widgets" class="metabox-holder">
+
+	<div class="postbox-container" id="postbox-container-1">
+		<div class="postbox">
+			<div class="handlediv" title="Click to toggle"><br /></div>
+			<h3 class="hndle"><span>Tables</span></h3>
+			<div class="inside">
+				<ol>
+					{% for table in tables %}
+					<li><a href="{{table.get_url}}">{{table.get_title}}</a></li>
+					{% endfor %}
+				</ol>
+			</div>
+		</div>
+	</div>
+
+	<div class="postbox-container" id="postbox-container-2">
+		<div class="postbox">
+			<h3 class="hndle">Views</h3>
+			<div class="inside">
+				<ol>
+					{% for table in views %}
+					<li><a href="{{table.get_url}}">{{table.get_title}}</a></li>
+					{% endfor %}
+				</ol>
+			</div>
+		</div>
+	</div>
+
+</div>
+<div class="clear" />
+
 {% endblock %}

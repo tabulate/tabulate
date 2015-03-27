@@ -4,6 +4,12 @@ namespace WordPress\Tabulate\DB;
 
 class Table {
 
+	/** @static A base table. */
+	const TYPE_TABLE = 'table';
+
+	/** @static A database view, possibly of multiple base tables. */
+	const TYPE_VIEW = 'view';
+
 	/** @var Database The database to which this table belongs. */
 	protected $database;
 
@@ -333,10 +339,12 @@ class Table {
 	 */
 	public function get_record($pk_val) {
 		$pk_column = $this->get_pk_column();
-		$pk_name = (!$pk_column) ? 'id' : $pk_column->get_name();
+		if ( !$pk_column ) {
+			return false;
+		}
 		$sql = "SELECT `" . join( '`, `', array_keys( $this->get_columns() ) ) . "` "
 				. "FROM `" . $this->get_name() . "` "
-				. "WHERE `$pk_name` = %s "
+				. "WHERE `" . $pk_column->get_name() . "` = %s "
 				. "LIMIT 1";
 		$params = array( $pk_val );
 		$stmt = $this->database->get_wpdb()->prepare( $sql, $params );
@@ -344,6 +352,11 @@ class Table {
 		return ( $row ) ? new Record( $this, $row ) : false;
 	}
 
+	/**
+	 * Get a bare record with only default values.
+	 *
+	 * @return Record
+	 */
 	public function get_default_record() {
 		$row = array();
 		foreach ( $this->get_columns() as $col ) {
@@ -360,6 +373,15 @@ class Table {
 	 */
 	public function get_name() {
 		return $this->name;
+	}
+
+	/**
+	 * Whether this is a base table or a view.
+	 *
+	 * @return string Either `Table::TYPE_TABLE` or `Table::TYPE_VIEW`.
+	 */
+	public function get_type() {
+		return $this->type;
 	}
 
 	/**
@@ -409,8 +431,12 @@ class Table {
 	 */
 	public function count_records() {
 		if ( !$this->record_count ) {
-			$pk = $this->get_pk_column()->get_name();
-			$sql = 'SELECT COUNT(`' . $this->get_name() . '`.`' . $pk . '`) as `count` FROM `' . $this->get_name() . '`';
+			if ($this->get_pk_column()) {
+				$count_col = '`' . $this->get_name() . '`.`'.$this->get_pk_column()->get_name().'`';
+			} else {
+				$count_col = '*';
+			}
+			$sql = 'SELECT COUNT(' . $count_col . ') as `count` FROM `' . $this->get_name() . '`';
 			$params = $this->apply_filters( $sql );
 			if ( $params ) {
 				$sql = $this->database->get_wpdb()->prepare( $sql, $params );
@@ -539,7 +565,6 @@ class Table {
 		} else {
 			$titleColName = $columnIndices[0];
 		}
-		//$titleColName = Arr::get($columnIndices, 1, Arr::get($columnIndices, 0, 'id'));
 		return $this->columns[$titleColName];
 	}
 
@@ -554,8 +579,10 @@ class Table {
 			$defining_sql = $this->database->get_wpdb()->get_row( "SHOW CREATE TABLE `$this->name`" );
 			if ( isset( $defining_sql->{'Create Table'} ) ) {
 				$defining_sql = $defining_sql->{'Create Table'};
+				$this->type = self::TYPE_TABLE;
 			} elseif ( isset( $defining_sql->{'Create View'} ) ) {
 				$defining_sql = $defining_sql->{'Create View'};
+				$this->type = self::TYPE_VIEW;
 			} else {
 				throw new \Exception( 'Table or view not found: ' . $this->name );
 			}

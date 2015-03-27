@@ -6,6 +6,9 @@ class HomeController extends ControllerBase {
 
 	public function index() {
 		$template = new \WordPress\Tabulate\Template( 'home.html' );
+		$db = new \WordPress\Tabulate\DB\Database( $this->wpdb );
+		$template->tables = $db->get_tables(true);
+		$template->views = $db->get_views();
 		echo $template->render();
 	}
 

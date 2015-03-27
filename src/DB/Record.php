@@ -69,12 +69,19 @@ class Record {
 	}
 
 	/**
-	 * Get the value of this record's primary key.
-	 * @return string
+	 * Get the value of this record's primary key, or false if it doesn't have
+	 * one.
+	 *
+	 * @return string|false
 	 */
 	public function get_primary_key() {
-		$pk_col_name = $this->table->get_pk_column()->get_name();
-		return (isset($this->data->$pk_col_name)) ? $this->data->$pk_col_name : null;
+		if ($this->table->get_pk_column()) {
+			$pk_col_name = $this->table->get_pk_column()->get_name();
+			if (isset($this->data->$pk_col_name)) {
+				return $this->data->$pk_col_name;
+			}
+		}
+		return false;
 	}
 
 	public function get_title() {
