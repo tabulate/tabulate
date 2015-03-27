@@ -172,7 +172,7 @@ class Column {
 	 * @return boolean True if this column is NOT NULL, false otherwise.
 	 */
 	public function is_required() {
-		return $this->required;
+		return (!$this->nullable());
 	}
 
 	/**
@@ -189,7 +189,7 @@ class Column {
 	 *
 	 * @return boolean True if this is a Unique Key, false otherwise.
 	 */
-	public function is_unique_key() {
+	public function is_unique() {
 		return $this->is_unique;
 	}
 
@@ -206,7 +206,7 @@ class Column {
 	 * Whether or not this column is allowed to have NULL values.
 	 * @return boolean
 	 */
-	public function is_null() {
+	public function nullable() {
 		return $this->nullable;
 	}
 
@@ -216,7 +216,7 @@ class Column {
 	 */
 	public function allows_empty_string() {
 		$textTypes = array( 'text', 'varchar', 'char' );
-		return $this->nullable && in_array( $this->get_type(), $textTypes );
+		return $this->nullable() && in_array( $this->get_type(), $textTypes );
 	}
 
 	/**

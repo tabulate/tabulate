@@ -2,12 +2,13 @@
 
 /**
  * Plugin Name: Tabulate
- * Description: A simple interface to any non-WP database tables.
+ * Description: A simple user-friendly interface to tables in your database.
  * Version: 0.0.1
  * Author: Sam WIlson
  * Author URI: http://samwilson.id.au/
  * License: GPL-2.0+
  */
+define('TABULATE_VERSION', '0.0.1');
 require __DIR__ . '/vendor/autoload.php';
 global $wpdb;
 

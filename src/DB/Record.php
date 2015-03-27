@@ -86,7 +86,7 @@ class Record {
 		return $this->table->get_column( $column_name )->get_referenced_table()->get_record( $this->data->$column_name );
 	}
 
-	public function get_url($action = 'view') {
+	public function get_url($action = 'index') {
 		$params = array(
 			'page' => 'tabulate',
 			'controller' => 'record',

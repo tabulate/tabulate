@@ -27,6 +27,7 @@ class TableController extends ControllerBase {
 
 		// Give it all to the template.
 		$template = new \WordPress\Tabulate\Template( 'table.html' );
+		$template->controller = 'table';
 		$template->table = $table;
 		$template->columns = $table->get_columns();
 		$template->operators = $table->get_operators();

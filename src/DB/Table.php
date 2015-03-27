@@ -329,7 +329,7 @@ class Table {
 	 * Get a single record as an associative array.
 	 *
 	 * @param string $pk_val The value of the PK of the record to get.
-	 * @return Record The record object.
+	 * @return Record|false The record object, or false if it wasn't found.
 	 */
 	public function get_record($pk_val) {
 		$pk_column = $this->get_pk_column();
@@ -341,15 +341,16 @@ class Table {
 		$params = array( $pk_val );
 		$stmt = $this->database->get_wpdb()->prepare( $sql, $params );
 		$row = $this->database->get_wpdb()->get_row( $stmt );
-		return new Record( $this, $row );
+		return ( $row ) ? new Record( $this, $row ) : false;
 	}
 
-	public function get_default_row() {
+	public function get_default_record() {
 		$row = array();
 		foreach ( $this->get_columns() as $col ) {
-			$row[$col->get_name()] = $col->get_default();
+			$row[ $col->get_name() ] = $col->get_default();
 		}
-		return $row;
+		$record = new Record($this, $row);
+		return $record;
 	}
 
 	/**
@@ -527,7 +528,7 @@ class Table {
 	public function get_title_column() {
 		// Try to get the first non-PK unique key
 		foreach ( $this->get_columns() as $column ) {
-			if ( $column->is_unique_key() && !$column->is_primary_key() ) {
+			if ( $column->is_unique() && !$column->is_primary_key() ) {
 				return $column;
 			}
 		}
@@ -722,10 +723,11 @@ class Table {
 	 * the row with that ID will be updated; otherwise, a new row will be
 	 * inserted.
 	 *
-	 * @param array  $data  The data to insert; if 'id' is set, update.
-	 * @return int          The ID of the updated or inserted row.
+	 * @param array $data The data to insert.
+	 * @param string $pk_value The value of the record's PK.
+	 * @return Record The updated or inserted record.
 	 */
-	public function save_record($data, $primaryKeyValue = null) {
+	public function save_record($data, $pk_value = null) {
 
 		$columns = $this->get_columns();
 
@@ -738,12 +740,12 @@ class Table {
 				unset( $data[$field] );
 				continue;
 			}
-			$column = $columns[$field];
+			$column = $this->get_column($field);
 
 			// Boolean values.
 			if ( $column->is_boolean() ) {
 				$zeroValues = array( 0, '0', false, 'false', 'FALSE', 'off', 'OFF', 'no', 'NO' );
-				if ( ($value === null || $value === '') && $column->is_null() ) {
+				if ( ($value === null || $value === '') && $column->nullable() ) {
 					$data[$field] = null;
 				} elseif ( in_array( $value, $zeroValues, true ) ) {
 					$data[$field] = false;
@@ -753,40 +755,32 @@ class Table {
 			}
 
 			// Empty strings.
-			if ( !$column->allowsEmptyString() && $value === '' && $column->isNull() ) {
+			if ( !$column->allows_empty_string() && $value === '' && $column->nullable() ) {
 				$data[$field] = null;
 			}
 		}
 
 		// Update?
-		$primaryKeyName = $this->get_pk_column()->getName();
-		if ( $primaryKeyValue ) {
-			$pairs = array();
-			foreach ( $data as $col => $val ) {
-				$pairs[] = "`$col` = :$col";
-			}
-			$sql = "UPDATE " . $this->getName() . " SET " . join( ', ', $pairs )
-					. " WHERE `$primaryKeyName` = :primaryKeyValue";
-			$data['primaryKeyValue'] = $primaryKeyValue;
-			$this->database->query( $sql, $data );
-			$newPkValue = (isset( $data[$primaryKeyName])) ? $data[$primaryKeyName] : $primaryKeyValue;
+		$pk_name = $this->get_pk_column()->get_name();
+		$this->database->get_wpdb()->hide_errors(); // Hide errors for now.
+		if ( $pk_value ) {
+			$where = array($pk_name => $pk_value);
+			$this->database->get_wpdb()->update($this->get_name(), $data, $where);
+			$new_pk_value = (isset( $data[$pk_name])) ? $data[$pk_name] : $pk_value;
 		} // Or insert?
 		else {
-			// Prevent PK from being empty.
-			if ( empty( $data[$primaryKeyName] ) ) {
-				unset( $data[$primaryKeyName] );
+			// Prevent PK from being set to empty.
+			if ( empty( $data[$pk_name] ) ) {
+				unset( $data[$pk_name] );
 			}
-			$sql = "INSERT INTO " . $this->getName()
-					. "\n( `" . join( "`, `", array_keys( $data ) ) . "` ) VALUES "
-					. "\n( :" . join( ", :", array_keys( $data ) ) . " )";
-			$this->database->query( $sql, $data );
-			$newPkValue = $this->database->lastInsertId();
-			if ( !$newPkValue ) {
-				$row = $this->getRecord( $data[$primaryKeyName] );
-				$newPkValue = $row->$primaryKeyName();
+			$insert = $this->database->get_wpdb()->insert( $this->get_name(), $data );
+			if (!empty($this->database->get_wpdb()->last_error)) {
+				throw new Exception($this->database->get_wpdb()->last_error);
 			}
+			$new_pk_value = $this->database->get_wpdb()->insert_id;
 		}
-		return $newPkValue;
+		$this->database->get_wpdb()->show_errors(); // Show errors again.
+		return $this->get_record($new_pk_value);
 	}
 
 	public function get_url($action = 'index') {

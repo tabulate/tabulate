@@ -2,20 +2,6 @@
 
 {% block content %}
 
-<h2>{{table.get_title}} <small class='about-text'>{{table.get_comment}}</small></h2>
-
-<h3 class="nav-tab-wrapper">
-	<a href="{{table.get_url}}" class="nav-tab nav-tab-active">
-		Search
-	</a>
-	<a href="{{table.get_url('create')}}" class="nav-tab">
-		Create
-	</a>
-	<a href="{{table.get_url('export')}}" class="nav-tab">
-		Export
-	</a>
-</h3>
-
 <form action="{{table.get_url}}" method="get" class="tabulate-filters about-description">
 	<input type="hidden" name="page" value="tabulate" />
 	<input type="hidden" name="controller" value="table" />
@@ -73,7 +59,7 @@
 <table class='wp-list-table widefat'>
 	<thead>
 		<tr>
-			<th colspan="2">&nbsp;</th>
+			<th>&nbsp;</th>
 			{% for column in table.get_columns %}
 			<th>{{column.get_title}}</th>
 			{% endfor %}
@@ -83,10 +69,7 @@
 		{% for record in records %}
 		<tr>
 			<td>
-				<a href="{{ record.get_url('view') }}" class="">View</a>
-			</td>
-			<td>
-				<a href="{{ record.get_url('edit') }}" class="">Edit</a>
+				<a href="{{ record.get_url() }}" class="">Edit</a>
 			</td>
 			{% for column in table.get_columns %}
 			<td class="type-{{ column.type }} {% if column.is_foreign_key %}is-foreign-key{% endif %}">

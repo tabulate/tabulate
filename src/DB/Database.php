@@ -11,6 +11,9 @@ class Database {
 		$this->wpdb = $wpdb;
 	}
 
+	/**
+	 * @return wpdb
+	 */
 	public function get_wpdb() {
 		return $this->wpdb;
 	}

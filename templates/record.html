@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<form method="post" action="{{record.get_url}}">
+<form method="post" action="{{record.get_url('save')}}">
 	<table>
 
 		{% for column in table.get_columns %}
@@ -13,38 +13,38 @@
 				</label>
 			</th>
 
-			<td><!-- Data entry cell -->
+			<td class='form-field form-required'><!-- Data entry cell -->
 
 			{% if column.is_foreign_key %}
 			<select name="{{column.get_name}}" id="{{column.get_name}}" aria-describedby="{{column.get_name}}-help"
-					{% if column.is_required %}required{% endif %}
-					>
+				{% if column.is_required %}required{% endif %}
+				>
 				{% for row in column.get_referenced_table.get_records %}
-				
+
 				<option value="{{ attribute(row, column.get_referenced_table.get_pk_column.get_name) }}"
-						{% if attribute(record, column.get_name) == attribute(row, column.get_referenced_table.get_pk_column.get_name) %}
-						selected
-						{% endif %}
-						>
+					{% if attribute(record, column.get_name) == attribute(row, column.get_referenced_table.get_pk_column.get_name) %}
+					selected
+					{% endif %}
+					>
 					{{ attribute(row, column.get_referenced_table.get_title_column.get_name) }}
 				</option>
 				{% endfor %}
 			</select>
 
-			{% elseif column.isBoolean %}
-			<input type="radio" name="{{column.name}}" id="{{column.name}}-yes"
-				   value="1" {% if attribute(record, column.name) is sameas(true) %}checked{% endif %} />
-			<label for="{{column.name}}-yes">Yes</label>
-			<input type="radio" name="{{column.name}}" id="{{column.name}}-no"
-				   value="0" {% if attribute(record, column.name) is sameas(false) %}checked{% endif %} />
-			<label for="{{column.name}}-no">No</label>
-			{% if column.isNull %}
-			<input type="radio" name="{{column.name}}" id="{{column.name}}-null"
-				   value="" {% if attribute(record, column.name) is null %}checked{% endif %} />
-			<label for="{{column.name}}-null" title="Not Applicable">N/A</label>
+			{% elseif column.is_boolean %}
+			<input type="radio" name="{{column.get_name}}" id="{{column.get_name}}-yes"
+				   value="1" {% if attribute(record, column.get_name) is sameas(true) %}checked{% endif %} />
+			<label for="{{column.get_name}}-yes">Yes</label>
+			<input type="radio" name="{{column.get_name}}" id="{{column.get_name}}-no"
+				   value="0" {% if attribute(record, column.get_name) is sameas(false) %}checked{% endif %} />
+			<label for="{{column.get_name}}-no">No</label>
+			{% if column.is_null %}
+			<input type="radio" name="{{column.get_name}}" id="{{column.get_name}}-null"
+				   value="" {% if attribute(record, column.get_name) is null %}checked{% endif %} />
+			<label for="{{column.get_name}}-null" title="Not Applicable">N/A</label>
 			{% endif %}
 
-			{% elseif column.type=='text' %}
+			{% elseif column.get_type=='text' %}
 			<textarea name="{{column.get_name}}" id="{{column.get_name}}" aria-describedby="{{column.get_name}}-help"
 					  {% if column.is_required %}required{% endif %} rows="5"
 					  >{{ attribute(record, column.get_name)}}</textarea>
@@ -54,8 +54,8 @@
 				   aria-describedby="{{column.get_name}}-help"
 				   {% if column.is_auto_increment %}readonly{% endif %}
 				   {% if column.is_required and not column.is_auto_increment %}required{% endif %}
-				   {% if column.type == 'year' %}pattern="number"{% endif %}
-				   {% if column.type == 'date' %}pattern="date"{% endif %}
+				   {% if column.get_type == 'year' %}pattern="number"{% endif %}
+				   {% if column.get_type == 'date' %}pattern="date"{% endif %}
 				   />
 
 			{% endif %}
@@ -64,11 +64,18 @@
 			<td>
 				<label id="{{column.get_name}}-help" class="inline" for="{{column.name}}">
 					<em>{{column.get_comment}}</em>
+
+					{% if column.is_unique %}
+					The value of this field must be unique.
+					{% endif %}
+
 					{% if column.is_foreign_key %}
 					This field is a cross reference to
 					<a href="{{column.get_referenced_table.get_url}}">{{column.get_referenced_table.get_title}}</a>.
 					{% endif %}
+
 					{% if column.is_auto_increment %}A value for this field will be assigned automatically.{% endif %}
+
 				</label>
 			</td>
 		</tr>
@@ -81,10 +88,10 @@
 				<p><label>* An asterisk denotes a required field.</label></p>
 				<p>
 					<input type="submit" value="Save" class="button success" />
-					<a href="{{baseurl}}/table/{{table.name}}" class="button" title="Return to search">Cancel</a>
+					<!--<a href="{{table.get_url}}" class="button" title="Return to search">Cancel</a>-->
 					{% if record %}
 					<input type="hidden" name="primary_key_value" value="{{record.getPrimaryKey}}" />
-					<a href="{{baseurl}}/record/{{table.name}}/{{record.getPrimaryKey}}/delete" class="button alert" title="Delete this record">Delete</a>
+					<a href="{{record.get_url('delete')}}" class="button alert" title="Delete this record">Delete</a>
 					{% endif %}
 				</p>
 			</td>
