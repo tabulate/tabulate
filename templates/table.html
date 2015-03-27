@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>{{table.get_title}} <small class='about-text'>{{table.get_comment}}</small></h2>
+
+<h3 class="nav-tab-wrapper">
+	<a href="{{table.get_url}}" class="nav-tab nav-tab-active">
+		Search
+	</a>
+	<a href="{{table.get_url('create')}}" class="nav-tab">
+		Create
+	</a>
+	<a href="{{table.get_url('export')}}" class="nav-tab">
+		Export
+	</a>
+</h3>
+
+<form action="{{table.get_url}}" method="get" class="tabulate-filters about-description">
+	<input type="hidden" name="page" value="tabulate" />
+	<input type="hidden" name="controller" value="table" />
+	<input type="hidden" name="action" value="index" />
+	<input type="hidden" name="table" value="{{table.get_name}}" />
+	<table>
+
+		{% for fid,filter in filters %}
+		<tr class="tabulate-filter">
+			<td class="label">
+				<label>
+					{% if fid==0 %}Find records where{% else %}&hellip;and{% endif %}
+				</label>
+			</td>
+			<td>
+				<select name="filter[{{fid}}][column]">
+					{% for column in table.get_columns %}
+					<option value="{{column.get_name}}" {% if column.get_name==filter.column %}selected{% endif %}>
+						{{column.get_title}}
+					</option>
+					{% endfor %}
+				</select>
+			</td>
+			<td>
+				<select name="filter[{{fid}}][operator]">
+					{% for op,name in operators %}
+					<option value="{{op}}" {% if op==filter.operator %}selected{% endif %}>
+						{{name}}
+					</option>
+					{% endfor %}
+				</select>
+			</td>
+			<td>
+				<input type="text" name="filter[{{fid}}][value]" value="{{filter.value}}" />
+			</td>
+		</tr>
+		{% endfor %}
+
+		<tr>
+			<td colspan="3">
+			</td>
+			<td class="buttons">
+				<input type="submit" value="Search" class="button" />
+				{% if filter_count > 1 %}
+				<a href="{{table.get_url}}" class="button">Clear filters</a>
+				{% endif %}
+			</td>
+		</tr>
+
+	</table>
+</form>
+
+{% include "pagination.html" %}
+
+<table class='wp-list-table widefat'>
+	<thead>
+		<tr>
+			<th colspan="2">&nbsp;</th>
+			{% for column in table.get_columns %}
+			<th>{{column.get_title}}</th>
+			{% endfor %}
+		</tr>
+	</thead>
+	<tbody>
+		{% for record in records %}
+		<tr>
+			<td>
+				<a href="{{ record.get_url('view') }}" class="">View</a>
+			</td>
+			<td>
+				<a href="{{ record.get_url('edit') }}" class="">Edit</a>
+			</td>
+			{% for column in table.get_columns %}
+			<td class="type-{{ column.type }} {% if column.is_foreign_key %}is-foreign-key{% endif %}">
+
+				{% if column.is_foreign_key %}
+
+				<a href="{{ record.get_referenced_row(column.get_name).get_url }}">
+					{{ attribute(record, column.get_name~'FKTITLE') }}
+				</a>
+
+				{% elseif column.is_boolean %}
+				{% if attribute(record, column.get_name) is sameas(true) %}
+				Yes
+				{% elseif attribute(record, column.get_name) is sameas(false) %}
+				No
+				{% else %}
+
+				{% endif %}
+
+				{% else %}
+				{{ attribute(record, column.get_name) }}
+
+				{% endif %}
+			</td>
+			{% endfor %}
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+{%endblock%}

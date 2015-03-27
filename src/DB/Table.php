@@ -1,0 +1,802 @@
+<?php
+
+namespace WordPress\Tabulate\DB;
+
+class Table {
+
+	/** @var Database The database to which this table belongs. */
+	protected $database;
+
+	/** @var string The name of this table. */
+	protected $name;
+
+	/** @var string This table's comment. False until initialised. */
+	protected $comment = false;
+
+	/** @var string The SQL statement used to create this table. */
+	protected $defining_sql;
+
+	/** @var string The SQL statement most recently saved by $this->getRows() */
+	protected $saved_sql;
+
+	/** @var string The statement parameters most recently saved by $this->getRows() */
+	protected $saved_parameters;
+
+	/** @var array|Table Array of tables referred to by columns in this one. */
+	protected $referenced_tables;
+
+	/** @var array|string The names (only) of tables referenced by columns in this one. */
+	protected $referenced_table_names;
+
+	/** @var array Each joined table gets a unique alias, based on this. */
+	protected $alias_count = 1;
+
+	/**
+	 * @var array|Column Array of column names and objects for all of the
+	 * columns in this table.
+	 */
+	protected $columns;
+
+	/** @var array */
+	protected $filters = array();
+
+	/** @var array Permitted operators. */
+	protected $operators = array(
+		'like' => 'contains',
+		'not like' => 'does not contain',
+		'=' => 'is',
+		'!=' => 'is not',
+		'empty' => 'is empty',
+		'not empty' => 'is not empty',
+		'>=' => 'is greater than or equal to',
+		'>' => 'is greater than',
+		'<=' => 'is less than or equal to',
+		'<' => 'is less than'
+	);
+
+	/**
+	 * @var integer|false The number of currently-filtered rows, or false if no
+	 * query has been made yet or the filters have been reset.
+	 */
+	protected $record_count = false;
+
+	/** @var integer The current page number. */
+	protected $current_page_num = 1;
+
+	/** @var integer The number of records to show on each page. */
+	protected $records_per_page = 10;
+
+	/**
+	 * Create a new database table object.
+	 *
+	 * @param Database The database to which this table belongs.
+	 * @param string $name The name of the table.
+	 */
+	public function __construct($database, $name) {
+		$this->database = $database;
+		$this->name = $name;
+
+		$this->columns = array();
+		$columns = $this->database->get_wpdb()->get_results( "SHOW FULL COLUMNS FROM `$name`" );
+		foreach ( $columns as $column_info ) {
+			$column = new Column( $this->database, $this, $column_info );
+			$this->columns[$column->get_name()] = $column;
+		}
+	}
+
+	/**
+	 * Add a filter.
+	 * @param type $column
+	 * @param type $operator
+	 * @param type $value
+	 * @param boolean $force Whether to transform the value, for FKs.
+	 */
+	public function add_filter($column, $operator, $value, $force = false) {
+		$valid_columm = in_array( $column, array_keys( $this->columns ) );
+		$valid_operator = in_array( $operator, array_keys( $this->operators ) );
+		$emptyValueAllowed = (strpos( $operator, 'empty' ) === false && !empty( $value ));
+		$valid_value = (strpos( $operator, 'empty' ) !== false) || $emptyValueAllowed;
+		if ( $valid_columm && $valid_operator && $valid_value ) {
+			$this->filters[] = array(
+				'column' => $column,
+				'operator' => $operator,
+				'value' => trim( $value ),
+				'force' => $force,
+			);
+		}
+	}
+
+	/**
+	 * Add multiple filters.
+	 */
+	public function add_filters($filters) {
+		foreach ( $filters as $filter ) {
+			$column = (isset( $filter['column'] )) ? $filter['column'] : false;
+			$operator = (isset( $filter['operator'] )) ? $filter['operator'] : false;
+			$value = (isset( $filter['value'] )) ? $filter['value'] : false;
+			$this->add_filter( $column, $operator, $value );
+		}
+	}
+
+	public function get_filters() {
+		return $this->filters;
+	}
+
+	protected function get_fk_join_clause($table, $alias, $column) {
+		return 'LEFT OUTER JOIN `' . $table->get_name() . '` AS f' . $alias
+				. ' ON (`' . $this->get_name() . '`.`' . $column->get_name() . '` '
+				. ' = `f' . $alias . '`.`' . $table->get_pk_column()->get_name() . '`)';
+	}
+
+	/**
+	 * Apply the stored filters to the supplied SQL.
+	 *
+	 * @param string $sql The SQL to modify
+	 * @return array Parameter values, in the order of their occurence in $sql
+	 */
+	public function apply_filters(&$sql) {
+
+		$params = array();
+		$param_num = 1; // Incrementing parameter suffix, to permit duplicate columns.
+		$where_clause = '';
+		$join_clause = '';
+		foreach ( $this->filters as $filter ) {
+			$f_column = $filter['column'];
+			$param_name = $filter['column'] . $param_num;
+
+			// Filters on foreign keys need to work on the FKs title column.
+			$column = $this->columns[$f_column];
+			if ( $column->is_foreign_key() && !$filter['force'] ) {
+				$join = $this->join_on( $column );
+				$f_column = $join['column_alias'];
+				$join_clause .= $join['join_clause'];
+			} else {
+				// The result of join_on() above is quoted, so this must also be.
+				$f_column = "`$f_column`";
+			}
+
+			// LIKE or NOT LIKE
+			if ( $filter['operator'] == 'like' || $filter['operator'] == 'not like' ) {
+				$where_clause .= " AND CONVERT($f_column, CHAR) " . strtoupper( $filter['operator'] ) . " %s ";
+				$params[$param_name] = '%' . $filter['value'] . '%';
+			} // Equals or does-not-equal
+			elseif ( $filter['operator'] == '=' || $filter['operator'] == '!=' ) {
+				$where_clause .= " AND $f_column " . strtoupper( $filter['operator'] ) . " %s ";
+				$params[$param_name] = $filter['value'];
+			} // IS EMPTY
+			elseif ( $filter['operator'] == 'empty' ) {
+				$where_clause .= " AND ($f_column IS NULL OR $f_column = '')";
+			} // IS NOT EMPTY
+			elseif ( $filter['operator'] == 'not empty' ) {
+				$where_clause .= " AND ($f_column IS NOT NULL AND $f_column != '')";
+			} // Other operators. They're already validated in $this->addFilter()
+			else {
+				$where_clause .= " AND ($f_column " . $filter['operator'] . " %s)";
+				$params[$param_name] = $filter['value'];
+			}
+
+			$param_num++;
+		} // end foreach filter
+		// Add clauses into SQL
+		if ( !empty( $where_clause ) ) {
+			$where_clause_pattern = '/^(.* FROM .*?)((?:GROUP|HAVING|ORDER|LIMIT|$).*)$/m';
+			$where_clause = substr( $where_clause, 5 ); // Strip leading ' AND'.
+			$where_clause = "$1 $join_clause WHERE $where_clause $2";
+			$sql = preg_replace( $where_clause_pattern, $where_clause, $sql );
+		}
+
+		return $params;
+	}
+
+	public function get_order_by() {
+		if ( empty( $this->orderby ) ) {
+			$this->orderby = $this->get_title_column()->get_name();
+		}
+		return $this->orderby;
+	}
+
+	public function set_order_by($orderby) {
+		if ( in_array( $orderby, array_keys( $this->columns ) ) ) {
+			$this->orderby = $orderby;
+		}
+	}
+
+	public function get_order_dir() {
+		if ( empty( $this->orderdir ) ) {
+			$this->orderdir = 'ASC';
+		}
+		return $this->orderdir;
+	}
+
+	public function set_order_dir($orderdir) {
+		if ( in_array( strtoupper( $orderdir ), array( 'ASC', 'DESC' ) ) ) {
+			$this->orderdir = $orderdir;
+		}
+	}
+
+	/**
+	 * For a given foreign key column, get an alias and join clause for selecting
+	 * against that column's foreign values. If the column is not a foreign key,
+	 * the alias will just be the qualified column name, and the join clause will
+	 * be the empty string.
+	 *
+	 * @param Column $column
+	 * @return array Array with 'join_clause' and 'column_alias' keys
+	 */
+	protected function join_on($column) {
+		$join_clause = '';
+		$column_alias = '`' . $this->get_name() . '`.`' . $column->get_name() . '`';
+		if ( $column->is_foreign_key() ) {
+			$fk1_table = $column->get_referenced_table();
+			$fk1_title_column = $fk1_table->get_title_column();
+			$join_clause .= ' LEFT OUTER JOIN `' . $fk1_table->get_name() . '` AS f' . $this->alias_count
+					. ' ON (`' . $this->get_name() . '`.`' . $column->get_name() . '` '
+					. ' = `f' . $this->alias_count . '`.`' . $fk1_table->get_pk_column()->get_name() . '`)';
+			$column_alias = "`f$this->alias_count`.`" . $fk1_title_column->get_name() . "`";
+			$this->joined_tables[] = $column_alias;
+			// FK is also an FK?
+			if ( $fk1_title_column->is_foreign_key() ) {
+				$fk2_table = $fk1_title_column->get_referenced_table();
+				$fk2_title_column = $fk2_table->get_title_column();
+				$join_clause .= ' LEFT OUTER JOIN `' . $fk2_table->get_name() . '` AS ff' . $this->alias_count
+						. ' ON (f' . $this->alias_count . '.`' . $fk1_title_column->get_name() . '` '
+						. ' = ff' . $this->alias_count . '.`' . $fk1_table->get_pk_column()->get_name() . '`)';
+				$column_alias = "`ff$this->alias_count`.`" . $fk2_title_column->getName() . "`";
+				$this->joined_tables[] = $column_alias;
+			}
+			$this->alias_count++;
+		}
+		return array( 'join_clause' => $join_clause, 'column_alias' => $column_alias );
+	}
+
+	/**
+	 * Get rows, with pagination.
+	 *
+	 * Note that rows are returned as arrays and not objects, because MySQL
+	 * allows column names to begin with a number, but PHP does not variables to
+	 * do so.
+	 *
+	 * @return array|Record The row data
+	 */
+	public function get_records($with_pagination = true, $save_sql = false) {
+		$columns = array();
+		foreach ( array_keys( $this->columns ) as $col ) {
+			$columns[] = "`$this->name`.`$col`";
+		}
+
+		// Ordering
+		$order_by_join = $this->join_on( $this->get_column( $this->get_order_by() ) );
+
+		// Build basic SELECT statement
+		$sql = 'SELECT ' . join( ',', $columns ) . ' '
+				. 'FROM `' . $this->get_name() . '` ' . $order_by_join['join_clause'] . ' '
+				. 'ORDER BY ' . $order_by_join['column_alias'] . ' ' . $this->get_order_dir();
+
+		$params = $this->apply_filters( $sql );
+
+		// Then limit to the ones on the current page.
+		if ( $with_pagination ) {
+			$records_per_page = $this->get_records_per_page();
+			$sql .= ' LIMIT ' . $records_per_page;
+			if ( $this->page() > 1 ) {
+				$sql .= ' OFFSET ' . ($records_per_page * ($this->get_current_page_num() - 1));
+			}
+		}
+
+		// Run query and save SQL
+		if ( $params ) {
+			$sql = $this->database->get_wpdb()->prepare( $sql, $params );
+		}
+		$rows = $this->database->get_wpdb()->get_results( $sql );
+
+		$records = array();
+		foreach ( $rows as $row ) {
+			$records[] = new Record( $this, $row );
+		}
+
+		if ( $save_sql ) {
+			$this->saved_sql = $sql;
+			$this->saved_parameters = $params;
+		}
+
+		return $records;
+	}
+
+	public function get_current_page_num() {
+		return $this->current_page_num;
+	}
+
+	public function set_current_page_num($current_page_num) {
+		$this->current_page_num = $current_page_num;
+	}
+
+	public function get_records_per_page() {
+		return $this->records_per_page;
+	}
+
+	public function set_records_per_page($recordsPerPage) {
+		$this->records_per_page = $recordsPerPage;
+	}
+
+	public function get_saved_query() {
+		return array(
+			'sql' => $this->saved_sql,
+			'parameters' => $this->saved_parameters
+		);
+	}
+
+	/**
+	 * Get a single record as an associative array.
+	 *
+	 * @param string $pk_val The value of the PK of the record to get.
+	 * @return Record The record object.
+	 */
+	public function get_record($pk_val) {
+		$pk_column = $this->get_pk_column();
+		$pk_name = (!$pk_column) ? 'id' : $pk_column->get_name();
+		$sql = "SELECT `" . join( '`, `', array_keys( $this->get_columns() ) ) . "` "
+				. "FROM `" . $this->get_name() . "` "
+				. "WHERE `$pk_name` = %s "
+				. "LIMIT 1";
+		$params = array( $pk_val );
+		$stmt = $this->database->get_wpdb()->prepare( $sql, $params );
+		$row = $this->database->get_wpdb()->get_row( $stmt );
+		return new Record( $this, $row );
+	}
+
+	public function get_default_row() {
+		$row = array();
+		foreach ( $this->get_columns() as $col ) {
+			$row[$col->get_name()] = $col->get_default();
+		}
+		return $row;
+	}
+
+	/**
+	 * Get this table's name.
+	 *
+	 * @return string The name of this table.
+	 */
+	public function get_name() {
+		return $this->name;
+	}
+
+	/**
+	 * Get this table's title. This is the title-cased name, if not otherwise
+	 * defined.
+	 *
+	 * @return string The title
+	 */
+	public function get_title() {
+		return \WordPress\Tabulate\Text::titlecase( $this->get_name() );
+	}
+
+	/**
+	 * Get a list of permitted operators.
+	 *
+	 * @return array[string]=>string List of operators.
+	 */
+	public function get_operators() {
+		return $this->operators;
+	}
+
+	public function get_page_count() {
+		return ceil( $this->count_records() / $this->get_records_per_page() );
+	}
+
+	/**
+	 * Get or set the current page.
+	 *
+	 * @param integer $page
+	 * @return integer Current page
+	 */
+	public function page($page = false) {
+		if ( $page !== false ) {
+			$this->current_page_num = $page;
+		} else {
+			return $this->current_page_num;
+		}
+	}
+
+	/**
+	 * Get the number of rows in the current filtered set.  This leaves the
+	 * actual counting up to `$this->get_rows()`, rather than doing the query
+	 * itself, because filtering is applied in that method, and I didn't want to
+	 * duplicate that here (or anywhere else).
+	 *
+	 * @return integer
+	 */
+	public function count_records() {
+		if ( !$this->record_count ) {
+			$pk = $this->get_pk_column()->get_name();
+			$sql = 'SELECT COUNT(`' . $this->get_name() . '`.`' . $pk . '`) as `count` FROM `' . $this->get_name() . '`';
+			$params = $this->apply_filters( $sql );
+			if ( $params ) {
+				$sql = $this->database->get_wpdb()->prepare( $sql, $params );
+			}
+			$count = $this->database->get_wpdb()->get_var( $sql, 0, 0 );
+			$this->record_count = $count;
+		}
+		return $this->record_count;
+	}
+
+	/**
+	 * @return string Full filesystem path to resulting temporary file.
+	 */
+	public function export() {
+
+		$columns = array();
+		$join_clause = '';
+		foreach ( $this->columns as $col_name => $col ) {
+			if ( $col->is_foreign_key() ) {
+				$colJoin = $this->joinOn( $col );
+				$column_name = $colJoin['column_alias'];
+				$join_clause .= $colJoin['join_clause'];
+			} else {
+				$column_name = "`$this->name`.`$col_name`";
+			}
+			$columns[] = "REPLACE(IFNULL($column_name, ''),'\r\n', '\n')";
+		}
+		$orderByJoin = $this->joinOn( $this->getColumn( $this->getOrderBy() ) );
+		$join_clause .= $orderByJoin['join_clause'];
+
+		// Build basic SELECT statement
+		$sql = 'SELECT ' . join( ',', $columns ) . ' '
+				. 'FROM `' . $this->get_name() . '` ' . $join_clause . ' '
+				. 'ORDER BY ' . $orderByJoin['column_alias'] . ' ' . $this->get_order_dir();
+
+		$params = $this->applyFilters( $sql );
+
+		$tmpdir = CACHE_DIR . DIRECTORY_SEPARATOR;
+		if ( !file_exists( $tmpdir ) ) {
+			throw new Exception( "Cache directory doesn't exist: $tmpdir" );
+		}
+		$tmpdir = realpath( $tmpdir ) . DIRECTORY_SEPARATOR;
+		$filename = $tmpdir . uniqid( 'export' ) . '.csv';
+		if ( DIRECTORY_SEPARATOR == '\\' ) {
+			$filename = str_replace( '\\', '/', $filename );
+		}
+		if ( file_exists( $filename ) ) {
+			unlink( $filename );
+		}
+		$sql .= " INTO OUTFILE '$filename' "
+				. ' FIELDS TERMINATED BY ","'
+				. ' ENCLOSED BY \'"\''
+				. ' ESCAPED BY \'"\''
+				. ' LINES TERMINATED BY "\r\n"';
+
+		$this->query( $sql, $params );
+		if ( !file_exists( $filename ) ) {
+			echo '<pre>' . $sql . '</pre>';
+			throw new Exception( "Failed to create $filename" );
+		}
+
+		return $filename;
+	}
+
+	/**
+	 * Get one of this table's columns.
+	 *
+	 * @return Column The column.
+	 */
+	public function get_column($name) {
+		return $this->columns[$name];
+	}
+
+	/**
+	 * Get a list of this table's columns.
+	 *
+	 * @return array|Column This table's columns.
+	 */
+	public function get_columns($type = null) {
+		if ( is_null( $type ) ) {
+			return $this->columns;
+		} else {
+			$out = array();
+			foreach ( $this->get_columns() as $col ) {
+				if ( $col->get_type() == $type ) {
+					$out[$col->get_name()] = $col;
+				}
+			}
+			return $out;
+		}
+	}
+
+	/**
+	 * Get the table comment text.
+	 *
+	 * @return string
+	 */
+	public function get_comment() {
+		if ( !$this->comment ) {
+			$sql = $this->get_defining_sql();
+			$comment_pattern = '/.*\)(?:.*COMMENT.*\'(.*)\')?/si';
+			preg_match( $comment_pattern, $sql, $matches );
+			$this->comment = (isset( $matches[1] )) ? $matches[1] : '';
+		}
+		return $this->comment;
+	}
+
+	/**
+	 * Get the first unique-keyed column, or if there is no unique non-ID column
+	 * then use the second column (because this is often a good thing to do).
+	 * Unless there's only one column; then, just use that.
+	 *
+	 * @return Column
+	 */
+	public function get_title_column() {
+		// Try to get the first non-PK unique key
+		foreach ( $this->get_columns() as $column ) {
+			if ( $column->is_unique_key() && !$column->is_primary_key() ) {
+				return $column;
+			}
+		}
+		// But if that fails, just use the second (or the first) column.
+		$columnIndices = array_keys( $this->columns );
+		if ( isset( $columnIndices[1] ) ) {
+			$titleColName = $columnIndices[1];
+		} else {
+			$titleColName = $columnIndices[0];
+		}
+		//$titleColName = Arr::get($columnIndices, 1, Arr::get($columnIndices, 0, 'id'));
+		return $this->columns[$titleColName];
+	}
+
+	/**
+	 * Get the SQL statement used to create this table, as given by the 'SHOW
+	 * CREATE TABLE' command.
+	 *
+	 * @return string The SQL statement used to create this table.
+	 */
+	public function get_defining_sql() {
+		if ( !isset( $this->defining_sql ) ) {
+			$defining_sql = $this->database->get_wpdb()->get_row( "SHOW CREATE TABLE `$this->name`" );
+			if ( isset( $defining_sql->{'Create Table'} ) ) {
+				$defining_sql = $defining_sql->{'Create Table'};
+			} elseif ( isset( $defining_sql->{'Create View'} ) ) {
+				$defining_sql = $defining_sql->{'Create View'};
+			} else {
+				throw new \Exception( 'Table or view not found: ' . $this->name );
+			}
+			$this->defining_sql = $defining_sql;
+		}
+		return $this->defining_sql;
+	}
+
+	/**
+	 * Get this table's Primary Key column.
+	 *
+	 * @return Column The PK column.
+	 */
+	public function get_pk_column() {
+		foreach ( $this->get_columns() as $column ) {
+			if ( $column->is_primary_key() ) {
+				return $column;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Get a list of this table's foreign keys and the tables to which they refer.
+	 * This does <em>not</em> take into account a user's permissions (i.e. the
+	 * name of a table which the user is not allowed to read may be returned).
+	 *
+	 * @return array[string => string] The list of <code>column_name => table_name</code> pairs.
+	 */
+	public function get_referenced_tables($instantiate = false) {
+
+		// Extract the FK info from the CREATE TABLE statement.
+		if ( !is_array( $this->referenced_tables ) ) {
+			$this->referenced_table_names = array();
+			$definingSql = $this->get_defining_sql();
+			$foreignKeyPattern = '|FOREIGN KEY \(`(.*?)`\) REFERENCES `(.*?)`|';
+			preg_match_all( $foreignKeyPattern, $definingSql, $matches );
+			if ( isset( $matches[1] ) && count( $matches[1] ) > 0 ) {
+				foreach ( array_combine( $matches[1], $matches[2] ) as $colName => $tabName ) {
+					$this->referenced_table_names[$colName] = $tabName;
+				}
+			}
+		}
+
+		if ( $instantiate ) {
+			$this->referenced_tables = array();
+			foreach ( $this->referenced_table_names as $refCol => $refTab ) {
+				$this->referenced_tables[$refCol] = $this->get_database()->getTable( $refTab );
+			}
+		}
+
+		return ($instantiate) ? $this->referenced_tables : $this->referenced_table_names;
+	}
+
+	/**
+	 * Get tables with foreign keys referring here.
+	 *
+	 * @return array|Table
+	 */
+	public function get_referencing_tables() {
+		$out = array();
+		// For all tables in the Database...
+		foreach ( $this->get_database()->getTables() as $table ) {
+			// ...get a list of the tables they reference.
+			$foreignTables = $table->get_referenced_tables();
+			foreach ( $foreignTables as $foreignColumn => $referenced_table_name ) {
+				// If this table is a referenced table, collect the table from which it's referenced.
+				if ( $referenced_table_name == $this->getName() ) {
+					$out[] = $table; //array('table' => $table, 'column' => $foreign_column);
+				}
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Get a list of the names of the foreign keys in this table.
+	 *
+	 * @return array[string] Names of foreign key columns in this table.
+	 */
+	public function get_foreign_key_names() {
+		return array_keys( $this->get_referenced_tables( false ) );
+	}
+
+	/**
+	 * Get the database to which this table belongs.
+	 *
+	 * @return Database The database object.
+	 */
+	public function get_database() {
+		return $this->database;
+	}
+
+	/**
+	 * Get a string representation of this table; a succinct summary of its
+	 * columns and their types, keys, etc.
+	 *
+	 * @return string A summary of this table.
+	 */
+	public function __toString() {
+		$colCount = count( $this->getColumns() );
+		$out = "\n+-----------------------------------------+\n";
+		$out .= "| " . $this->name . " ($colCount columns)\n";
+		$out .= "+-----------------------------------------+\n";
+		foreach ( $this->getColumns() as $column ) {
+			$out .= "| $column \n";
+		}
+		$out .= "+-----------------------------------------+\n\n";
+		return $out;
+	}
+
+	/**
+	 * Get an XML representation of the structure of this table.
+	 *
+	 * @return DOMElement The XML 'table' node.
+	 */
+	public function to_xml() {
+		$dom = new DOMDocument( '1.0', 'UTF-8' );
+		$table = $dom->createElement( 'table' );
+		$dom->appendChild( $table );
+		$name = $dom->createElement( 'name' );
+		$name->appendChild( $dom->createTextNode( $this->name ) );
+		$table->appendChild( $name );
+		foreach ( $this->get_columns() as $column ) {
+			$table->appendChild( $dom->importNode( $column->toXml(), true ) );
+		}
+		return $table;
+	}
+
+	/**
+	 * Get a JSON representation of the structure of this table.
+	 *
+	 * @return string
+	 */
+	public function to_json() {
+		$json = new Services_JSON();
+		$metadata = array();
+		foreach ( $this->getColumns() as $column ) {
+			$metadata[] = array(
+				'name' => $column->getName()
+			);
+		}
+		return $json->encode( $metadata );
+	}
+
+	/**
+	 * Remove all filters.
+	 *
+	 * @return void
+	 */
+	public function reset_filters() {
+		$this->filters = array();
+		$this->recordCount = false;
+	}
+
+	public function delete_record($primaryKeyValue) {
+		$sql = "DELETE FROM `" . $this->get_name() . "` "
+				. "WHERE `" . $this->get_pk_column()->get_name() . "` = :primaryKeyValue";
+		$data = array( 'primaryKeyValue' => $primaryKeyValue );
+		return $this->database->get_wpdb()->query( $sql, $data );
+	}
+
+	/**
+	 * Save data to this table.  If the 'id' key of the data array is numeric,
+	 * the row with that ID will be updated; otherwise, a new row will be
+	 * inserted.
+	 *
+	 * @param array  $data  The data to insert; if 'id' is set, update.
+	 * @return int          The ID of the updated or inserted row.
+	 */
+	public function save_record($data, $primaryKeyValue = null) {
+
+		$columns = $this->get_columns();
+
+		/*
+		 * Go through all data and clean it up before saving.
+		 */
+		foreach ( $data as $field => $value ) {
+			// Make sure this column exists in the DB.
+			if ( !isset( $columns[$field] ) ) {
+				unset( $data[$field] );
+				continue;
+			}
+			$column = $columns[$field];
+
+			// Boolean values.
+			if ( $column->is_boolean() ) {
+				$zeroValues = array( 0, '0', false, 'false', 'FALSE', 'off', 'OFF', 'no', 'NO' );
+				if ( ($value === null || $value === '') && $column->is_null() ) {
+					$data[$field] = null;
+				} elseif ( in_array( $value, $zeroValues, true ) ) {
+					$data[$field] = false;
+				} else {
+					$data[$field] = true;
+				}
+			}
+
+			// Empty strings.
+			if ( !$column->allowsEmptyString() && $value === '' && $column->isNull() ) {
+				$data[$field] = null;
+			}
+		}
+
+		// Update?
+		$primaryKeyName = $this->get_pk_column()->getName();
+		if ( $primaryKeyValue ) {
+			$pairs = array();
+			foreach ( $data as $col => $val ) {
+				$pairs[] = "`$col` = :$col";
+			}
+			$sql = "UPDATE " . $this->getName() . " SET " . join( ', ', $pairs )
+					. " WHERE `$primaryKeyName` = :primaryKeyValue";
+			$data['primaryKeyValue'] = $primaryKeyValue;
+			$this->database->query( $sql, $data );
+			$newPkValue = (isset( $data[$primaryKeyName])) ? $data[$primaryKeyName] : $primaryKeyValue;
+		} // Or insert?
+		else {
+			// Prevent PK from being empty.
+			if ( empty( $data[$primaryKeyName] ) ) {
+				unset( $data[$primaryKeyName] );
+			}
+			$sql = "INSERT INTO " . $this->getName()
+					. "\n( `" . join( "`, `", array_keys( $data ) ) . "` ) VALUES "
+					. "\n( :" . join( ", :", array_keys( $data ) ) . " )";
+			$this->database->query( $sql, $data );
+			$newPkValue = $this->database->lastInsertId();
+			if ( !$newPkValue ) {
+				$row = $this->getRecord( $data[$primaryKeyName] );
+				$newPkValue = $row->$primaryKeyName();
+			}
+		}
+		return $newPkValue;
+	}
+
+	public function get_url($action = 'index') {
+		$params = array(
+			'page' => 'tabulate',
+			'controller' => 'table',
+			'action' => $action,
+			'table' => $this->get_name(),
+		);
+		return admin_url( 'admin.php?' . http_build_query( $params ) );
+	}
+
+}
