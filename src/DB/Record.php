@@ -74,7 +74,7 @@ class Record {
 	 */
 	public function get_primary_key() {
 		$pk_col_name = $this->table->get_pk_column()->get_name();
-		return $this->data->$pk_col_name;
+		return (isset($this->data->$pk_col_name)) ? $this->data->$pk_col_name : null;
 	}
 
 	public function get_title() {
