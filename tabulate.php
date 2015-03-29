@@ -8,7 +8,7 @@
  * Author URI: http://samwilson.id.au/
  * License: GPL-2.0+
  */
-define('TABULATE_VERSION', '0.0.1');
+define('TABULATE_VERSION', '0.0.2');
 
 // Make sure Composer has been set up (for installation from Git, mostly).
 if ( !file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
