@@ -25,9 +25,9 @@ class Template {
 	 * @param string $message The message to display.
 	 */
 	public function add_notice($type, $message) {
-		$this->data[ 'notices' ][] = array(
+		$this->data['notices'][] = array(
 			'type' => $type,
-			'message' => $message
+			'message' => $message,
 		);
 	}
 
@@ -36,18 +36,18 @@ class Template {
 		$twig = new \Twig_Environment( $loader );
 
 		// Add titlecase filter.
-		$titlecase_filter = new \Twig_SimpleFilter('titlecase', '\\WordPress\\Tabulate\\Text::titlecase' );
-		$twig->addFilter($titlecase_filter);
+		$titlecase_filter = new \Twig_SimpleFilter( 'titlecase', '\\WordPress\\Tabulate\\Text::titlecase' );
+		$twig->addFilter( $titlecase_filter );
 
 		// Add strtolower filter.
-		$strtolower_filter = new \Twig_SimpleFilter('strtolower', function( $str ){
-			if (is_array($str)) {
+		$strtolower_filter = new \Twig_SimpleFilter( 'strtolower', function( $str ){
+			if ( is_array( $str ) ) {
 				return array_map( 'strtolower', $str );
 			} else {
 				return strtolower( $str );
 			}
 		} );
-		$twig->addFilter($strtolower_filter);
+		$twig->addFilter( $strtolower_filter );
 
 		// Enable debugging.
 		if ( WP_DEBUG ) {
