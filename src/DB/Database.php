@@ -7,6 +7,9 @@ class Database {
 	/** @var wpdb */
 	protected $wpdb;
 
+	/** @var array|string */
+	protected $table_names;
+
 	/** @var Table|array */
 	protected $tables;
 
@@ -22,13 +25,20 @@ class Database {
 	}
 
 	public function get_table_names() {
-		return $this->wpdb->get_col('SHOW TABLES');
+		if ( !$this->table_names ) {
+			$this->table_names = $this->wpdb->get_col( 'SHOW TABLES' );
+		}
+		return $this->table_names;
 	}
 
 	public function get_table($name) {
 		if ( !isset( $this->tables[ $name ] ) ) {
 			$table = new Table($this, $name);
-			$this->tables[ $name ] = $table;
+			if ($table->current_user_can( Grants::READ )) {
+				$this->tables[ $name ] = $table;
+			} else {
+				return false;
+			}
 		}
 		return $this->tables[ $name ];
 	}
@@ -42,6 +52,10 @@ class Database {
 		$out = array();
 		foreach ($this->get_table_names() as $name) {
 			$table = $this->get_table( $name );
+			// If this table is not available, skip it.
+			if ( !$table ) {
+				continue;
+			}
 			if ($exclude_views && $table->get_type()==Table::TYPE_VIEW) {
 				continue;
 			}

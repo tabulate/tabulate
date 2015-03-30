@@ -35,6 +35,20 @@ class Template {
 		$loader = new \Twig_Loader_Filesystem( __DIR__ . '/../templates' );
 		$twig = new \Twig_Environment( $loader );
 
+		// Add titlecase filter.
+		$titlecase_filter = new \Twig_SimpleFilter('titlecase', '\\WordPress\\Tabulate\\Text::titlecase' );
+		$twig->addFilter($titlecase_filter);
+
+		// Add strtolower filter.
+		$strtolower_filter = new \Twig_SimpleFilter('strtolower', function( $str ){
+			if (is_array($str)) {
+				return array_map( 'strtolower', $str );
+			} else {
+				return strtolower( $str );
+			}
+		} );
+		$twig->addFilter($strtolower_filter);
+
 		// Enable debugging.
 		if ( WP_DEBUG ) {
 			$twig->enableDebug();

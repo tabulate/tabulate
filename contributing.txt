@@ -2,7 +2,7 @@
 
 This file is for any notes aimed at developers of Tabulate.
 
-== Revision Control ==
+== Revision control ==
 
 We develop in Git, using Github at https://github.com/tabulate/tabulate
 
@@ -17,3 +17,16 @@ Tabulate follows the Semantic Versioning guidelines: http://semver.org/
 The version number is hard-coded at two places in `tabulate.php`. It would also
 be in `readme.txt` but trunk is stable so there's no need to specify a stable
 tag.
+
+== Ideas for future development ==
+
+Some possibilities:
+
+* Map display, where there is spacial data in a table.
+* An audit trail, logging all modifications.
+* File storage, for blob types.
+* Bulk changes, for modifying filtered data.
+* CSV import and export.
+* Calendar dispaly, where date fields exist.
+* LaTeX output.
+* Tree/hierarchy display, for self-referencing foreign keys.

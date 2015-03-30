@@ -820,4 +820,9 @@ class Table {
 		return admin_url( 'admin.php?' . http_build_query( $params ) );
 	}
 
+	public function current_user_can( $cap ) {
+		$capability = TABULATE_SLUG . '_' . $cap;
+		return current_user_can( $capability, $this->get_name() );
+	}
+
 }

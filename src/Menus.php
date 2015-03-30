@@ -6,8 +6,6 @@ class Menus {
 
 	protected $wpdb;
 
-	const HOME_SLUG = 'tabulate';
-
 	public function __construct($wpdb) {
 		$this->wpdb = $wpdb;
 	}
@@ -17,21 +15,24 @@ class Menus {
 	}
 
 	public function add_menu_pages() {
-		$page_hook_suffix = add_menu_page( 'Tabulate', 'Tabulate', 'read', self::HOME_SLUG, array( $this, 'dispatch' ), null, 20 );
+		$page_hook_suffix = add_menu_page( 'Tabulate', 'Tabulate', 'read', TABULATE_SLUG, array( $this, 'dispatch' ), null, 20 );
 
-		// Add scripts.
+		// Add scripts and styles.
 		add_action( "admin_print_scripts-$page_hook_suffix", function() {
 
 			// Scripts.
-			$script_url = plugins_url( 'tabulate' ) . '/assets/scripts.js';
+			$script_url = plugins_url( TABULATE_SLUG ) . '/assets/scripts.js';
 			wp_enqueue_script( 'tabulate-scripts', $script_url );
 
 			// Styles.
-			$style_url = plugins_url( 'tabulate' ) . '/assets/style.css';
+			$style_url = plugins_url( TABULATE_SLUG ) . '/assets/style.css';
 			wp_enqueue_style( 'tabulate-styles', $style_url );
 		} );
 
 		// Add submenu pages.
+		$grantsPage = TABULATE_SLUG . '&controller=grants&action=index';
+		add_submenu_page(TABULATE_SLUG, 'Grants', 'Grants', 'promote_users', $grantsPage, 'nop');
+
 //		$db = new DB\Database( $this->wpdb );
 //		foreach ( $db->get_table_names() as $table ) {
 //			// The submenu adding is a bit odd, and should be explained.

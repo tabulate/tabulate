@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Grants</h2>
+
+<p>Here you can grant access to the database to members of any Roles.</p>
+
+<form action="{{form_action}}" method="post" class="tabulate-grants">
+	<table class="widefat">
+		<thead>
+			<tr>
+				<th>Table Name</th>
+				{% for role in roles %}
+				<th>{{role|titlecase}}</th>
+				{% endfor %}
+			</tr>
+		</thead>
+		<tbody>
+			{% for table in tables %}
+			<tr>
+				<th>{{table|titlecase}}</th>
+				{% for role in roles %}
+				<td>
+					{% for cap in capabilities %}
+						<label class="checkbox">
+							<input type="checkbox" name="{{table}}[{{cap}}][{{role}}]"
+								   {% if role|strtolower in attribute( attribute(grants, table), cap )|strtolower %}
+								   checked
+								   {% endif %}
+								   value="1" />{{cap|titlecase}}
+						</label>
+					{% endfor %}
+				</td>
+				{% endfor %}
+			</tr>
+			{% endfor %}
+		<tbody>
+	</table>
+	<p><input type="submit" name="save" value="Save" /></p>
+</form>
+
+{% endblock %}
