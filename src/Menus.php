@@ -18,32 +18,28 @@ class Menus {
 		$dispatch_callback = array( $this, 'dispatch' );
 
 		// Home page.
-		$page_hook_suffix = add_menu_page( 'Tabulate', 'Tabulate', 'read', TABULATE_SLUG, $dispatch_callback );
-		add_submenu_page(TABULATE_SLUG, 'Tabulate Overview', 'Overview', 'read', TABULATE_SLUG, $dispatch_callback );
-
-		// Add scripts and styles.
-		add_action( "admin_print_scripts-$page_hook_suffix", function() {
-
-			// Scripts.
-			$script_url = plugins_url( TABULATE_SLUG ) . '/assets/scripts.js';
-			wp_enqueue_script( 'tabulate-scripts', $script_url );
-
-			// Styles.
-			$style_url = plugins_url( TABULATE_SLUG ) . '/assets/style.css';
-			wp_enqueue_style( 'tabulate-styles', $style_url );
-		} );
+		$hook_suffix = add_menu_page( 'Tabulate', 'Tabulate', 'read', TABULATE_SLUG, $dispatch_callback );
+		add_submenu_page( TABULATE_SLUG, 'Tabulate Overview', 'Overview', 'read', TABULATE_SLUG, $dispatch_callback );
+		add_action( "admin_print_scripts-$hook_suffix", array( $this, 'admin_print_scripts' ) );
 
 		// Add submenu pages.
-		$grantsPage = TABULATE_SLUG . '&controller=grants&action=index';
-		add_submenu_page(TABULATE_SLUG, 'Tabulate Grants', 'Grants', 'promote_users', TABULATE_SLUG.'_grants', $dispatch_callback );
+		$hook_suffix = add_submenu_page( TABULATE_SLUG, 'Tabulate Grants', 'Grants', 'promote_users', TABULATE_SLUG.'_grants', $dispatch_callback );
+		add_action( "admin_print_scripts-$hook_suffix", array( $this, 'admin_print_scripts' ) );
 
-//		$db = new DB\Database( $this->wpdb );
-//		foreach ( $db->get_table_names() as $table ) {
-//			// The submenu adding is a bit odd, and should be explained.
-//			$title = Text::titlecase( $table );
-//			$slug = self::HOME_SLUG . '&controller=table&action=index&table=' . $table;
-//			add_submenu_page( self::HOME_SLUG, $title, $title, 'read', $slug, 'nop' );
-//		}
+	}
+
+	/**
+	 * This is the callback method used in self::add_menu_pages to add scripts
+	 * and styles to the admin pages.
+	 */
+	public function admin_print_scripts() {
+		// Scripts.
+		$script_url = plugins_url( TABULATE_SLUG ) . '/assets/scripts.js';
+		wp_enqueue_script( 'tabulate-scripts', $script_url );
+
+		// Styles.
+		$style_url = plugins_url( TABULATE_SLUG ) . '/assets/style.css';
+		wp_enqueue_style( 'tabulate-styles', $style_url );
 	}
 
 	/**

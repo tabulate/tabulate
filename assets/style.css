@@ -3,3 +3,9 @@
 form.tabulate-filters td.label { text-align:right }
 
 form.tabulate-grants label.checkbox { white-space:nowrap; display:inline-block; width:45% }
+
+form.tabulate-grants tr.select-all td,
+form.tabulate-grants td.select-all { border:1px solid #e1e1e1; background-color:#efffef; font-style:italic }
+form.tabulate-grants tr.select-all td { border-width:0 0 1px 0 }
+form.tabulate-grants td.select-all { border-width:0 1px }
+form.tabulate-grants tr.select-all td.label { border-width:0 0 0 1px; vertical-align:middle; text-align:center; font-size:larger }

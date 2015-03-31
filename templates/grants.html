@@ -10,26 +10,38 @@
 		<thead>
 			<tr>
 				<th>Table Name</th>
+				<th></th>
 				{% for role in roles %}
 				<th>{{role|titlecase}}</th>
 				{% endfor %}
 			</tr>
 		</thead>
 		<tbody>
+			<tr class="select-all">
+				<th></th>
+				<td class="label">Select all</td>
+				{% for role in roles %}
+				<td class="target"></td>
+				{% endfor %}
+			</tr>
 			{% for table in tables %}
 			<tr>
 				<th>{{table|titlecase}}</th>
+				<td class="select-all"></td>
 				{% for role in roles %}
-				<td>
+				<td class="capabilities">
+					<div data-role="{{role}}">
 					{% for cap in capabilities %}
 						<label class="checkbox">
 							<input type="checkbox" name="{{table}}[{{cap}}][{{role}}]"
 								   {% if role|strtolower in attribute( attribute(grants, table), cap )|strtolower %}
 								   checked
 								   {% endif %}
-								   value="1" />{{cap|titlecase}}
+								   data-capability="{{cap}}" value="1" />
+								{{cap|titlecase}}
 						</label>
 					{% endfor %}
+					</div>
 				</td>
 				{% endfor %}
 			</tr>

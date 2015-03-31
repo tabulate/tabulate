@@ -1,4 +1,4 @@
-=== Plugin Name ===
+=== Tabulate ===
 Contributors: samwilson
 Donate link: https://www.bushheritage.org.au/donatenow
 Tags: mysql, databases, tables, data, crud
