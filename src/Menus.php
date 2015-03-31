@@ -15,7 +15,11 @@ class Menus {
 	}
 
 	public function add_menu_pages() {
-		$page_hook_suffix = add_menu_page( 'Tabulate', 'Tabulate', 'read', TABULATE_SLUG, array( $this, 'dispatch' ), null, 20 );
+		$dispatch_callback = array( $this, 'dispatch' );
+
+		// Home page.
+		$page_hook_suffix = add_menu_page( 'Tabulate', 'Tabulate', 'read', TABULATE_SLUG, $dispatch_callback );
+		add_submenu_page(TABULATE_SLUG, 'Tabulate Overview', 'Overview', 'read', TABULATE_SLUG, $dispatch_callback );
 
 		// Add scripts and styles.
 		add_action( "admin_print_scripts-$page_hook_suffix", function() {
@@ -31,7 +35,7 @@ class Menus {
 
 		// Add submenu pages.
 		$grantsPage = TABULATE_SLUG . '&controller=grants&action=index';
-		add_submenu_page(TABULATE_SLUG, 'Grants', 'Grants', 'promote_users', $grantsPage, 'nop');
+		add_submenu_page(TABULATE_SLUG, 'Tabulate Grants', 'Grants', 'promote_users', TABULATE_SLUG.'_grants', $dispatch_callback );
 
 //		$db = new DB\Database( $this->wpdb );
 //		foreach ( $db->get_table_names() as $table ) {
@@ -46,7 +50,17 @@ class Menus {
 	 * Create and dispatch the controller.
 	 */
 	public function dispatch() {
-		$controllerName = (isset( $_GET['controller'] )) ? $_GET['controller'] : 'home';
+
+		// Discern the controller name, based on an explicit GET parameter, or
+		// the trailing part of the page slug (i.e. after 'tabulate_').
+		$controllerName = 'home';
+		if ( isset( $_GET['controller'] ) ) {
+			$controllerName = $_GET['controller'];
+		} elseif ( strlen( $_GET['page'] ) > strlen( TABULATE_SLUG ) ) {
+			$controllerName = substr($_GET['page'], strlen( TABULATE_SLUG ) + 1 );
+		}
+
+		// Create the controller and run the action.
 		$controllerClassName = 'WordPress\\Tabulate\\Controllers\\' . ucfirst( $controllerName ) . 'Controller';
 		$controller = new $controllerClassName( $this->wpdb );
 		$action = isset( $_GET['action'] ) ? $_GET['action'] : 'index';

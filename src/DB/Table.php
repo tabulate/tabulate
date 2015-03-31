@@ -629,8 +629,8 @@ class Table {
 
 		if ( $instantiate ) {
 			$this->referenced_tables = array();
-			foreach ( $this->referenced_table_names as $refCol => $refTab ) {
-				$this->referenced_tables[$refCol] = $this->get_database()->getTable( $refTab );
+			foreach ( $this->referenced_table_names as $refCol => $ref_tab ) {
+				$this->referenced_tables[$refCol] = $this->get_database()->get_table( $ref_tab );
 			}
 		}
 
@@ -645,12 +645,12 @@ class Table {
 	public function get_referencing_tables() {
 		$out = array();
 		// For all tables in the Database...
-		foreach ( $this->get_database()->getTables() as $table ) {
+		foreach ( $this->get_database()->get_tables() as $table ) {
 			// ...get a list of the tables they reference.
 			$foreignTables = $table->get_referenced_tables();
-			foreach ( $foreignTables as $foreignColumn => $referenced_table_name ) {
+			foreach ( $foreignTables as $foreign_column => $referenced_table_name ) {
 				// If this table is a referenced table, collect the table from which it's referenced.
-				if ( $referenced_table_name == $this->getName() ) {
+				if ( $referenced_table_name == $this->get_name() ) {
 					$out[] = $table; //array('table' => $table, 'column' => $foreign_column);
 				}
 			}

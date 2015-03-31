@@ -90,7 +90,7 @@
 					<input type="submit" value="Save" class="button success" />
 					<!--<a href="{{table.get_url}}" class="button" title="Return to search">Cancel</a>-->
 					{% if record %}
-					<input type="hidden" name="primary_key_value" value="{{record.getPrimaryKey}}" />
+					<input type="hidden" name="primary_key_value" value="{{record.get_primary_key}}" />
 					<a href="{{record.get_url('delete')}}" class="button alert" title="Delete this record">Delete</a>
 					{% endif %}
 				</p>
@@ -99,10 +99,10 @@
 	</table>
 </form>
 
-{% for refTab in table.referencingTables %}
+{% for reftab in table.get_referencing_tables %}
 
 <div class="referencing-table">
-<h2>{{ refTab.name }}</h2>
+<h2>{{ reftab.get_name }}</h2>
 
 {{refTab.countRecords}}
 
