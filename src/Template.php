@@ -20,6 +20,16 @@ class Template {
 	}
 
 	/**
+	 * Get an item from this template's data.
+	 *
+	 * @param string $name
+	 * @return mixed
+	 */
+	public function __get($name) {
+		return $this->data[ $name ];
+	}
+
+	/**
 	 * Add a notice.
 	 * @param string $type Either 'updated' or 'error'.
 	 * @param string $message The message to display.

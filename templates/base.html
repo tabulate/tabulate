@@ -1,12 +1,6 @@
 <div class="tabulate wrap">
 
-	<h1>
-		Tabulate
-		<a href="https://github.com/tabulate/tabulate/issues" class="add-new-h2"
-		   title="Let the authors of Tabulate know that something is wrong" target="_blank">
-			<em>Report an issue</em>
-		</a>
-	</h1>
+	<h1>Tabulate</h1>
 
 	{% for notice in notices %}
 	<div class="{{notice.type}} notice"><p>{{notice.message}}</p></div>
@@ -21,8 +15,8 @@
 		<a href="{{table.get_default_record.get_url}}" class="nav-tab {% if controller=='record' %}nav-tab-active{% endif %}">
 			{% if record.get_primary_key %}Edit{% else %}Create{% endif %}
 		</a>
-		<a href="{{table.get_url('export')}}" class="nav-tab {% if controller=='export' %}nav-tab-active{% endif %}">
-			Export
+		<a href="{{table.get_url('import')}}" class="nav-tab {% if action=='import' %}nav-tab-active{% endif %}">
+			Import
 		</a>
 	</h3>
 	{% endif %}
@@ -31,6 +25,15 @@
 
 	<div class="footer">
 		<hr />
-		<p>This is <a href="https://wordpress.org/plugins/tabulate/">Tabulate {{tabulate_version}}</a>.</p>
+		<p>
+			<a href="https://wordpress.org/plugins/tabulate/" class="button button-small"
+			   title="Go to the Tabulate website (opens in a new tab)" target="_blank">
+				This is <strong>Tabulate {{tabulate_version}}</strong>
+			</a>
+			<a href="https://github.com/tabulate/tabulate/issues" class="button button-small"
+			   title="Let the authors of Tabulate know that something is wrong (opens in a new tab)" target="_blank">
+				Report an issue
+			</a>
+		</p>
 	</div>
 </div>

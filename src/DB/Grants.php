@@ -12,9 +12,10 @@ class Grants {
 	const CREATE = 'create';
 	const UPDATE = 'update';
 	const DELETE = 'delete';
-	
+	const IMPORT = 'import';
+
 	private $option_name;
-	
+
 	public function __construct() {
 		$this->option_name = TABULATE_SLUG . '_grants';
 		add_option( $this->option_name, '', null, false );
@@ -26,6 +27,7 @@ class Grants {
 			self::CREATE,
 			self::UPDATE,
 			self::DELETE,
+			self::IMPORT,
 		);
 	}
 

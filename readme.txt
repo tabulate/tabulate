@@ -1,7 +1,7 @@
 === Tabulate ===
 Contributors: samwilson
 Donate link: https://www.bushheritage.org.au/donatenow
-Tags: mysql, databases, tables, data, crud
+Tags: MySQL, databases, tables, data, CRUD, importing, CSV
 Requires at least: 4.1
 Tested up to: 4.1.1
 Stable tag: trunk
@@ -16,9 +16,12 @@ Somewhat akin to phpMyAdmin, but including only data-modification features.
 This plugin provides a simple user-friendly interface to tables in the database.
 Somewhat akin to phpMyAdmin, but including only data-modification features.
 
-Access can be granted to *read*, *create*, *update*, and *delete* records in
-any or all tables. (This can be done by anyone with the `promote_users`
-capability.)
+Access can be granted to *read*, *create*, *update*, *delete*, and *import*
+records in any or all tables. (This can be done by anyone with the
+`promote_users` capability.)
+
+CSV data can be imported, with the UI supporting column mapping, data
+validation, and previewing prior to final import.
 
 == Installation ==
 
@@ -33,12 +36,15 @@ tracker: https://github.com/tabulate/tabulate/issues
 
 = What modifications does Tabulate make to the database? =
 
-None. Some options are created, all prefixed with `tabulate_`. These store the
-granted permissions.
+None. Some [options](http://codex.wordpress.org/Option_Reference) are created,
+all prefixed with `tabulate_`. These store the granted permissions (one per
+Tabulate grant; i.e. five so far).
 
 == Screenshots ==
 
 1. The main screen of a single table, with provision for searching and navigating.
+2. The permission-granting interface. All roles are shown across the top, and
+   all tables down the left side.
 
 == Changelog ==
 
