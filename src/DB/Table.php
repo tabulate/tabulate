@@ -61,6 +61,12 @@ class Table {
 	);
 
 	/**
+	 * @var string|false The name of the column by which to order, or false if
+	 * no column has been set.
+	 */
+	protected $order_by = false;
+
+	/**
 	 * @var integer|false The number of currently-filtered rows, or false if no
 	 * query has been made yet or the filters have been reset.
 	 */
@@ -194,16 +200,22 @@ class Table {
 		return $params;
 	}
 
+	/**
+	 * Get the name of the column by which this table should be ordered.
+	 *
+	 * There is no default for this, as some orderings can result in quite slow
+	 * queries and it's best to let the user request this. It used to order by
+	 * the title column by default.
+	 *
+	 * @return string
+	 */
 	public function get_order_by() {
-		if ( empty( $this->orderby ) ) {
-			$this->orderby = $this->get_title_column()->get_name();
-		}
-		return $this->orderby;
+		return $this->order_by;
 	}
 
-	public function set_order_by($orderby) {
-		if ( in_array( $orderby, array_keys( $this->columns ) ) ) {
-			$this->orderby = $orderby;
+	public function set_order_by($order_by) {
+		if ( in_array( $order_by, array_keys( $this->columns ) ) ) {
+			$this->order_by = $order_by;
 		}
 	}
 
@@ -270,13 +282,14 @@ class Table {
 			$columns[] = "`$this->name`.`$col`";
 		}
 
-		// Ordering
-		$order_by_join = $this->join_on( $this->get_column( $this->get_order_by() ) );
+		// Build basic SELECT statement.
+		$sql = 'SELECT ' . join( ',', $columns ) . ' FROM `' . $this->get_name() . '`';
 
-		// Build basic SELECT statement
-		$sql = 'SELECT ' . join( ',', $columns ) . ' '
-				. 'FROM `' . $this->get_name() . '` ' . $order_by_join['join_clause'] . ' '
-				. 'ORDER BY ' . $order_by_join['column_alias'] . ' ' . $this->get_order_dir();
+		// Ordering.
+		if ($this->get_order_by()) {
+			$order_by_join = $this->join_on( $this->get_column( $this->get_order_by() ) );
+			$sql .= $order_by_join['join_clause'] . ' ORDER BY ' . $order_by_join['column_alias'] . ' ' . $this->get_order_dir();
+		}
 
 		$params = $this->apply_filters( $sql );
 
@@ -651,7 +664,7 @@ class Table {
 			foreach ( $foreignTables as $foreign_column => $referenced_table_name ) {
 				// If this table is a referenced table, collect the table from which it's referenced.
 				if ( $referenced_table_name == $this->get_name() ) {
-					$out[] = $table; //array('table' => $table, 'column' => $foreign_column);
+					$out[$foreign_column] = $table; //array('table' => $table, 'column' => $foreign_column);
 				}
 			}
 		}

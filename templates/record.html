@@ -99,18 +99,18 @@
 	</table>
 </form>
 
-{% for reftab in table.get_referencing_tables %}
+{% if table.get_referencing_tables %}
+<p>Tables that refer to this table:</p>
+<ul class="referencing-tables">
 
-<div class="referencing-table">
-<h2>{{ reftab.get_name }}</h2>
+	{% for refcol,reftab in table.get_referencing_tables %}
+	<li>
+		<a href="{{reftab.get_url}}">{{reftab.get_title}}</a>
+		(as <em>{{refcol|titlecase}}</em>)
+	</li>
+	{% endfor %}
 
-{{refTab.countRecords}}
-
-{% if refTab.countRecords < 10 %}
+</ul><!-- .referencing-tables -->
 {% endif %}
-
-
-</div><!-- .referencing-table -->
-{% endfor %}
 
 {% endblock %}

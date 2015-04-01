@@ -20,7 +20,7 @@
 				<input class='current-page' id='current-page-selector' title='Current page'
 					   type='text' name='paged' value='{{table.get_current_page_num}}' size='1' />
 				of
-				<span class='total-pages'>{{table.get_page_count}}</span>
+				<span class='total-pages'>{{table.get_page_count|number_format}}</span> pages
 			</span>
 			<a class='next-page {%if table.get_current_page_num == table.get_page_count%}disabled{% endif %}'
 			   title='Go to the next page' href='{{table.get_url}}&p={{table.get_current_page_num + 1}}'>

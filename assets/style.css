@@ -1,5 +1,7 @@
 .tabulate .about-wrap h2 {  }
 
+.tabulate.wrap .footer {  }
+
 form.tabulate-filters td.label { text-align:right }
 
 form.tabulate-grants label.checkbox { white-space:nowrap; display:inline-block; width:45% }
