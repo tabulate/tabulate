@@ -1,0 +1,143 @@
+{%extends "base.html"%}
+
+{% block content %}
+<div class="import">
+
+<dl class="stages">
+	<dt>Progress:</dt>
+	{% set class = 'completed' %}
+	{% for sid,s in stages %}
+		{% if stage==s %}
+			{% set class = '' %}
+			<dd class="selected"><strong>{{sid + 1}}: {{s|titlecase}}</strong></dd>
+		{% else %}
+			<dd class="{{class}}">{{sid + 1}}: {{s|titlecase}}</dd>
+		{% endif %}
+	{% endfor %}
+</dl>
+
+
+
+
+
+<!-- Stage 1: Choose File -------------------------------------------------- -->
+{% if stage == 'choose_file' %}
+<form action="{{form_action}}" enctype="multipart/form-data" method="post">
+	<fieldset>
+		<p>
+			<label>Choose a CSV file (with column headers) to import:</label><br />
+			<input type="file" name="file" />
+		</p>
+		<p>
+			<input type="hidden" name="action" value="wp_handle_upload" />
+			<input type="submit" name="upload" value="Upload &rarr;" class="button button-primary" />
+		</p>
+	</fieldset>
+</form>
+
+
+
+<!-- Stage 2: Match Fields ------------------------------------------------- -->
+{% elseif stage == 'match_fields' %}
+<form action="{{form_action}}" method="post">
+	<fieldset>
+		<p>
+			Your file contains {{file.row_count|number_format}} rows.
+			<strong>The first row has been skipped</strong>
+			(it should contain column headers).
+		</p>
+		<p>Match up fields in the database with fields in the uploaded file.</p>
+		<table>
+			<thead>
+				<tr>
+					<th>Database</th>
+					<th>Uploaded File</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for column in table.get_columns %}
+				<tr>
+					<td>
+						{{column.get_name|titlecase}}
+						{% if column.is_required and not column.is_auto_increment %}
+						<span class="required">(required)</span>
+						{% endif %}
+					</td>
+					<td>
+						<select name="columns[{{column.get_name}}]">
+							<option></option>
+							{% for header in file.headers %}
+							<option value="{{header|strtolower}}">{{header}}</option>
+							{% endfor %}
+						</select>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		<p><input type="submit" name="preview" value="Preview &rarr;" class="button button-primary" /></p>
+	</fieldset>
+</form>
+
+
+
+<!-- Stage 3: Preview ------------------------------------------------------ -->
+{% elseif stage == 'preview' %}
+<form action="{{form_action}}" method="post">
+	<fieldset>
+		{% if errors %}
+			<p>
+				The following incompatibilities were found in the data.
+				Please correct and import again.
+			</p>
+			<p>
+				The row numbers <em>do not</em> include the header row,
+				and the column numbers start from one.
+			</p>
+			<p>
+				<input type="submit" name="match_fields" value="&larr; Return to field matching" class="button button-primary" />
+				<a href="{{table.get_url('import')}}" class="button button-secondary">Start import again</a>
+			</p>
+			<table class="widefat">
+				<thead>
+					<tr>
+						<th rowspan="2">Row</th>
+						<th>Database Column</th>
+						<th>Uploaded File Column</th>
+						<th>Errors</th>
+					</tr>
+				</thead>
+				<tbody>
+				{% for error in errors %}
+				<tr>
+					<td>{{error.row_number}}</td>
+					<td>{{error.field_name|titlecase}}</td>
+					<td>
+						{% if error.column_name %}
+						Column #{{error.column_number+1}}: {{error.column_name}}
+						{% endif %}
+					</td>
+					<td>
+						{% for message in error.messages %}
+						<span class="error">{{message|raw}}</span><br />
+						{% endfor %}
+					</td>
+				</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		{% else %}
+			<p>All data is valid and ready to import.</p>
+			<p>
+				<input type="hidden" name="columns" value='{{columns}}' >
+				<input type="submit" name="match_fields" value="&larr; Return to field matching" class="button button-secondary" />
+				<input type="submit" name="import" value="Import &rarr;" class="button button-primary" />
+			</p>
+		{% endif %}
+	</fieldset>
+</form>
+
+{% endif %}
+
+</div><!-- .import -->
+{% endblock %}
