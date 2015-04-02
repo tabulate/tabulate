@@ -35,7 +35,12 @@ class Menus {
 	public function admin_print_scripts() {
 		// Scripts.
 		$script_url = plugins_url( TABULATE_SLUG ) . '/assets/scripts.js';
-		wp_enqueue_script( 'tabulate-scripts', $script_url );
+		$deps = array( 'jquery-ui-autocomplete', 'wp-api' );
+		wp_enqueue_script( 'tabulate-scripts', $script_url, $deps );
+		$js_vars = array(
+			'admin_url' => admin_url() . 'admin.php?page=' . TABULATE_SLUG
+		);
+		wp_localize_script( 'tabulate-scripts', 'tabulate', $js_vars );
 
 		// Styles.
 		$style_url = plugins_url( TABULATE_SLUG ) . '/assets/style.css';
@@ -53,7 +58,7 @@ class Menus {
 		if ( isset( $_GET['controller'] ) ) {
 			$controllerName = $_GET['controller'];
 		} elseif ( strlen( $_GET['page'] ) > strlen( TABULATE_SLUG ) ) {
-			$controllerName = substr($_GET['page'], strlen( TABULATE_SLUG ) + 1 );
+			$controllerName = substr( $_GET['page'], strlen( TABULATE_SLUG ) + 1 );
 		}
 
 		// Create the controller and run the action.

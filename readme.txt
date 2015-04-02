@@ -23,9 +23,16 @@ records in any or all tables. (This can be done by anyone with the
 CSV data can be imported, with the UI supporting column mapping, data
 validation, and previewing prior to final import.
 
+A quick-jump navigation box (located top right of every page) can be activated
+by installing the [WP REST API](https://wordpress.org/plugins/json-rest-api/)
+plugin.
+
 == Installation ==
 
 Follow the usual plugin installation procedure.
+
+To get a quick-jump navigation box, also install the
+[WP REST API](https://wordpress.org/plugins/json-rest-api/) plugin.
 
 == Frequently Asked Questions ==
 

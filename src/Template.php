@@ -12,6 +12,7 @@ class Template {
 		$this->data = array(
 			'tabulate_version' => TABULATE_VERSION,
 			'notices' => array(),
+			'wp_api' => is_plugin_active( 'json-rest-api/plugin.php' ),
 		);
 	}
 

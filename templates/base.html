@@ -1,5 +1,9 @@
 <div class="tabulate wrap">
 
+	{% if wp_api %}
+	<p class="quick-jump"><label>Jump to: <input type="text" /></label></p>
+	{% endif %}
+
 	<h1>Tabulate</h1>
 
 	{% for notice in notices %}

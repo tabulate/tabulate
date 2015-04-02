@@ -20,3 +20,5 @@ form.tabulate-grants tr.select-all td.label { border-width:0 0 0 1px; vertical-a
 .tabulate.wrap .import .stages dd.completed { border-bottom:2px solid #CCC; background-color:#EEE; text-decoration:line-through }
 .tabulate.wrap .import .stages dd.selected { border-bottom:2px solid #CCC; background-color:#CCC }
 .tabulate.wrap .import .required { color:#a94442 }
+
+.tabulate.wrap .quick-jump { float:right }

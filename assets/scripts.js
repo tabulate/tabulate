@@ -2,6 +2,22 @@ jQuery(document).ready(function ($) {
 
 
 	/**
+	 * Jump between tables.
+	 */
+	$(".tabulate .quick-jump input").autocomplete({
+		source: WP_API_Settings.root + "/tabulate/tables?_wp_json_nonce=" + WP_API_Settings.nonce,
+		select: function( event, ui ) {
+			event.preventDefault();
+			$(this).prop( "disabled", true );
+			$(".tabulate .quick-jump input").val( ui.item.label );
+			console.log(ui.item.label);
+			var url = tabulate.admin_url + "&controller=table&table=" + ui.item.value;
+			$(location).attr( 'href', url );
+		}
+	});
+
+
+	/**
 	 * Dynamically add new filters.
 	 */
 	var $addFilter = $("<a class='button'>Add new filter</a>");
