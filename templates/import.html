@@ -67,7 +67,11 @@
 						<select name="columns[{{column.get_name}}]">
 							<option></option>
 							{% for header in file.headers %}
-							<option value="{{header|strtolower}}">{{header}}</option>
+							<option value="{{header|strtolower}}"
+									{% if header|strtolower == column.get_title|strtolower %}
+									selected
+									{% endif %}
+									>{{header}}</option>
 							{% endfor %}
 						</select>
 					</td>

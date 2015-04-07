@@ -188,7 +188,6 @@ class CSV {
 	public function import_data($table, $column_map) {
 		$count = 0;
 		$headers = $this->remap( $column_map );
-		var_dump($this->headers);
 		for ( $row_num = 1; $row_num <= $this->row_count(); $row_num++ ) {
 			$row = array();
 			foreach ( $this->data[$row_num] as $col_num => $value ) {
@@ -196,18 +195,24 @@ class CSV {
 					continue;
 				}
 				$db_column_name = $headers[$col_num];
+				$column = $table->get_column( $db_column_name );
 
 				// Get actual foreign key value
-				$column = $table->get_column( $db_column_name );
-				if ( !empty( $value ) AND $column->is_foreign_key() ) {
-					$fk_rows = $this->get_fk_rows( $column->get_referenced_table(), $value );
-					$foreign_row = array_shift( $fk_rows );
-					$value = $foreign_row->get_primary_key();
+				if ( $column->is_foreign_key() ) {
+					if ( empty( $value ) ) {
+						// Ignore empty-string FKs.
+						continue;
+					} else {
+						$fk_rows = $this->get_fk_rows( $column->get_referenced_table(), $value );
+						$foreign_row = array_shift( $fk_rows );
+						$value = $foreign_row->get_primary_key();
+					}
 				}
 
 				// All other values are used as they are
 				$row[$db_column_name] = $value;
 			}
+			var_dump($row);
 			$table->save_record( $row );
 			$count++;
 		}

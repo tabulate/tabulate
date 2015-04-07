@@ -172,7 +172,7 @@ class Column {
 	 * @return boolean True if this column is NOT NULL, false otherwise.
 	 */
 	public function is_required() {
-		return (!$this->nullable());
+		return ( ! $this->nullable() && $this->get_default() == null && ! $this->is_auto_increment() );
 	}
 
 	/**

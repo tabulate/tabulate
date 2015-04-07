@@ -125,7 +125,7 @@ class TableController extends ControllerBase {
 			{
 				// Handle missing columns separately; other column errors are
 				// done in the CSV class.
-				if ( $col->is_required() && ! $col->is_auto_increment() && empty( $_POST['columns'][ $col->get_name() ] ) )
+				if ( $col->is_required() && empty( $_POST['columns'][ $col->get_name() ] ) )
 				{
 					$errors[] = array(
 						'column_name' => '',
