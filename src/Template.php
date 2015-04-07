@@ -7,7 +7,7 @@ class Template {
 	protected $templateName;
 	protected $data;
 
-	public function __construct($templateName) {
+	public function __construct( $templateName ) {
 		$this->templateName = $templateName;
 		$this->data = array(
 			'tabulate_version' => TABULATE_VERSION,
@@ -16,8 +16,18 @@ class Template {
 		);
 	}
 
-	public function __set($name, $value) {
+	public function __set( $name, $value ) {
 		$this->data[ $name ] = $value;
+	}
+
+	/**
+	 * Find out whether a given item of template data is set.
+	 *
+	 * @param string $name The property name.
+	 * @return boolean
+	 */
+	public function __isset( $name ) {
+		return isset( $this->data[ $name ] );
 	}
 
 	/**
@@ -26,7 +36,7 @@ class Template {
 	 * @param string $name
 	 * @return mixed
 	 */
-	public function __get($name) {
+	public function __get( $name ) {
 		return $this->data[ $name ];
 	}
 
@@ -35,7 +45,7 @@ class Template {
 	 * @param string $type Either 'updated' or 'error'.
 	 * @param string $message The message to display.
 	 */
-	public function add_notice($type, $message) {
+	public function add_notice( $type, $message ) {
 		$this->data['notices'][] = array(
 			'type' => $type,
 			'message' => $message,

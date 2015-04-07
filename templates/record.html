@@ -46,7 +46,7 @@
 
 			{% elseif column.get_type=='text' %}
 			<textarea name="{{column.get_name}}" id="{{column.get_name}}" aria-describedby="{{column.get_name}}-help"
-					  {% if column.is_required %}required{% endif %} rows="5"
+					  {% if column.is_required %}required{% endif %} rows="5" cols="80"
 					  >{{ attribute(record, column.get_name)}}</textarea>
 
 			{% else %}

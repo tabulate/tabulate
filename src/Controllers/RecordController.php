@@ -24,7 +24,7 @@ class RecordController extends ControllerBase {
 		if ( isset( $args['ident'] ) ) {
 			$template->record = $table->get_record( $args['ident'] );
 		}
-		if ( ! $template->record ) {
+		if ( ! isset( $template->record ) ) {
 			$template->record = $table->get_default_record();
 		}
 		echo $template->render();

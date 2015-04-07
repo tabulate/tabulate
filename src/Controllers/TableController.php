@@ -33,6 +33,7 @@ class TableController extends ControllerBase {
 		$template->operators = $table->get_operators();
 		$template->filters = $filters;
 		$template->filter_count = count( $filters );
+		$template->record = $table->get_default_record();
 		$template->records = $table->get_records();
 		$template->record_count = $table->count_records();
 		echo $template->render();

@@ -16,7 +16,7 @@
 		<a href="{{table.get_url}}" class="nav-tab {% if controller=='table' %}nav-tab-active{% endif %}">
 			Search
 		</a>
-		<a href="{{table.get_default_record.get_url}}" class="nav-tab {% if controller=='record' %}nav-tab-active{% endif %}">
+		<a href="{{record.get_url}}" class="nav-tab {% if controller=='record' %}nav-tab-active{% endif %}">
 			{% if record.get_primary_key %}Edit{% else %}Create{% endif %}
 		</a>
 		<a href="{{table.get_url('import')}}" class="nav-tab {% if action=='import' %}nav-tab-active{% endif %}">

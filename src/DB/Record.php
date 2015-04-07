@@ -19,7 +19,7 @@ class Record {
 	 */
 	public function __construct($table, $data = array()) {
 		$this->table = $table;
-		$this->data = $data;
+		$this->data = (object) $data;
 	}
 
 	public function __set($name, $value) {
