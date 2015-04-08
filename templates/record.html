@@ -19,8 +19,8 @@
 			<select name="{{column.get_name}}" id="{{column.get_name}}" aria-describedby="{{column.get_name}}-help"
 				{% if column.is_required %}required{% endif %}
 				>
+				{% if column.nullable %}<option></option>{% endif %}
 				{% for row in column.get_referenced_table.get_records %}
-
 				<option value="{{ attribute(row, column.get_referenced_table.get_pk_column.get_name) }}"
 					{% if attribute(record, column.get_name) == attribute(row, column.get_referenced_table.get_pk_column.get_name) %}
 					selected
@@ -29,7 +29,7 @@
 					{{ attribute(row, column.get_referenced_table.get_title_column.get_name) }}
 				</option>
 				{% endfor %}
-			</select>
+			</select><!-- End foreign key select -->
 
 			{% elseif column.is_boolean %}
 			<input type="radio" name="{{column.get_name}}" id="{{column.get_name}}-yes"
@@ -71,6 +71,10 @@
 
 					{% if column.is_foreign_key %}
 					This field is a cross reference to
+					{% if attribute(record, column.get_name) %}
+					<a href="">Record #{{attribute(record, column.get_name)}}</a>
+					of
+					{% endif %}
 					<a href="{{column.get_referenced_table.get_url}}">{{column.get_referenced_table.get_title}}</a>.
 					{% endif %}
 

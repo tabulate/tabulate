@@ -13,7 +13,7 @@ class Database {
 	/** @var Table|array */
 	protected $tables;
 
-	public function __construct($wpdb) {
+	public function __construct( $wpdb ) {
 		$this->wpdb = $wpdb;
 	}
 
@@ -25,20 +25,30 @@ class Database {
 	}
 
 	public function get_table_names() {
-		if ( !$this->table_names ) {
-			$this->table_names = $this->wpdb->get_col( 'SHOW TABLES' );
+		if ( ! $this->table_names ) {
+			$this->table_names = array();
+			foreach ( $this->wpdb->get_col( 'SHOW TABLES' ) as $table_name ) {
+				$capability = TABULATE_SLUG . '_' . Grants::READ;
+				if ( current_user_can( $capability, $table_name ) ) {
+					$this->table_names[] = $table_name;
+				}
+			}
 		}
 		return $this->table_names;
 	}
 
-	public function get_table($name) {
-		if ( !isset( $this->tables[ $name ] ) ) {
-			$table = new Table($this, $name);
-			if ($table->current_user_can( Grants::READ )) {
-				$this->tables[ $name ] = $table;
-			} else {
-				return false;
-			}
+	/**
+	 * Get a table from the database.
+	 *
+	 * @param string $name
+	 * @return Table|false The table, or false if it's not available.
+	 */
+	public function get_table( $name ) {
+		if ( ! in_array( $name, $this->get_table_names() ) ) {
+			return false;
+		}
+		if ( ! isset( $this->tables[ $name ] ) ) {
+			$this->tables[ $name ] = new Table( $this, $name );
 		}
 		return $this->tables[ $name ];
 	}
@@ -48,15 +58,15 @@ class Database {
 	 *
 	 * @return Table|array An array of all Tables.
 	 */
-	public function get_tables($exclude_views = true) {
+	public function get_tables( $exclude_views = true ) {
 		$out = array();
-		foreach ($this->get_table_names() as $name) {
+		foreach ( $this->get_table_names() as $name ) {
 			$table = $this->get_table( $name );
 			// If this table is not available, skip it.
-			if ( !$table ) {
+			if ( ! $table ) {
 				continue;
 			}
-			if ($exclude_views && $table->get_type()==Table::TYPE_VIEW) {
+			if ( $exclude_views && $table->get_type() == Table::TYPE_VIEW ) {
 				continue;
 			}
 			$out[] = $table;
@@ -71,7 +81,7 @@ class Database {
 	 */
 	public function get_views() {
 		$out = array();
-		foreach ($this->get_tables(false) as $table) {
+		foreach ( $this->get_tables( false ) as $table ) {
 			if ( $table->get_type() == Table::TYPE_VIEW ) {
 				$out[] = $table;
 			}

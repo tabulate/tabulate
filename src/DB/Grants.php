@@ -58,12 +58,21 @@ class Grants {
 		update_option( $this->option_name, $grants );
 	}
 
-	public static function check( $allcaps, $caps, $args ) {
+	/**
+	 * Check that the current user has the requested capability.
+	 *
+	 * @param array $all_capabilities The full list of capabilities granted (to add to).
+	 * @param array $caps The capabilities being checked.
+	 * @param array $args Values being passed in by `current_user_can()`.
+	 *
+	 * @return array
+	 */
+	public static function check( $all_capabilities, $caps, $args ) {
 
 		// See if it's one of our capabilities being checked.
 		$cap_full_name = array_shift( $caps );
 		if ( stripos( $cap_full_name, TABULATE_SLUG ) === false) {
-			return $allcaps;
+			return $all_capabilities;
 		}
 		// Strip the leading 'tabulate_' from the capability name.
 		$cap = substr( $cap_full_name, strlen( TABULATE_SLUG ) + 1 );
@@ -72,10 +81,15 @@ class Grants {
 		$table_name = ($args[2]) ? $args[2] : false;
 		$grants = new self();
 
+		// Users with 'promote_users' capability can do everything.
+		if ( isset( $all_capabilities['promote_users'] ) ) {
+			$all_capabilities[ $cap_full_name ] = true;
+		}
+
 		// Table has no grants, or doesn't have this one.
 		$table_grants = $grants->get( $table_name );
 		if ( !$table_grants || !isset( $table_grants[$cap] ) ) {
-			return $allcaps;
+			return $all_capabilities;
 		}
 
 		// Table has grants of this capability; check whether the user has one
@@ -83,10 +97,10 @@ class Grants {
 		$user = wp_get_current_user();
 		$intersect = array_intersect( $table_grants[$cap], $user->roles );
 		if ( count( $intersect ) > 0 ) {
-			$allcaps[ $cap_full_name ] = true;
+			$all_capabilities[ $cap_full_name ] = true;
 		}
 
-		return $allcaps;
+		return $all_capabilities;
 
 	}
 
