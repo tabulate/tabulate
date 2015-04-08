@@ -2,6 +2,8 @@
 
 namespace WordPress\Tabulate\Controllers;
 
+use WordPress\Tabulate\DB\Grants;
+
 class RecordController extends ControllerBase {
 
 	/**

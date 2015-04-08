@@ -28,8 +28,7 @@ class Database {
 		if ( ! $this->table_names ) {
 			$this->table_names = array();
 			foreach ( $this->wpdb->get_col( 'SHOW TABLES' ) as $table_name ) {
-				$capability = TABULATE_SLUG . '_' . Grants::READ;
-				if ( current_user_can( $capability, $table_name ) ) {
+				if ( Grants::current_user_can( Grants::READ, $table_name ) ) {
 					$this->table_names[] = $table_name;
 				}
 			}

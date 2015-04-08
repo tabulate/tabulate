@@ -104,4 +104,9 @@ class Grants {
 
 	}
 
+	public static function current_user_can( $grant, $table_name ) {
+		$capability = TABULATE_SLUG . '_' . $grant;
+		return current_user_can( $capability, $table_name );
+	}
+
 }

@@ -2,6 +2,8 @@
 
 namespace WordPress\Tabulate\Controllers;
 
+use \WordPress\Tabulate\DB\Grants;
+
 class TableController extends ControllerBase {
 
 	public function index($args) {
@@ -81,7 +83,7 @@ class TableController extends ControllerBase {
 		$table = $db->get_table( $args['table'] );
 		$template->action = 'import';
 		$template->table = $table;
-		if ( ! $table->current_user_can( \WordPress\Tabulate\DB\Grants::IMPORT ) ) {
+		if ( ! Grants::current_user_can( Grants::IMPORT, $table->get_name() ) ) {
 			$template->add_notice( 'error', 'You do not have permission to import data into this table.' );
 			echo $template->render();
 			return;
