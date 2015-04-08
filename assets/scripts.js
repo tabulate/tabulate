@@ -8,6 +8,10 @@ jQuery(document).ready(function ($) {
 		headers: { 'X-WP-Nonce': WP_API_Settings.nonce }
 	});
 
+	/**
+	 * Data entry helpers.
+	 */
+	$("input.datepicker").datepicker({ dateFormat: 'yy-mm-dd' });
 
 	/**
 	 * Jump between tables.

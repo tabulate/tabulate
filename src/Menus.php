@@ -35,7 +35,7 @@ class Menus {
 	public function admin_print_scripts() {
 		// Scripts.
 		$script_url = plugins_url( TABULATE_SLUG ) . '/assets/scripts.js';
-		$deps = array( 'jquery-ui-autocomplete', 'wp-api' );
+		$deps = array( 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-api' );
 		wp_enqueue_script( 'tabulate-scripts', $script_url, $deps );
 		$js_vars = array(
 			'admin_url' => admin_url() . 'admin.php?page=' . TABULATE_SLUG
@@ -43,8 +43,10 @@ class Menus {
 		wp_localize_script( 'tabulate-scripts', 'tabulate', $js_vars );
 
 		// Styles.
-		$style_url = plugins_url( TABULATE_SLUG ) . '/assets/style.css';
-		wp_enqueue_style( 'tabulate-styles', $style_url );
+		$style_url_1 = plugins_url( TABULATE_SLUG ) . '/assets/jquery-ui-1.11.4/jquery-ui.min.css';
+		wp_enqueue_style( 'tabulate-jquery-ui', $style_url_1 );
+		$style_url_2 = plugins_url( TABULATE_SLUG ) . '/assets/style.css';
+		wp_enqueue_style( 'tabulate-styles', $style_url_2 );
 	}
 
 	/**

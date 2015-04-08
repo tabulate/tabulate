@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<form method="post" action="{{record.get_url('save')}}">
+<form method="post" action="{{record.get_url('save')}}" class="tabulate-record">
 	<table>
 
 		{% for column in table.get_columns %}
@@ -55,7 +55,7 @@
 				   {% if column.is_auto_increment %}readonly{% endif %}
 				   {% if column.is_required and not column.is_auto_increment %}required{% endif %}
 				   {% if column.get_type == 'year' %}pattern="number"{% endif %}
-				   {% if column.get_type == 'date' %}pattern="date"{% endif %}
+				   {% if column.get_type == 'date' %}class="datepicker"{% endif %}
 				   />
 
 			{% endif %}

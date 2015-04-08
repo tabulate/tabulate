@@ -12,6 +12,8 @@ form.tabulate-grants tr.select-all td { border-width:0 0 1px 0 }
 form.tabulate-grants td.select-all { border-width:0 1px }
 form.tabulate-grants tr.select-all td.label { border-width:0 0 0 1px; vertical-align:middle; text-align:center; font-size:larger }
 
+form.tabulate-record input.datepicker { width:9em }
+
 .tabulate.wrap .import .stages { width:100%; height:2em; margin-left:0 }
 .tabulate.wrap .import .stages dt,
 .tabulate.wrap .import .stages dd { float:left; margin:0; padding:0.2em 1.5em }
