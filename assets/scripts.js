@@ -1,13 +1,5 @@
 jQuery(document).ready(function ($) {
 
-
-	/**
-	 * Make sure the WP-API nonce is always set on AJAX requests.
-	 */
-	$.ajaxSetup({
-		headers: { 'X-WP-Nonce': WP_API_Settings.nonce }
-	});
-
 	/**
 	 * Data entry helpers.
 	 */
@@ -15,18 +7,24 @@ jQuery(document).ready(function ($) {
 
 	/**
 	 * Jump between tables.
+	 * Make sure the WP-API nonce is always set on AJAX requests.
 	 */
-	$(".tabulate .quick-jump input").autocomplete({
-		source: WP_API_Settings.root + "/tabulate/tables",
-		select: function( event, ui ) {
-			event.preventDefault();
-			$(this).prop( "disabled", true );
-			$(".tabulate .quick-jump input").val( ui.item.label );
-			console.log(ui.item.label);
-			var url = tabulate.admin_url + "&controller=table&table=" + ui.item.value;
-			$(location).attr( 'href', url );
-		}
-	});
+	if (typeof WP_API_Settings !== 'undefined') {
+		$.ajaxSetup({
+			headers: { 'X-WP-Nonce': WP_API_Settings.nonce }
+		});
+		$(".tabulate .quick-jump input").autocomplete({
+			source: WP_API_Settings.root + "/tabulate/tables",
+			select: function( event, ui ) {
+				event.preventDefault();
+				$(this).prop( "disabled", true );
+				$(".tabulate .quick-jump input").val( ui.item.label );
+				console.log(ui.item.label);
+				var url = tabulate.admin_url + "&controller=table&table=" + ui.item.value;
+				$(location).attr( 'href', url );
+			}
+		});
+	}
 
 
 	/**
@@ -54,7 +52,6 @@ jQuery(document).ready(function ($) {
 	$copiedCell = $(".tabulate-grants td.capabilities:first").clone();
 	$copiedCell.find("input").attr("name", "");
 	$copiedCell.find("input").removeAttr("checked");
-	//console.log($copiedCell.find("input"));
 	// For each select-all cell in the top row.
 	$(".tabulate-grants tr.select-all td.target").each(function(){
 		$(this).html($copiedCell.html());
