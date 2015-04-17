@@ -18,7 +18,7 @@ Somewhat akin to phpMyAdmin, but including only data-modification features.
 
 Access can be granted to *read*, *create*, *update*, *delete*, and *import*
 records in any or all tables. (This can be done by anyone with the
-`promote_users` capability.)
+*promote_users* capability.)
 
 CSV data can be imported, with the UI supporting column mapping, data
 validation, and previewing prior to final import.
@@ -26,6 +26,8 @@ validation, and previewing prior to final import.
 A quick-jump navigation box (located top right of every page) can be activated
 by installing the [WP REST API](https://wordpress.org/plugins/json-rest-api/)
 plugin.
+
+Records in tables with *date* columns can be viewed in a calendar.
 
 == Installation ==
 

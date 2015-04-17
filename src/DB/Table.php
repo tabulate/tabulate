@@ -524,8 +524,9 @@ class Table {
 	}
 
 	/**
-	 * Get a list of this table's columns.
+	 * Get a list of this table's columns, optionally constrained by their type.
 	 *
+	 * @param string $type Only return columns of this type.
 	 * @return array|Column This table's columns.
 	 */
 	public function get_columns($type = null) {
@@ -800,26 +801,43 @@ class Table {
 			}
 		}
 
-		// Update?
+		// Find the PK, and hide errors (for now).
 		$pk_name = $this->get_pk_column()->get_name();
-		$this->database->get_wpdb()->hide_errors(); // Hide errors for now.
-		if ( $pk_value ) {
+		$this->database->get_wpdb()->hide_errors();
+
+		if ( $pk_value ) { // Update?
+
+			// Check permission.
+			if ( ! Grants::current_user_can( Grants::UPDATE, $this->get_name() ) ) {
+				throw new \Exception( 'You do not have permission to update data in this table.' );
+			}
+
+			// Save record.
 			$where = array($pk_name => $pk_value);
 			$this->database->get_wpdb()->update($this->get_name(), $data, $where);
 			$new_pk_value = (isset( $data[$pk_name])) ? $data[$pk_name] : $pk_value;
-		} // Or insert?
-		else {
+
+		} else { // Or insert?
+
+			// Check permission.
+			if ( ! Grants::current_user_can( Grants::CREATE, $this->get_name() ) ) {
+				throw new \Exception( 'You do not have permission to insert records into this table.' );
+			}
+
 			// Prevent PK from being set to empty.
 			if ( empty( $data[$pk_name] ) ) {
 				unset( $data[$pk_name] );
 			}
-			$insert = $this->database->get_wpdb()->insert( $this->get_name(), $data );
+			$this->database->get_wpdb()->insert( $this->get_name(), $data );
 			if (!empty($this->database->get_wpdb()->last_error)) {
 				throw new Exception($this->database->get_wpdb()->last_error);
 			}
 			$new_pk_value = $this->database->get_wpdb()->insert_id;
+
 		}
-		$this->database->get_wpdb()->show_errors(); // Show errors again.
+
+		// Show errors again and return the new or updated record.
+		$this->database->get_wpdb()->show_errors();
 		return $this->get_record($new_pk_value);
 	}
 

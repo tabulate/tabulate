@@ -26,7 +26,11 @@ Some possibilities:
 * An audit trail, logging all modifications.
 * File storage, for blob types.
 * Bulk changes, for modifying filtered data.
-* CSV import and export.
-* Calendar dispaly, where date fields exist.
+* CSV export.
 * LaTeX output.
 * Tree/hierarchy display, for self-referencing foreign keys.
+* A cross-platform mobile app, that can connect to a Tabulate site and create
+  records.
+
+There may be more listed in the issue queue on Github:
+https://github.com/tabulate/tabulate/issues

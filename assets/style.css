@@ -24,3 +24,9 @@ form.tabulate-record input.datepicker { width:9em }
 .tabulate.wrap .import .required { color:#a94442 }
 
 .tabulate.wrap .quick-jump { float:right }
+
+.tabulate.wrap table.calendar th { width:14% }
+.tabulate.wrap table.calendar td { border:1px solid #e1e1e1 }
+.tabulate.wrap table.calendar td .day { width:2.2em; float:left; font-weight:bolder }
+.tabulate.wrap table.calendar td ul { margin:0 0 0 2.4em }
+.tabulate.wrap table.calendar td ul li { margin:0 }

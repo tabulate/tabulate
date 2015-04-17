@@ -1,0 +1,54 @@
+{%extends "base.html"%}
+
+{% block content %}
+
+<div class='tablenav tablenav-top'>
+	<div class='tablenav-pages'>
+		<span class='pagination-links'>
+			<a class='prev-page' title='Go to the previous month'
+			   href='{{table.get_url('calendar')}}&year={{month.getPrevious().format('Y')}}&month={{month.getPrevious().format('m')}}'>
+				&lsaquo; <!--{{month.getPrevious().format('F')}}-->
+			</a>
+			<span>
+				<strong class='total-pages'>{{month.format('F Y')}}</strong>
+			</span>
+			<a class='next-page' title='Go to the next month'
+			   href='{{table.get_url('calendar')}}&year={{month.getNext().format('Y')}}&month={{month.getNext().format('m')}}'>
+				<!--{{month.getNext().format('F')}}--> &rsaquo;
+			</a>
+		</span>
+	</div>
+</div>
+
+<table class="calendar widefat">
+	<thead>
+		<tr>
+			{% for day in weekdays %}
+			<th>{{day}}</th>
+			{% endfor %}
+		</tr>
+	</thead>
+	<tbody>
+		{% for week in month %}
+		<tr>
+			{% for day in week %}
+			<td>
+				<span class="day">{{day.format('j')}}</span>
+				{% set day_records = attribute( records, day.format('Y-m-d') ) %}
+				{% if day_records %}
+				<ul>
+					{% for record in day_records %}
+					<li>
+						<a href="{{record.get_url()}}">{{record.get_title}}</a>
+					</li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+			</td>
+			{% endfor %}
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+{% endblock %}

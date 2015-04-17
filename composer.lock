@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "ffa79f7ce90c8988802fc5e3dcb15506",
+    "hash": "87237e47d6a95fbfd845127a7257a931",
     "packages": [
         {
             "name": "twig/twig",
@@ -62,6 +62,62 @@
                 "templating"
             ],
             "time": "2015-01-25 17:32:08"
+        },
+        {
+            "name": "yohang/calendr",
+            "version": "1.0.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yohang/CalendR.git",
+                "reference": "c602eda9d246e9c61eded01bf98dfec967bea4b9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yohang/CalendR/zipball/c602eda9d246e9c61eded01bf98dfec967bea4b9",
+                "reference": "c602eda9d246e9c61eded01bf98dfec967bea4b9",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "doctrine/common": "~2.3",
+                "doctrine/orm": "~2.3",
+                "google/google-api-php-client": "0.6.2",
+                "phpunit/phpunit": "~3.7",
+                "silex/silex": "~1.1",
+                "twig/twig": "~1.13"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "CalendR": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Yohan Giarelli",
+                    "email": "yohan@giarel.li",
+                    "homepage": "http://yohan.giarel.li"
+                }
+            ],
+            "description": "Object Oriented calendar management",
+            "homepage": "https://github.com/yohang/CalendR",
+            "keywords": [
+                "calendar",
+                "date",
+                "events"
+            ],
+            "time": "2013-09-10 14:18:04"
         }
     ],
     "packages-dev": [],

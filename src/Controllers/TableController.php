@@ -3,22 +3,23 @@
 namespace WordPress\Tabulate\Controllers;
 
 use \WordPress\Tabulate\DB\Grants;
+use \WordPress\Tabulate\DB\Database;
 
 class TableController extends ControllerBase {
 
-	public function index($args) {
+	public function index( $args ) {
 
 		// Get database and table.
-		$db = new \WordPress\Tabulate\DB\Database( $this->wpdb );
-		$table = $db->get_table( $args['table'] );
+		$db = new Database( $this->wpdb );
+		$table = $db->get_table( $args[ 'table' ] );
 
 		// Pagination.
-		$page_num = (isset( $args['p'] )) ? $args['p'] : 1;
+		$page_num = (isset( $args[ 'p' ] )) ? $args[ 'p' ] : 1;
 		$table->set_current_page_num( $page_num );
 		$table->set_records_per_page( 20 );
 
 		// Filters.
-		$filter_param = (isset( $args['filter'] )) ? $args['filter'] : array();
+		$filter_param = (isset( $args[ 'filter' ] )) ? $args[ 'filter' ] : array();
 		$table->add_filters( $filter_param );
 		$filters = $table->get_filters();
 		$filters[] = array(
@@ -66,8 +67,7 @@ class TableController extends ControllerBase {
 	 *
 	 * @return void
 	 */
-	public function import($args)
-	{
+	public function import( $args ) {
 		$template = new \WordPress\Tabulate\Template( 'import.html' );
 		// Set up the progress bar.
 		$template->stages = array(
@@ -79,8 +79,9 @@ class TableController extends ControllerBase {
 		$template->stage = 'choose_file';
 
 		// First make sure the user is allowed to import data into this table.
-		$db = new \WordPress\Tabulate\DB\Database( $this->wpdb );
-		$table = $db->get_table( $args['table'] );
+		$db = new Database( $this->wpdb );
+		$table = $db->get_table( $args[ 'table' ] );
+		$template->record = $table->get_default_record();
 		$template->action = 'import';
 		$template->table = $table;
 		if ( ! Grants::current_user_can( Grants::IMPORT, $table->get_name() ) ) {
@@ -92,13 +93,11 @@ class TableController extends ControllerBase {
 		/*
 		 * Stage 1 of 4: Uploading.
 		 */
-		$template->form_action = $table->get_url('import');
-		try
-		{
-			$hash = isset( $_GET['hash'] ) ? $_GET['hash'] : false;
+		$template->form_action = $table->get_url( 'import' );
+		try {
+			$hash = isset( $_GET[ 'hash' ] ) ? $_GET[ 'hash' ] : false;
 			$csv_file = new \WordPress\Tabulate\CSV( $hash );
-		} catch ( \Exception $e )
-		{
+		} catch ( \Exception $e ) {
 			$template->add_notice( 'error', $e->getMessage() );
 			echo $template->render();
 			return;
@@ -107,52 +106,91 @@ class TableController extends ControllerBase {
 		/*
 		 * Stage 2 of 4: Matching fields
 		 */
-		if ( $csv_file->loaded() )
-		{
+		if ( $csv_file->loaded() ) {
 			$template->file = $csv_file;
-			$template->stage = $template->stages[1];
-			$template->form_action .= "&hash=".$csv_file->hash;
+			$template->stage = $template->stages[ 1 ];
+			$template->form_action .= "&hash=" . $csv_file->hash;
 		}
 
 		/*
 		 * Stage 3 of 4: Previewing
 		 */
-		if ( $csv_file->loaded() AND isset( $_POST['preview'] ) )
-		{
-			$template->stage = $template->stages[2];
-			$template->columns = serialize( $_POST['columns'] );
+		if ( $csv_file->loaded() AND isset( $_POST[ 'preview' ] ) ) {
+			$template->stage = $template->stages[ 2 ];
+			$template->columns = serialize( $_POST[ 'columns' ] );
 			$errors = array();
 			// Make sure all required columns are selected
-			foreach ($table->get_columns() as $col)
-			{
+			foreach ( $table->get_columns() as $col ) {
 				// Handle missing columns separately; other column errors are
 				// done in the CSV class.
-				if ( $col->is_required() && empty( $_POST['columns'][ $col->get_name() ] ) )
-				{
+				if ( $col->is_required() && empty( $_POST['columns'][ $col->get_name() ] ) ) {
 					$errors[] = array(
 						'column_name' => '',
 						'column_number' => '',
 						'field_name' => $col->get_name(),
 						'row_number' => 'N/A',
-						'messages' => array('Column required, but not found in CSV'),
+						'messages' => array( 'Column required, but not found in CSV' ),
 					);
 				}
 			}
-			$template->errors = empty( $errors )
-				? $csv_file->match_fields( $table, wp_unslash( $_POST['columns'] ) )
-				: $errors;
+			$template->errors = empty( $errors ) ? $csv_file->match_fields( $table, wp_unslash( $_POST['columns'] ) ) : $errors;
 		}
 
 		/*
 		 * Stage 4 of 4: Import
 		 */
-		if ($csv_file->loaded() AND isset( $_POST['import'] ))
-		{
-			$template->stage = $template->stages[3];
+		if ( $csv_file->loaded() AND isset( $_POST['import'] ) ) {
+			$template->stage = $template->stages[ 3 ];
 			$result = $csv_file->import_data( $table, unserialize( wp_unslash( $_POST['columns'] ) ) );
 			$template->add_notice( 'updated', 'Import complete; ' . $result . ' rows imported.' );
 		}
 
 		echo $template->render();
 	}
+
+	public function calendar( $args ) {
+		// @todo Validate args.
+		$yearNum = (isset( $args['year'] )) ? $args['year'] : date( 'Y' );
+		$monthNum = (isset( $args['month'] )) ? $args['month'] : date( 'm' );
+
+		$template = new \WordPress\Tabulate\Template( 'calendar.html' );
+		$db = new Database( $this->wpdb );
+		$table = $db->get_table( $args['table'] );
+
+		if ( ! $table ) {
+			$template->add_notice( 'error', "The '$table_name' table was not found." );
+			echo $template->render();
+			return;
+		}
+		$template->table = $table;
+		$template->action = 'calendar';
+		$template->record = $table->get_default_record();
+
+		$factory = new \CalendR\Calendar();
+		$template->weekdays = $factory->getWeek( new \DateTime( 'Monday this week' ) );
+		$month = $factory->getMonth( new \DateTime( $yearNum . '-' . $monthNum . '-01' ) );
+		$template->month = $month;
+		$records = array();
+		foreach ( $table->get_columns( 'date' ) as $dateCol ) {
+			$dateColName = $dateCol->get_name();
+			// Filter to the just the requested month.
+			$table->add_filter( $dateColName, '>=', $month->getBegin()->format( 'Y-m-d' ) );
+			$table->add_filter( $dateColName, '<=', $month->getEnd()->format( 'Y-m-d' ) );
+			foreach ( $table->get_records() as $rec ) {
+				$dateVal = $rec->$dateColName();
+				// Initialise the day's list of records.
+				if ( ! isset( $records[ $dateVal ] ) ) {
+					$records[ $dateVal ] = array();
+				}
+				// Add this record to the day's list.
+				$records[ $dateVal ][] = $rec;
+			}
+		}
+		// $records is grouped by date, with each item in a single date being
+		// an array like: ['record'=>Record, 'column'=>$name_of_date_column]
+		$template->records = $records;
+
+		echo $template->render();
+	}
+
 }

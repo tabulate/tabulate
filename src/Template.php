@@ -52,6 +52,14 @@ class Template {
 		);
 	}
 
+	/**
+	 * Render the template and output it.
+	 * @return void
+	 */
+	public function __toString() {
+		echo $this->render();
+	}
+
 	public function render() {
 		$loader = new \Twig_Loader_Filesystem( __DIR__ . '/../templates' );
 		$twig = new \Twig_Environment( $loader );

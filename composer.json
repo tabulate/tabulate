@@ -8,6 +8,7 @@
 		}
 	},
 	"require": {
-		"twig/twig": "1.*"
+		"twig/twig": "1.*",
+		"yohang/calendr": "1.*"
 	}
 }
