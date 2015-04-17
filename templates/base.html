@@ -16,7 +16,8 @@
 		<a href="{{table.get_url}}" class="nav-tab {% if controller=='table' %}nav-tab-active{% endif %}">
 			Search
 		</a>
-		<a href="{{record.get_url}}" class="nav-tab {% if controller=='record' and not record.get_primary_key %}nav-tab-active{% endif %}">
+		<a href="{{record.get_url('index', false)}}"
+		   class="nav-tab {% if controller=='record' and not record.get_primary_key %}nav-tab-active{% endif %}">
 			Create
 		</a>
 		<a href="{{record.get_url}}" class="nav-tab {% if controller=='record' and record.get_primary_key %}nav-tab-active{% endif %}">

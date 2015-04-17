@@ -93,14 +93,14 @@ class Record {
 		return $this->table->get_column( $column_name )->get_referenced_table()->get_record( $this->data->$column_name );
 	}
 
-	public function get_url($action = 'index') {
+	public function get_url($action = 'index', $include_ident = true ) {
 		$params = array(
 			'page' => 'tabulate',
 			'controller' => 'record',
 			'action' => $action,
 			'table' => $this->table->get_name(),
 		);
-		if ( $this->get_primary_key() ) {
+		if ( $include_ident && $this->get_primary_key() ) {
 			$params['ident'] = $this->get_primary_key();
 		}
 		return admin_url( 'admin.php?' . http_build_query( $params ) );
