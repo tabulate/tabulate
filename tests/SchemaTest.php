@@ -1,5 +1,7 @@
 <?php
 
+use WordPress\Tabulate\DB\Grants;
+
 class SchemaTest extends WP_UnitTestCase {
 
 	/** @var WordPress\Tabulate\DB\Database */
@@ -20,6 +22,7 @@ class SchemaTest extends WP_UnitTestCase {
 		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
 
 		// Create some testing tables and link them together.
+		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_table`' );
 		$this->wpdb->query( 'CREATE TABLE `test_table` ('
 			. ' id INT(10) PRIMARY KEY,'
 			. ' title VARCHAR(100) NOT NULL,'
@@ -29,6 +32,7 @@ class SchemaTest extends WP_UnitTestCase {
 			. ' type_id INT(10) NULL DEFAULT NULL'
 			. ');'
 		);
+		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_types`' );
 		$this->wpdb->query( 'CREATE TABLE `test_types` ('
 			. ' id INT(10) PRIMARY KEY,'
 			. ' title VARCHAR(100) NOT NULL'
@@ -39,6 +43,7 @@ class SchemaTest extends WP_UnitTestCase {
 			. ' REFERENCES `test_types` (`id`)'
 			. ' ON DELETE CASCADE ON UPDATE CASCADE;'
 		);
+		$this->wpdb->flush();
 		$this->db = new WordPress\Tabulate\DB\Database( $this->wpdb );
 	}
 
@@ -76,6 +81,16 @@ class SchemaTest extends WP_UnitTestCase {
 	 * @test
 	 */
 	public function references() {
+		// Make sure the user can edit things.
+		global $current_user;
+		$current_user->add_role( 'administrator' );
+		$grants = new Grants();
+		$grants->set(
+			array(
+				'test_table' => [ Grants::READ => [ 'administrator' ], ],
+			)
+		);
+
 		// That test_table references test_types
 		$test_table = $this->db->get_table( 'test_table' );
 		$referenced_tables = $test_table->get_referenced_tables( true );

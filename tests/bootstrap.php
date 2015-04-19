@@ -8,6 +8,12 @@
  * @package wordpress-plugin-tests
  * @link https://github.com/tierra/wordpress-plugin-tests/
  */
+
+// Run the bits of tabulate/tabulate.php that are required to run tests.
+require __DIR__ . '/../vendor/autoload.php';
+define( 'TABULATE_VERSION', '0.7.1' );
+define( 'TABULATE_SLUG', 'tabulate' );
+
 // Activates this plugin in WordPress so it can be tested.
 $GLOBALS['wp_tests_options'] = array(
 	'active_plugins' => array( 'tabulate/tabulate.php' ),
