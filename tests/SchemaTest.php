@@ -88,7 +88,7 @@ class SchemaTest extends WP_UnitTestCase {
 		$grants = new Grants();
 		$grants->set(
 			array(
-				'test_table' => [ Grants::READ => [ 'administrator' ], ],
+				'test_table' => array( Grants::READ => array( 'administrator' ), ),
 			)
 		);
 
