@@ -8,8 +8,9 @@
 * License: GPLv2 or later
 * License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Manage tabular data within the WP admin area, using the full power of your MySQL
-database. CSV import, foreign-key support, role-level access control, and more.
+Manage relational tabular data within the WP admin area, using the full power of
+your MySQL database. CSV import, foreign-key support, role-level access control,
+and more.
 
 ## Description
 
@@ -19,7 +20,7 @@ database. CSV import, foreign-key support, role-level access control, and more.
 [![WordPress rating](https://img.shields.io/wordpress/plugin/r/tabulate.svg?style=flat-square)]()
 [![Latest Stable Version](https://img.shields.io/wordpress/plugin/v/tabulate.svg?style=flat-square)](https://wordpress.org/plugins/tabulate)
 [![WordPress version](https://img.shields.io/wordpress/v/tabulate.svg?style=flat-square)]()
-[![GitHub license](https://img.shields.io/github/license/tabulate/tabulate.svg?style=flat-square)](https://github.com/tabulate/tabulate)
+[![License](https://img.shields.io/github/license/tabulate/tabulate.svg?style=flat-square)](https://github.com/tabulate/tabulate/blob/master/LICENSE.txt)
 
 This plugin provides a simple user-friendly interface to tables in the database.
 Somewhat akin to phpMyAdmin, but including only data-modification features.

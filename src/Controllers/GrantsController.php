@@ -7,7 +7,7 @@ class GrantsController extends ControllerBase {
 	/** @var array|string */
 	private $table_names;
 
-	/** @var WordPress\Tabulate\Template */
+	/** @var \WordPress\Tabulate\Template */
 	private $template;
 
 	public function __construct($wpdb) {
@@ -28,7 +28,6 @@ class GrantsController extends ControllerBase {
 	}
 
 	public function save() {
-		$db = new \WordPress\Tabulate\DB\Database( $this->wpdb );
 		$grants = new \WordPress\Tabulate\DB\Grants();
 
 		// Validate the POSTed grants.
