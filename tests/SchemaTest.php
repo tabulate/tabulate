@@ -29,7 +29,8 @@ class SchemaTest extends WP_UnitTestCase {
 			. ' description TEXT NULL,'
 			. ' active BOOLEAN NULL DEFAULT TRUE,'
 			. ' a_date DATE NULL,'
-			. ' type_id INT(10) NULL DEFAULT NULL'
+			. ' type_id INT(10) NULL DEFAULT NULL,'
+			. ' widget_size DECIMAL(10,2) NOT NULL DEFAULT 5.6'
 			. ');'
 		);
 		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_types`' );
@@ -102,6 +103,30 @@ class SchemaTest extends WP_UnitTestCase {
 		$referencing_tables = $type_table->get_referencing_tables();
 		$referencing_table = array_pop( $referencing_tables );
 		$this->assertEquals( 'test_table', $referencing_table->get_name() );
+	}
+
+	/**
+	 * @testdox A not-null column "is required" but if it has a default value then no value need be set when saving.
+	 * @test
+	 */
+	public function requiredColumns() {
+		// 'widget_size' is a not-null column with a default value.
+		$test_table = $this->db->get_table( 'test_table' );
+		$widget_size_col = $test_table->get_column( 'widget_size' );
+		$this->assertFalse( $widget_size_col->is_required() );
+		// 'title' is a not-null column with no default.
+		$title_col = $test_table->get_column( 'title' );
+		$this->assertTrue( $title_col->is_required() );
+
+		// Create a basic record.
+		$widget = array(
+			'title' => 'Test Item'
+		);
+		$test_table->save_record( $widget );
+		$this->assertEquals( 1, $test_table->count_records() );
+		$widget_records = $test_table->get_records();
+		$widget_record = array_shift( $widget_records );
+		$this->assertEquals(5.6, $widget_record->widget_size());
 	}
 
 }

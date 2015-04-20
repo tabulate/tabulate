@@ -212,7 +212,6 @@ class CSV {
 				// All other values are used as they are
 				$row[$db_column_name] = $value;
 			}
-			var_dump($row);
 			$table->save_record( $row );
 			$count++;
 		}

@@ -11,8 +11,8 @@
 
 // Run the bits of tabulate/tabulate.php that are required to run tests.
 require __DIR__ . '/../vendor/autoload.php';
-define( 'TABULATE_VERSION', '0.7.1' );
-define( 'TABULATE_SLUG', 'tabulate' );
+//define( 'TABULATE_VERSION', '0.7.1' );
+//define( 'TABULATE_SLUG', 'tabulate' );
 
 // Activates this plugin in WordPress so it can be tested.
 $GLOBALS['wp_tests_options'] = array(

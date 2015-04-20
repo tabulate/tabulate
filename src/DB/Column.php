@@ -167,12 +167,16 @@ class Column {
 	}
 
 	/**
-	 * Whether or not a non-NULL value is required for this column.
+	 * Whether or not a not-NULL value needs to be supplied for this column.
 	 *
-	 * @return boolean True if this column is NOT NULL, false otherwise.
+	 * Not-NULL columns that have default values are *not* considered to be
+	 * required.
+	 *
+	 * @return boolean
 	 */
 	public function is_required() {
-		return ( ! $this->nullable() && $this->get_default() == null && ! $this->is_auto_increment() );
+		$has_default = ( $this->get_default() != null || $this->is_auto_increment() );
+		return ( ! $this->nullable() && ! $has_default );
 	}
 
 	/**
