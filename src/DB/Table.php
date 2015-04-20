@@ -551,9 +551,10 @@ class Table {
 	public function get_comment() {
 		if ( !$this->comment ) {
 			$sql = $this->get_defining_sql();
-			$comment_pattern = '/.*\)(?:.*COMMENT.*\'(.*)\')?/si';
+			$comment_pattern = '/.*\)(?:.*COMMENT[\w=]*\'(.*)\')?/si';
 			preg_match( $comment_pattern, $sql, $matches );
 			$this->comment = (isset( $matches[1] )) ? $matches[1] : '';
+			$this->comment = str_replace( "''", "'", $this->comment );
 		}
 		return $this->comment;
 	}
