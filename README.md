@@ -16,9 +16,9 @@ database. CSV import, foreign-key support, role-level access control, and more.
 [![Build Status](https://img.shields.io/travis/tabulate/tabulate.svg?style=flat-square)](https://travis-ci.org/tabulate/tabulate)
 [![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/tabulate/tabulate/master.svg?style=flat-square)](https://scrutinizer-ci.com/g/tabulate/tabulate/?branch=master)
 [![Total Downloads](https://img.shields.io/wordpress/plugin/dt/tabulate.svg?style=flat-square)]()
-[![WordPress rating](https://img.shields.io/wordpress/plugin/r/akismet.svg?style=flat-square)]()
-[![Latest Stable Version](https://img.shields.io/wordpress/plugin/v/akismet.svg?style=flat-square)](https://wordpress.org/plugins/tabulate)
-[![WordPress version](https://img.shields.io/wordpress/v/akismet.svg?style=flat-square)]()
+[![WordPress rating](https://img.shields.io/wordpress/plugin/r/tabulate.svg?style=flat-square)]()
+[![Latest Stable Version](https://img.shields.io/wordpress/plugin/v/tabulate.svg?style=flat-square)](https://wordpress.org/plugins/tabulate)
+[![WordPress version](https://img.shields.io/wordpress/v/tabulate.svg?style=flat-square)]()
 [![GitHub license](https://img.shields.io/github/license/tabulate/tabulate.svg?style=flat-square)](https://github.com/tabulate/tabulate)
 
 This plugin provides a simple user-friendly interface to tables in the database.
