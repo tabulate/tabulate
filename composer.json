@@ -7,6 +7,9 @@
 			"WordPress\\Tabulate\\": "src/"
 		}
 	},
+	"autoload-dev": {
+		"classmap": [ "tests/TestBase.php" ]
+	},
 	"require": {
 		"twig/twig": "1.*",
 		"yohang/calendr": "1.*"

@@ -193,4 +193,28 @@ class TableController extends ControllerBase {
 		echo $template->render();
 	}
 
+	/**
+	 * Export the current table with the current filters applied.
+	 * Filters are passed as $_GET parameters, just as for the index action.
+	 *
+	 * @return void
+	 */
+	public function export( $args )
+	{
+		// Get database and table.
+		$db = new Database( $this->wpdb );
+		$table = $db->get_table( $args[ 'table' ] );
+
+		// Filter and export.
+		$filter_param = (isset( $args[ 'filter' ] )) ? $args[ 'filter' ] : array();
+		$table->add_filters( $filter_param );
+		$filename = $table->export();
+
+		// Send CSV to client.
+		$download_name = date('Y-m-d').'_'.$table->get_name().'.csv';
+		header('Content-Encoding: UTF-8');
+		header('Content-type: text/csv; charset=UTF-8');
+		echo "\xEF\xBB\xBF".file_get_contents($filename);
+	}
+
 }

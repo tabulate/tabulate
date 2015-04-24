@@ -54,7 +54,53 @@
 	</table>
 </form>
 
-{% include "pagination.html" %}
+
+<div class='tablenav tablenav-top'>
+
+	<!-- Right side -->
+	<div class="alignleft actions bulkactions">
+		<a href="{{table.get_url('export', true)}}" class="button">
+			Export to CSV
+		</a>
+	</div>
+
+	<!-- Left side -->
+	<div class='tablenav-pages'>
+		<span class="displaying-num">
+			{{record_count|number_format}} record{% if record_count != 1 %}s{% endif %}
+		</span>
+
+		{% if table.get_page_count > 1 %}
+		<span class='pagination-links'>
+			<a class='first-page {%if table.get_current_page_num == 1%}disabled{% endif %}' title='Go to the first page'
+			   href='{{table.get_url}}'>
+				&laquo;
+			</a>
+			<a class='prev-page {%if table.get_current_page_num == 1%}disabled{% endif %}' title='Go to the previous page'
+			   href='{{table.get_url}}&p={{table.get_current_page_num - 1}}'>
+				&lsaquo;
+			</a>
+			<span class="paging-input">
+				<label for="current-page-selector" class="screen-reader-text">Select Page</label>
+				<input class='current-page' id='current-page-selector' title='Current page'
+					   type='text' name='paged' value='{{table.get_current_page_num}}' size='1' />
+				of
+				<span class='total-pages'>{{table.get_page_count|number_format}}</span> pages
+			</span>
+			<a class='next-page {%if table.get_current_page_num == table.get_page_count%}disabled{% endif %}'
+			   title='Go to the next page' href='{{table.get_url}}&p={{table.get_current_page_num + 1}}'>
+				&rsaquo;
+			</a>
+			<a class='last-page {%if table.get_current_page_num == table.get_page_count%}disabled{% endif %}'
+			   title='Go to the last page' href='{{table.get_url}}&p={{table.get_page_count}}'>
+				&raquo;
+			</a>
+		</span>
+		{% endif %}
+
+	</div>
+
+</div>
 
 <table class='wp-list-table widefat'>
 	<thead>

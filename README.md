@@ -9,8 +9,7 @@
 * License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Manage relational tabular data within the WP admin area, using the full power of
-your MySQL database. CSV import, foreign-key support, role-level access control,
-and more.
+your MySQL database. CSV import/export; access-control; foreign-keys.
 
 ## Description
 

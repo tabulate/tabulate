@@ -238,7 +238,7 @@ class Table {
 	 * the alias will just be the qualified column name, and the join clause will
 	 * be the empty string.
 	 *
-	 * @param Column $column
+	 * @param Column $column The FK column
 	 * @return array Array with 'join_clause' and 'column_alias' keys
 	 */
 	protected function join_on($column) {
@@ -466,51 +466,54 @@ class Table {
 	public function export() {
 
 		$columns = array();
+		$column_headers = array();
 		$join_clause = '';
 		foreach ( $this->columns as $col_name => $col ) {
 			if ( $col->is_foreign_key() ) {
-				$colJoin = $this->joinOn( $col );
-				$column_name = $colJoin['column_alias'];
-				$join_clause .= $colJoin['join_clause'];
+				$col_join = $this->join_on( $col );
+				$column_name = $col_join['column_alias'];
+				$join_clause .= $col_join['join_clause'];
 			} else {
 				$column_name = "`$this->name`.`$col_name`";
 			}
 			$columns[] = "REPLACE(IFNULL($column_name, ''),'\r\n', '\n')";
+			$column_headers[] = $col->get_title();
 		}
-		$orderByJoin = $this->joinOn( $this->getColumn( $this->getOrderBy() ) );
-		$join_clause .= $orderByJoin['join_clause'];
 
 		// Build basic SELECT statement
-		$sql = 'SELECT ' . join( ',', $columns ) . ' '
-				. 'FROM `' . $this->get_name() . '` ' . $join_clause . ' '
-				. 'ORDER BY ' . $orderByJoin['column_alias'] . ' ' . $this->get_order_dir();
+		$sql = 'SELECT ' . join( ',', $columns )
+			. ' FROM `' . $this->get_name() . '` ' . $join_clause;
 
-		$params = $this->applyFilters( $sql );
+		$params = $this->apply_filters( $sql );
 
-		$tmpdir = CACHE_DIR . DIRECTORY_SEPARATOR;
-		if ( !file_exists( $tmpdir ) ) {
-			throw new Exception( "Cache directory doesn't exist: $tmpdir" );
-		}
-		$tmpdir = realpath( $tmpdir ) . DIRECTORY_SEPARATOR;
-		$filename = $tmpdir . uniqid( 'export' ) . '.csv';
+		$filename = get_temp_dir() . uniqid( 'tabulate_' ) . '.csv';
 		if ( DIRECTORY_SEPARATOR == '\\' ) {
+			// Clean Windows slashes, for MySQL's benefit.
 			$filename = str_replace( '\\', '/', $filename );
 		}
+		// Clear out any old copy.
 		if ( file_exists( $filename ) ) {
 			unlink( $filename );
 		}
-		$sql .= " INTO OUTFILE '$filename' "
-				. ' FIELDS TERMINATED BY ","'
-				. ' ENCLOSED BY \'"\''
-				. ' ESCAPED BY \'"\''
-				. ' LINES TERMINATED BY "\r\n"';
-
-		$this->query( $sql, $params );
-		if ( !file_exists( $filename ) ) {
-			echo '<pre>' . $sql . '</pre>';
-			throw new Exception( "Failed to create $filename" );
+		// Build the final SQL, appending the column headers in a UNION.
+		$sql = 'SELECT "' . join( '", "', $column_headers ) . '"'
+			. ' UNION ' . $sql
+			. ' INTO OUTFILE "' . $filename.'" '
+			. ' FIELDS TERMINATED BY ","'
+			. ' ENCLOSED BY \'"\''
+			. ' ESCAPED BY \'"\''
+			. ' LINES TERMINATED BY "\r\n"';
+		// Execute the SQL.
+		if ( $params ) {
+			$sql = $this->database->get_wpdb()->prepare( $sql, $params );
 		}
-
+		$this->database->get_wpdb()->query( $sql );
+		// Make sure it exported.
+		if ( ! file_exists( $filename ) ) {
+			echo '<pre>' . $sql . '</pre>';
+			throw new \Exception( "Failed to create $filename" );
+		}
+		// Give the filename back to the controller, to send to the client.
 		return $filename;
 	}
 
@@ -842,13 +845,16 @@ class Table {
 		return $this->get_record($new_pk_value);
 	}
 
-	public function get_url($action = 'index') {
+	public function get_url($action = 'index', $merge_existing = false) {
 		$params = array(
 			'page' => 'tabulate',
 			'controller' => 'table',
 			'action' => $action,
 			'table' => $this->get_name(),
 		);
+		if ( $merge_existing ) {
+			$params = array_merge( $_GET, $params );
+		}
 		return admin_url( 'admin.php?' . http_build_query( $params ) );
 	}
 
