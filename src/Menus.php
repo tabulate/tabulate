@@ -23,7 +23,7 @@ class Menus {
 
 	/**
 	 * Set up all required hooks.
-	 * 
+	 *
 	 * This is called from the top level of tabulate.php
 	 * @return void
 	 */
@@ -34,7 +34,8 @@ class Menus {
 	}
 
 	/**
-	 * Add 
+	 * Add Tabulate's menu items to the main admin menu.
+	 * @return void
 	 */
 	public function add_menu_pages() {
 		$dispatch_callback = array( $this, 'output' );
@@ -66,13 +67,19 @@ class Menus {
 	 */
 	public function dispatch() {
 
+		// Only dispatch when it's our page.
+		$slugLenth = strlen( TABULATE_SLUG );
+		if ( ! isset( $_GET['page'] ) || substr( $_GET['page'], 0, $slugLenth ) != TABULATE_SLUG ) {
+			return;
+		}
+
 		// Discern the controller name, based on an explicit GET parameter, or
 		// the trailing part of the page slug (i.e. after 'tabulate_').
 		$controllerName = 'home';
 		if ( isset( $_GET['controller'] ) ) {
 			$controllerName = $_GET['controller'];
-		} elseif ( strlen( $_GET['page'] ) > strlen( TABULATE_SLUG ) ) {
-			$controllerName = substr( $_GET['page'], strlen( TABULATE_SLUG ) + 1 );
+		} elseif ( isset( $_GET['page'] ) && strlen( $_GET['page'] ) > $slugLenth ) {
+			$controllerName = substr( $_GET['page'], $slugLenth + 1 );
 		}
 
 		// Create the controller and run the action.
@@ -86,12 +93,15 @@ class Menus {
 	/**
 	 * This is the callback method used in self::init() to add scripts and
 	 * styles to the admin pages.
-	 * 
+	 *
 	 * @return void
 	 */
 	public function admin_enqueue($page) {
 		// Make sure we only enqueue on Tabulate pages.
-		$allowed_pages = array('toplevel_page_tabulate', 'tabulate_page_tabulate_grants');
+		$allowed_pages = array(
+			'toplevel_page_tabulate',
+			'tabulate_page_tabulate_grants',
+		);
 		if ( ! in_array( $page, $allowed_pages ) ) {
 			return;
 		}
