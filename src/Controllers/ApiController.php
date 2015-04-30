@@ -2,6 +2,10 @@
 
 namespace WordPress\Tabulate\Controllers;
 
+/**
+ * This controller is different from the others in that it is not called via the
+ * usual Menu dispatch system, but rather from a hook in `tabulate.php`.
+ */
 class ApiController extends ControllerBase {
 
 	public function register_routes($routes) {

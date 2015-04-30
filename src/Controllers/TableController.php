@@ -39,7 +39,7 @@ class TableController extends ControllerBase {
 		$template->record = $table->get_default_record();
 		$template->records = $table->get_records();
 		$template->record_count = $table->count_records();
-		echo $template->render();
+		return $template->render();
 	}
 
 	/**
@@ -145,7 +145,7 @@ class TableController extends ControllerBase {
 			$template->add_notice( 'updated', 'Import complete; ' . $result . ' rows imported.' );
 		}
 
-		echo $template->render();
+		return $template->render();
 	}
 
 	public function calendar( $args ) {
@@ -190,7 +190,7 @@ class TableController extends ControllerBase {
 		// an array like: ['record'=>Record, 'column'=>$name_of_date_column]
 		$template->records = $records;
 
-		echo $template->render();
+		return $template->render();
 	}
 
 	/**
@@ -214,7 +214,10 @@ class TableController extends ControllerBase {
 		$download_name = date('Y-m-d').'_'.$table->get_name().'.csv';
 		header('Content-Encoding: UTF-8');
 		header('Content-type: text/csv; charset=UTF-8');
-		echo "\xEF\xBB\xBF".file_get_contents($filename);
+		header('Content-Disposition: attachment; filename="'.$download_name.'"');
+		echo "\xEF\xBB\xBF";
+		readfile($filename);
+		exit(0);
 	}
 
 }

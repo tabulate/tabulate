@@ -2,8 +2,8 @@
 * Contributors: samwilson
 * Donate link: https://www.bushheritage.org.au/donatenow
 * Tags: MySQL, databases, tables, data, CRUD, importing, CSV
-* Requires at least: 4.1
-* Tested up to: 4.1.1
+* Requires at least: 4.2
+* Tested up to: 4.2
 * Stable tag: trunk
 * License: GPLv2 or later
 * License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -26,15 +26,20 @@ Somewhat akin to phpMyAdmin, but including only data-modification features.
 
 Features (in no particular order):
 
+1. Tables can be filtered by any column or columns, and with a range of
+   operators ('contains', 'is', 'empty', 'greater than', 'less than', and the
+   negations of all of these). Multiple filters are conjunctive (i.e. with a
+   logical *and*).
 1. Access can be granted to *read*, *create*, *update*, *delete*, and *import*
    records in any or all tables. (This can be done by anyone with the
    *promote_users* capability.)
 2. CSV data can be imported, with the UI supporting column mapping, data
    validation, and previewing prior to final import.
-3. A quick-jump navigation box (located top right of every page) can be
+3. Data can be exported to CSV, including after filters have been applied. 
+4. A quick-jump navigation box (located top right of every page) can be
    activated by installing the [WP REST API](https://wordpress.org/plugins/json-rest-api/)
    plugin.
-4. Records in tables with *date* columns can be viewed in a calendar.
+5. Records in tables with *date* columns can be viewed in a calendar.
 
 ## Installation
 
@@ -55,6 +60,11 @@ tracker: https://github.com/tabulate/tabulate/issues
 None. Some [options](http://codex.wordpress.org/Option_Reference) are created,
 all prefixed with `tabulate_`. These store the granted permissions (one per
 Tabulate grant; i.e. five so far).
+
+### Is row-level access control possible?
+
+This should be done by creating a [view](https://dev.mysql.com/doc/refman/5.1/en/create-view.html)
+(of one or more tables) and granting access to that.
 
 ## Screenshots
 

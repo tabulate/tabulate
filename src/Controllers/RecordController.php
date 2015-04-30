@@ -38,7 +38,7 @@ class RecordController extends ControllerBase {
 			}
 		}
 
-		echo $template->render();
+		return $template->render();
 	}
 
 	public function save( $args ) {
@@ -64,7 +64,7 @@ class RecordController extends ControllerBase {
 				$template->record = new \WordPress\Tabulate\DB\Record( $table, $data );
 			}
 		}
-		echo $template->render();
+		return $template->render();
 	}
 
 }

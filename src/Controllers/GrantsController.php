@@ -23,8 +23,8 @@ class GrantsController extends ControllerBase {
 		$this->template->roles = $grants->get_roles();
 		$this->template->grants = $grants->get();
 		$this->template->capabilities = $grants->get_capabilities();
-		$this->template->form_action = admin_url( 'admin.php?page=tabulate&controller=grants&action=save' );
-		echo $this->template->render();
+		$this->template->form_action = $this->get_url( 'save' );
+		return $this->template->render();
 	}
 
 	public function save() {
@@ -46,7 +46,15 @@ class GrantsController extends ControllerBase {
 		// Save the grants and return to the granting table.
 		$grants->set( $new_grants );
 		$this->template->add_notice( 'updated', 'Grants saved.' );
-		$this->index();
+		wp_redirect($this->get_url( 'index' ) );
 	}
 
+	/**
+	 * Get the URL of the grants' admin page.
+	 * @param string $action Either 'save' or 'index'.
+	 * @return string
+	 */
+	public function get_url( $action ) {
+		return admin_url( 'admin.php?page=tabulate&controller=grants&action=' . $action );
+	}
 }

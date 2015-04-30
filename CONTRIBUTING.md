@@ -29,7 +29,6 @@ Some possibilities:
 * An audit trail, logging all modifications.
 * File storage, for blob types.
 * Bulk changes, for modifying filtered data.
-* CSV export.
 * LaTeX output.
 * Tree/hierarchy display, for self-referencing foreign keys.
 * A cross-platform mobile app, that can connect to a Tabulate site and create
