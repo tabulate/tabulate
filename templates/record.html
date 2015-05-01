@@ -31,6 +31,18 @@
 				{% endfor %}
 			</select><!-- End foreign key select -->
 
+			{% elseif column.get_type=='enum' %}
+			<select name="{{column.get_name}}" id="{{column.get_name}}" aria-describedby="{{column.get_name}}-help"
+				{% if column.is_required %}required{% endif %}
+				>
+				{% if column.nullable %}<option></option>{% endif %}
+				{% for option in column.get_options %}
+				<option value="{{option}}" {% if attribute(record, column.get_name) == option %}selected{% endif %}>
+					{{option}}
+				</option>
+				{% endfor %}
+			</select><!-- End ENUM select -->
+
 			{% elseif column.is_boolean %}
 			<input type="radio" name="{{column.get_name}}" id="{{column.get_name}}-yes"
 				   value="1" {% if attribute(record, column.get_name) is sameas(true) %}checked{% endif %} />
