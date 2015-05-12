@@ -220,7 +220,7 @@ class Column {
 	 */
 	public function allows_empty_string() {
 		$textTypes = array( 'text', 'varchar', 'char' );
-		return $this->nullable() && in_array( $this->get_type(), $textTypes );
+		return ( ! $this->nullable() ) && in_array( $this->get_type(), $textTypes );
 	}
 
 	/**

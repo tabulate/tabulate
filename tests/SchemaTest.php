@@ -111,4 +111,25 @@ class SchemaTest extends TestBase {
 		$this->assertNull( $record->ranking() );
 	}
 
+	/**
+	 * @testdox Only NOT NULL text fields are allowed to have empty strings.
+	 * @test
+	 */
+	public function empty_string() {
+		$test_table = $this->db->get_table( 'test_table' );
+		// Title is NOT NULL.
+		$this->assertTrue( $test_table->get_column( 'title' )->allows_empty_string() );
+		// Description is NULLable.
+		$this->assertFalse( $test_table->get_column( 'description' )->allows_empty_string() );
+
+		// Check with some data.
+		$data = array(
+			'title' => '', 
+			'description' => '', 
+		);
+		$record = $test_table->save_record( $data );
+		$this->assertSame( '', $record->title() );
+		$this->assertNull( $record->description() );
+	}
+
 }
