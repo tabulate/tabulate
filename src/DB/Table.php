@@ -816,9 +816,21 @@ class Table {
 				throw new \Exception( 'You do not have permission to update data in this table.' );
 			}
 
+			// Filter out NULL values into a separate query until wpdb figures out how to deal with them.
+			// See this: https://core.trac.wordpress.org/ticket/15158
+			$null_data = array_filter($data, function($v) { return $v === null; });
+			$data = array_filter($data, function($v) { return $v !== null; });
+
 			// Save record.
-			$where = array($pk_name => $pk_value);
-			$this->database->get_wpdb()->update($this->get_name(), $data, $where);
+			if ($data) {
+				$where = array($pk_name => $pk_value);
+				$this->database->get_wpdb()->update($this->get_name(), $data, $where);
+			}
+			if ($null_data) {
+				$update = join(", ", array_map(function($f) { return "`$f`=NULL"; }, array_keys($null_data)));
+				$where = $this->database->get_wpdb()->prepare("`$pk_name`=%s", $pk_value);
+				$this->database->get_wpdb()->query("UPDATE {$this->get_name()} SET $update WHERE $where");
+			}
 			$new_pk_value = (isset( $data[$pk_name])) ? $data[$pk_name] : $pk_value;
 
 		} else { // Or insert?
