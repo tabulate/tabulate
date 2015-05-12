@@ -2,13 +2,13 @@
 /**
  * Plugin Name: Tabulate
  * Description: A simple user-friendly interface to tables in the database.
- * Version: 0.9.3
+ * Version: 0.9.4
  * Author: Sam Wilson
  * Author URI: http://samwilson.id.au/
  * License: GPL-2.0+
  */
 
-define( 'TABULATE_VERSION', '0.9.3' );
+define( 'TABULATE_VERSION', '0.9.4' );
 define( 'TABULATE_SLUG', 'tabulate' );
 
 // Make sure Composer has been set up (for installation from Git, mostly).

@@ -86,8 +86,7 @@ class TableController extends ControllerBase {
 		$template->table = $table;
 		if ( ! Grants::current_user_can( Grants::IMPORT, $table->get_name() ) ) {
 			$template->add_notice( 'error', 'You do not have permission to import data into this table.' );
-			echo $template->render();
-			return;
+			return $template->render();
 		}
 
 		/*
@@ -99,8 +98,7 @@ class TableController extends ControllerBase {
 			$csv_file = new \WordPress\Tabulate\CSV( $hash );
 		} catch ( \Exception $e ) {
 			$template->add_notice( 'error', $e->getMessage() );
-			echo $template->render();
-			return;
+			return $template->render();
 		}
 
 		/*
@@ -159,8 +157,7 @@ class TableController extends ControllerBase {
 
 		if ( ! $table ) {
 			$template->add_notice( 'error', "The '$table_name' table was not found." );
-			echo $template->render();
-			return;
+			return $template->render();
 		}
 		$template->table = $table;
 		$template->action = 'calendar';
