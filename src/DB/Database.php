@@ -18,7 +18,7 @@ class Database {
 	}
 
 	/**
-	 * @return wpdb
+	 * @return \wpdb
 	 */
 	public function get_wpdb() {
 		return $this->wpdb;

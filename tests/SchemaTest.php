@@ -58,7 +58,7 @@ class SchemaTest extends TestBase {
 	 * @testdox A not-null column "is required" but if it has a default value then no value need be set when saving.
 	 * @test
 	 */
-	public function requiredColumns() {
+	public function required_columns() {
 		// 'widget_size' is a not-null column with a default value.
 		$test_table = $this->db->get_table( 'test_table' );
 		$widget_size_col = $test_table->get_column( 'widget_size' );
@@ -75,7 +75,40 @@ class SchemaTest extends TestBase {
 		$this->assertEquals( 1, $test_table->count_records() );
 		$widget_records = $test_table->get_records();
 		$widget_record = array_shift( $widget_records );
-		$this->assertEquals(5.6, $widget_record->widget_size());
+		$this->assertEquals( 5.6, $widget_record->widget_size() );
+	}
+
+	/**
+	 * @testdox Null values can be inserted, and existing values can be updated to be null.
+	 * @test
+	 */
+	public function null_values() {
+		$test_table = $this->db->get_table( 'test_table' );
+
+		// Start with null.
+		$widget = array(
+			'title' => 'Test Item',
+			'ranking' => null,
+		);
+		$record = $test_table->save_record( $widget );
+		$this->assertEquals( 'Test Item', $record->title() );
+		$this->assertNull( $record->ranking() );
+
+		// Update to a number.
+		$widget = array(
+			'title' => 'Test Item',
+			'ranking' => 12,
+		);
+		$record = $test_table->save_record( $widget, 1 );
+		$this->assertEquals( 12, $record->ranking() );
+
+		// Then update to null again.
+		$widget = array(
+			'title' => 'Test Item',
+			'ranking' => null,
+		);
+		$record = $test_table->save_record( $widget, 1 );
+		$this->assertNull( $record->ranking() );
 	}
 
 }

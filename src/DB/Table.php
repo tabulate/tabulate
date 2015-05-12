@@ -800,8 +800,8 @@ class Table {
 			}
 
 			// Empty strings.
-			if ( !$column->allows_empty_string() && $value === '' && $column->nullable() ) {
-				$data[$field] = null;
+			if ( ! $column->allows_empty_string() && '' === $value && $column->nullable() ) {
+				$data[ $field ] = null;
 			}
 		}
 
@@ -809,44 +809,44 @@ class Table {
 		$pk_name = $this->get_pk_column()->get_name();
 		$this->database->get_wpdb()->hide_errors();
 
-		if ( $pk_value ) { // Update?
+		// Compile SQL for insert and update statements.
+		// This is a workaround for NULL support in $wpdb->update() and $wpdb->insert().
+		// Can probably be removed when https://core.trac.wordpress.org/ticket/15158 is resolved.
+		$set_items = array();
+		foreach ( $data as $field => $datum ) {
+			if ( is_null( $datum ) ) {
+				$escd_datum = 'NULL';
+			} elseif ( is_numeric( $datum ) ) {
+				$escd_datum = $datum;
+			} else {
+				$escd_datum = "'" . esc_sql( $datum ) ."'";
+			}
+			$set_items[] = "`$field` = $escd_datum";
+		}
+		$set_clause = 'SET ' . join( ', ', $set_items );
 
+		// Prevent PK from being set to empty.
+		if ( isset( $data[ $pk_name ] ) && empty( $data[ $pk_name ] ) ) {
+			unset( $data[ $pk_name ] );
+		}
+
+		if ( $pk_value ) { // Update?
 			// Check permission.
 			if ( ! Grants::current_user_can( Grants::UPDATE, $this->get_name() ) ) {
 				throw new \Exception( 'You do not have permission to update data in this table.' );
 			}
-
-			// Filter out NULL values into a separate query until wpdb figures out how to deal with them.
-			// See this: https://core.trac.wordpress.org/ticket/15158
-			$null_data = array_filter($data, function($v) { return $v === null; });
-			$data = array_filter($data, function($v) { return $v !== null; });
-
-			// Save record.
-			if ($data) {
-				$where = array($pk_name => $pk_value);
-				$this->database->get_wpdb()->update($this->get_name(), $data, $where);
-			}
-			if ($null_data) {
-				$update = join(", ", array_map(function($f) { return "`$f`=NULL"; }, array_keys($null_data)));
-				$where = $this->database->get_wpdb()->prepare("`$pk_name`=%s", $pk_value);
-				$this->database->get_wpdb()->query("UPDATE {$this->get_name()} SET $update WHERE $where");
-			}
-			$new_pk_value = (isset( $data[$pk_name])) ? $data[$pk_name] : $pk_value;
+			$where_clause = $this->database->get_wpdb()->prepare( "WHERE `$pk_name` = %s", $pk_value );
+			$this->database->get_wpdb()->query( 'UPDATE ' . $this->get_name()." $set_clause $where_clause;" );
+			$new_pk_value = (isset( $data[ $pk_name ] ) ) ? $data[ $pk_name ] : $pk_value;
 
 		} else { // Or insert?
-
 			// Check permission.
 			if ( ! Grants::current_user_can( Grants::CREATE, $this->get_name() ) ) {
 				throw new \Exception( 'You do not have permission to insert records into this table.' );
 			}
-
-			// Prevent PK from being set to empty.
-			if ( empty( $data[$pk_name] ) ) {
-				unset( $data[$pk_name] );
-			}
-			$this->database->get_wpdb()->insert( $this->get_name(), $data );
-			if (!empty($this->database->get_wpdb()->last_error)) {
-				throw new Exception($this->database->get_wpdb()->last_error);
+			$this->database->get_wpdb()->query( 'INSERT INTO ' . $this->get_name() . " $set_clause;" );
+			if ( ! empty( $this->database->get_wpdb()->last_error ) ) {
+				throw new Exception( $this->database->get_wpdb()->last_error );
 			}
 			$new_pk_value = $this->database->get_wpdb()->insert_id;
 
@@ -854,7 +854,7 @@ class Table {
 
 		// Show errors again and return the new or updated record.
 		$this->database->get_wpdb()->show_errors();
-		return $this->get_record($new_pk_value);
+		return $this->get_record( $new_pk_value );
 	}
 
 	public function get_url($action = 'index', $merge_existing = false) {

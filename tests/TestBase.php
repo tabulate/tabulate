@@ -28,7 +28,8 @@ class TestBase extends WP_UnitTestCase {
 			. ' active BOOLEAN NULL DEFAULT TRUE,'
 			. ' a_date DATE NULL,'
 			. ' type_id INT(10) NULL DEFAULT NULL,'
-			. ' widget_size DECIMAL(10,2) NOT NULL DEFAULT 5.6'
+			. ' widget_size DECIMAL(10,2) NOT NULL DEFAULT 5.6,'
+			. ' ranking INT(3) NULL DEFAULT NULL'
 			. ');'
 		);
 		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_types`' );
