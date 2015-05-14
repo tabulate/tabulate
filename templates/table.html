@@ -122,7 +122,7 @@
 
 				{% if column.is_foreign_key %}
 
-				<a href="{{ record.get_referenced_row(column.get_name).get_url }}">
+				<a href="{{ record.get_referenced_record(column.get_name).get_url }}">
 					{{ attribute(record, column.get_name~'FKTITLE') }}
 				</a>
 

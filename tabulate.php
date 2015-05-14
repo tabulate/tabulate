@@ -1,14 +1,14 @@
 <?php
 /**
  * Plugin Name: Tabulate
- * Description: A simple user-friendly interface to tables in the database.
- * Version: 0.9.4
+ * Description: Manage relational tabular data within the WP admin area, using the full power of your MySQL database.
+ * Version: 0.10.0
  * Author: Sam Wilson
  * Author URI: http://samwilson.id.au/
  * License: GPL-2.0+
  */
 
-define( 'TABULATE_VERSION', '0.9.4' );
+define( 'TABULATE_VERSION', '0.10.0' );
 define( 'TABULATE_SLUG', 'tabulate' );
 
 // Make sure Composer has been set up (for installation from Git, mostly).

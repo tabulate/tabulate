@@ -15,7 +15,7 @@
 
 			<td class='form-field form-required'><!-- Data entry cell -->
 
-			{% if column.is_foreign_key %}
+			{% if column.is_foreign_key and column.get_referenced_table.count_records <= 20 %}
 			<select name="{{column.get_name}}" id="{{column.get_name}}" aria-describedby="{{column.get_name}}-help"
 				{% if column.is_required %}required{% endif %}
 				>
@@ -30,6 +30,13 @@
 				</option>
 				{% endfor %}
 			</select><!-- End foreign key select -->
+
+			{% elseif column.is_foreign_key and column.get_referenced_table.count_records > 20 %}
+			<input type="text" class="foreign-key-actual-value" readonly name="{{column.get_name}}"
+				   value="{{ attribute(record, column.get_name)}}" {% if column.is_required %}required{% endif %} />
+			<input type="text" class="foreign-key" {% if column.is_required %}required{% endif %}
+				   data-fk-table="{{column.get_referenced_table.get_name}}"
+				   value="{{ record.get_referenced_record(column.get_name).get_title }}" />
 
 			{% elseif column.get_type=='enum' %}
 			<select name="{{column.get_name}}" id="{{column.get_name}}" aria-describedby="{{column.get_name}}-help"
@@ -84,7 +91,9 @@
 					{% if column.is_foreign_key %}
 					This field is a cross reference to
 					{% if attribute(record, column.get_name) %}
-					<a href="">Record #{{attribute(record, column.get_name)}}</a>
+					<a href="{{ record.get_referenced_record(column.get_name).get_url }}">
+						Record <em>{{attribute(record, column.get_name)}}</em>
+					</a>
 					of
 					{% endif %}
 					<a href="{{column.get_referenced_table.get_url}}">{{column.get_referenced_table.get_title}}</a>.

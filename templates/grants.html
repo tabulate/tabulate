@@ -11,8 +11,8 @@
 			<tr>
 				<th>Table Name</th>
 				<th></th>
-				{% for role in roles %}
-				<th>{{role|titlecase}}</th>
+				{% for role,role_title in roles %}
+				<th>{{role_title}}</th>
 				{% endfor %}
 			</tr>
 		</thead>
@@ -28,7 +28,7 @@
 			<tr>
 				<th>{{table|titlecase}}</th>
 				<td class="select-all"></td>
-				{% for role in roles %}
+				{% for role,role_title in roles %}
 				<td class="capabilities">
 					<div data-role="{{role}}">
 					{% for cap in capabilities %}

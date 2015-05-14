@@ -5,26 +5,52 @@ jQuery(document).ready(function ($) {
 	 */
 	$("input.datepicker").datepicker({ dateFormat: 'yy-mm-dd' });
 
+
 	/**
-	 * Jump between tables.
+	 * Set up the bits that use WP_API.
 	 * Make sure the WP-API nonce is always set on AJAX requests.
 	 */
 	if (typeof WP_API_Settings !== 'undefined') {
 		$.ajaxSetup({
 			headers: { 'X-WP-Nonce': WP_API_Settings.nonce }
 		});
+
+		/**
+		 * Jump between tables.
+		 */
 		$(".tabulate .quick-jump input").autocomplete({
 			source: WP_API_Settings.root + "/tabulate/tables",
 			select: function( event, ui ) {
 				event.preventDefault();
 				$(this).prop( "disabled", true );
 				$(".tabulate .quick-jump input").val( ui.item.label );
-				console.log(ui.item.label);
 				var url = tabulate.admin_url + "&controller=table&table=" + ui.item.value;
 				$(location).attr( 'href', url );
 			}
 		});
-	}
+
+		/**
+		 * Handle foreign-key select lists (autocomplete when greater than N options).
+		 */
+		$(".tabulate input.foreign-key").each(function() {
+			// Autocomplete.
+			$(this).autocomplete({
+				source: WP_API_Settings.root + "/tabulate/fk/" + $(this).data('fk-table'),
+				select: function( event, ui ) {
+					event.preventDefault();
+					$(this).val(ui.item.label);
+					$(this).closest("td").find("input.foreign-key-actual-value").val(ui.item.value);
+				}
+			});
+			// Clear actual-value if emptied.
+			$(this).change(function(){
+				if ($(this).val().length === 0) {
+					$(this).closest("td").find("input.foreign-key-actual-value").val("");
+				}
+			});
+		});
+
+	} // if (typeof WP_API_Settings !== 'undefined')
 
 
 	/**

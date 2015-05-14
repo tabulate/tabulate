@@ -84,12 +84,16 @@ class Record {
 		return false;
 	}
 
+	/**
+	 * Get the value of this Record's title column.
+	 * @return string
+	 */
 	public function get_title() {
 		$title_col_name = $this->table->get_title_column()->get_name();
 		return $this->data->$title_col_name;
 	}
 
-	public function get_referenced_row($column_name) {
+	public function get_referenced_record($column_name) {
 		return $this->table->get_column( $column_name )->get_referenced_table()->get_record( $this->data->$column_name );
 	}
 

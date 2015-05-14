@@ -1,6 +1,6 @@
 {
 	"name": "tabulate/tabulate",
-	"description": "WordPress plugin providing a simple user-friendly interface to tables in the database.",
+	"description": "WordPress plugin for managing relational tabular data.",
 	"license": "GPL-2.0+",
 	"autoload": {
 		"psr-4": {

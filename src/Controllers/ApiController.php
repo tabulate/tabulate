@@ -12,6 +12,9 @@ class ApiController extends ControllerBase {
 		$routes[ '/' . TABULATE_SLUG . '/tables' ] = array(
 			array( array( $this, 'table_names' ), \WP_JSON_Server::READABLE ),
 		);
+		$routes[ '/' . TABULATE_SLUG . '/fk/(?P<table_name>.*)' ] = array(
+			array( array( $this, 'foreign_key_values' ), \WP_JSON_Server::READABLE ),
+		);
 		return $routes;
 	}
 
@@ -32,6 +35,28 @@ class ApiController extends ControllerBase {
 					'label' => $table->get_title(),
 				);
 			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Get a list of a table's records' IDs and titles, filtered by
+	 * `$_GET['term']`, for foreign-key fields. Only used when there are more
+	 * than N records in a foreign table (otherwise the options are presented in
+	 * a select list).
+	 *
+	 * @return array
+	 */
+	public function foreign_key_values( $table_name ) {
+		$db = new \WordPress\Tabulate\DB\Database( $this->wpdb );
+		$table = $db->get_table( $table_name );
+		$table->add_filter( $table->get_title_column(), 'like', '%'.$_GET[ 'term' ].'%' );
+		$out = array();
+		foreach ( $table->get_records() as $record ) {
+			$out[] = array(
+				'value' => $record->get_primary_key(),
+				'label' => $record->get_title(),
+			);
 		}
 		return $out;
 	}

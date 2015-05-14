@@ -104,11 +104,17 @@ class Table {
 	 * @param boolean $force Whether to transform the value, for FKs.
 	 */
 	public function add_filter($column, $operator, $value, $force = false) {
-		$valid_columm = in_array( $column, array_keys( $this->columns ) );
+		// Allow Columns to be passed in.
+		if ($column instanceof Column) {
+			$column = $column->get_name();
+		}
+		// Validate the parts of the filter.
+		$valid_columm = in_array( $column, array_keys( $this->get_columns() ) );
 		$valid_operator = in_array( $operator, array_keys( $this->operators ) );
 		$emptyValueAllowed = (strpos( $operator, 'empty' ) === false && !empty( $value ));
 		$valid_value = (strpos( $operator, 'empty' ) !== false) || $emptyValueAllowed;
 		if ( $valid_columm && $valid_operator && $valid_value ) {
+			// Save the filter for later application.
 			$this->filters[] = array(
 				'column' => $column,
 				'operator' => $operator,

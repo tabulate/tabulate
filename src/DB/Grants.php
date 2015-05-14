@@ -33,8 +33,8 @@ class Grants {
 
 	public function get_roles() {
 		$roles = array();
-		foreach ( get_editable_roles() as $role ) {
-			$roles[] = strtolower( $role[ 'name' ] );
+		foreach ( get_editable_roles() as $role_name => $role ) {
+			$roles[ $role_name ] = $role[ 'name' ];
 		}
 		return $roles;
 	}
@@ -95,7 +95,11 @@ class Grants {
 		// Table has grants of this capability; check whether the user has one
 		// of the roles with this capability.
 		$user = wp_get_current_user();
+		//var_dump($user->roles);
+		//var_dump($table_grants[$cap]);
+		//exit();
 		$intersect = array_intersect( $table_grants[$cap], $user->roles );
+		//var_dump($intersect);
 		if ( count( $intersect ) > 0 ) {
 			$all_capabilities[ $cap_full_name ] = true;
 		}
