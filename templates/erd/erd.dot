@@ -1,0 +1,29 @@
+
+digraph ERD {
+	rankdir=LR
+	node [shape=none, fontsize=12];
+	{% for table in selected_tables %}
+
+	{% spaceless %}
+	{{table.get_name}} [label=<<TABLE CELLBORDER="1" CELLSPACING="0" BORDER="0">
+		<TR><TD ALIGN="CENTER"><FONT POINT-SIZE="16"><B>{{table.get_title}}</B></FONT></TD></TR>
+		{% for column in table.get_columns %}
+		<TR>
+			<TD PORT="{{column.get_name}}" ALIGN="LEFT">
+				{{column.get_title}} ({{column.get_type}})
+			</TD>
+		</TR>
+		{% endfor %}
+	</TABLE>>]
+	{% endspaceless %}
+
+	{% for column in table.get_columns %}
+		{% if column.is_foreign_key %}
+		{{table.get_name}}:{{column.get_name}} -> {{column.get_referenced_table.get_name}}:{{column.get_referenced_table.get_pk_column.get_name}};
+		{% endif %}
+	{% endfor %}
+
+	{% endfor %}
+
+}
+

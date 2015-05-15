@@ -45,6 +45,9 @@ class Menus {
 		add_submenu_page( TABULATE_SLUG, 'Tabulate Overview', 'Overview', 'read', TABULATE_SLUG, $dispatch_callback );
 
 		// Add submenu pages.
+		if ( is_plugin_active( 'tfo-graphviz/tfo-graphviz.php' ) ) {
+			add_submenu_page( TABULATE_SLUG, 'Tabulate ERD', 'ERD', 'read', TABULATE_SLUG.'_erd', $dispatch_callback );
+		}
 		add_submenu_page( TABULATE_SLUG, 'Tabulate Grants', 'Grants', 'promote_users', TABULATE_SLUG.'_grants', $dispatch_callback );
 
 	}
@@ -85,8 +88,8 @@ class Menus {
 		// Create the controller and run the action.
 		$controllerClassName = 'WordPress\\Tabulate\\Controllers\\' . ucfirst( $controllerName ) . 'Controller';
 		$controller = new $controllerClassName( $this->wpdb );
-		$action = isset( $_GET['action'] ) ? $_GET['action'] : 'index';
-		unset( $_GET['page'], $_GET['controller'], $_GET['action'] );
+		$action = ! empty( $_GET[ 'action' ] ) ? $_GET[ 'action' ] : 'index';
+		unset( $_GET[ 'page' ], $_GET[ 'controller' ], $_GET[ 'action' ] );
 		$this->output = $controller->$action( $_GET );
 	}
 
@@ -100,6 +103,7 @@ class Menus {
 		// Make sure we only enqueue on Tabulate pages.
 		$allowed_pages = array(
 			'toplevel_page_tabulate',
+			'tabulate_page_tabulate_erd',
 			'tabulate_page_tabulate_grants',
 		);
 		if ( ! in_array( $page, $allowed_pages ) ) {

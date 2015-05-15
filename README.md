@@ -40,6 +40,10 @@ Features (in no particular order):
    activated by installing the [WP REST API](https://wordpress.org/plugins/json-rest-api/)
    plugin.
 5. Records in tables with *date* columns can be viewed in a calendar.
+6. Entity Relationship Diagrams (drawn with [GraphViz](http://graphviz.org/))
+   can be automatically generated, with any specified subset of tables. Foreign
+   keys are displayed as directed edges. This feature is only available if the
+   [TFO Graphviz plugin](https://wordpress.org/plugins/tfo-graphviz/) is installed.
 
 ## Installation
 

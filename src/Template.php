@@ -13,6 +13,7 @@ class Template {
 			'tabulate_version' => TABULATE_VERSION,
 			'notices' => array(),
 			'wp_api' => is_plugin_active( 'json-rest-api/plugin.php' ),
+			'tfo_graphviz' => is_plugin_active( 'tfo-graphviz/tfo-graphviz.php' ),
 		);
 	}
 
@@ -63,6 +64,9 @@ class Template {
 	public function render() {
 		$loader = new \Twig_Loader_Filesystem( __DIR__ . '/../templates' );
 		$twig = new \Twig_Environment( $loader );
+
+		// Add the admin_url() function.
+		$twig->addFunction('admin_url', new \Twig_SimpleFunction( 'admin_url', 'admin_url' ) );
 
 		// Add titlecase filter.
 		$titlecase_filter = new \Twig_SimpleFilter( 'titlecase', '\\WordPress\\Tabulate\\Text::titlecase' );

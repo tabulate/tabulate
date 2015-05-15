@@ -707,11 +707,11 @@ class Table {
 	 * @return string A summary of this table.
 	 */
 	public function __toString() {
-		$colCount = count( $this->getColumns() );
+		$col_count = count( $this->get_columns() );
 		$out = "\n+-----------------------------------------+\n";
-		$out .= "| " . $this->name . " ($colCount columns)\n";
+		$out .= "| " . $this->get_name() . " ($col_count columns)\n";
 		$out .= "+-----------------------------------------+\n";
-		foreach ( $this->getColumns() as $column ) {
+		foreach ( $this->get_columns() as $column ) {
 			$out .= "| $column \n";
 		}
 		$out .= "+-----------------------------------------+\n\n";

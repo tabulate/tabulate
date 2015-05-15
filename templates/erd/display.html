@@ -1,0 +1,29 @@
+{%extends "base.html"%}
+
+{% block content %}
+
+<h2>Entity Relationship Diagram</h2>
+<p><a href="#display">Scroll down to specify which tables are displayed.</a></p>
+
+{{graphviz|raw}}
+
+<p><a name="display"></a></p>
+<h2>Change displayed tables</h2>
+<form action="{{admin_url()}}admin.php" method="get">
+<ol>
+	{% for table in tables %}
+	<li>
+		<input type="checkbox" name="tables[{{table.get_name}}]"
+			   {% if table.get_name in selected_tables|keys %}checked{% endif %}
+			   id="{{table.get_name}}" />
+		<label for="{{table.get_name}}">{{table.get_title}}</label>
+	</li>
+	{% endfor %}
+</ol>
+<p>
+	<input type="hidden" name="page" value="tabulate_erd" />
+	<input type="submit" value="Show only the selected tables" />
+</p>
+</form
+
+{% endblock %}
