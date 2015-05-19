@@ -47,10 +47,15 @@ Features (in no particular order):
 
 ## Installation
 
-Follow the usual plugin installation procedure.
-
-To get a quick-jump navigation box, also install the
-[WP REST API](https://wordpress.org/plugins/json-rest-api/) plugin.
+1. Follow the [usual plugin installation procedure](http://codex.wordpress.org/Managing_Plugins#Installing_Plugins).
+2. To get a quick-jump navigation box, also install the
+   [WP REST API](https://wordpress.org/plugins/json-rest-api/) plugin.
+3. For Entity Relationship Diagram support, also install the
+   [TFO Graphviz](https://wordpress.org/plugins/tfo-graphviz/) plugin.
+4. Create some new database tables in your WordPress database, using a tool such
+   as [PHPmyAdmin](http://www.phpmyadmin.net) or [MySQL Workbench](http://mysqlworkbench.org/).
+5. Browse to the Tabulate overview page via the main menu in the WordPress admin
+   interface.
 
 ## Frequently Asked Questions
 
