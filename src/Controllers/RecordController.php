@@ -44,6 +44,15 @@ class RecordController extends ControllerBase {
 	public function save( $args ) {
 		$db = new \WordPress\Tabulate\DB\Database( $this->wpdb );
 		$table = $db->get_table( $args[ 'table' ] );
+
+		// Guard against non-post requests. c.f. wp-comments-post.php
+		if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' != $_SERVER['REQUEST_METHOD'] ) {
+			header('Allow: POST');
+			header('HTTP/1.1 405 Method Not Allowed');
+			header('Content-Type: text/plain');
+			return false;
+		}
+
 		$record_ident = isset( $args[ 'ident' ] ) ? $args[ 'ident' ] : false;
 		$template = $this->get_template( $table );
 

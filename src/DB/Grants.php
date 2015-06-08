@@ -58,6 +58,10 @@ class Grants {
 		update_option( $this->option_name, $grants );
 	}
 
+	public function delete() {
+		delete_option( $this->option_name );
+	}
+
 	/**
 	 * Check that the current user has the requested capability.
 	 *

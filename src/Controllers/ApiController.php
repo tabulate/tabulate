@@ -2,6 +2,9 @@
 
 namespace WordPress\Tabulate\Controllers;
 
+use WordPress\Tabulate\DB\Database;
+use WordPress\Tabulate\DB\Grants;
+
 /**
  * This controller is different from the others in that it is not called via the
  * usual Menu dispatch system, but rather from a hook in `tabulate.php`.
@@ -11,6 +14,9 @@ class ApiController extends ControllerBase {
 	public function register_routes($routes) {
 		$routes[ '/' . TABULATE_SLUG . '/tables' ] = array(
 			array( array( $this, 'table_names' ), \WP_JSON_Server::READABLE ),
+		);
+		$routes[ '/' . TABULATE_SLUG . '/app/schema' ] = array(
+			array( array( $this, 'app_schema' ), \WP_JSON_Server::READABLE ),
 		);
 		$routes[ '/' . TABULATE_SLUG . '/fk/(?P<table_name>.*)' ] = array(
 			array( array( $this, 'foreign_key_values' ), \WP_JSON_Server::READABLE ),
@@ -25,7 +31,7 @@ class ApiController extends ControllerBase {
 	 * @return array
 	 */
 	public function table_names() {
-		$db = new \WordPress\Tabulate\DB\Database( $this->wpdb );
+		$db = new Database( $this->wpdb );
 		$tables = $db->get_tables( false );
 		$out = array();
 		foreach ( $tables as $table ) {
@@ -40,6 +46,21 @@ class ApiController extends ControllerBase {
 	}
 
 	/**
+	 * Privide details of the database schema, for use by TabulateApp.
+	 */
+	public function app_schema() {
+		$db = new Database( $this->wpdb );
+		$tables = $db->get_tables( false );
+		$out = array();
+		foreach ( $tables as $table ) {
+			if ( Grants::current_user_can( Grants::CREATE, $table->get_name() ) ) {
+				$out[] = $table->get_name();
+			}
+		}
+		return $out;
+	}
+
+	/**
 	 * Get a list of a table's records' IDs and titles, filtered by
 	 * `$_GET['term']`, for foreign-key fields. Only used when there are more
 	 * than N records in a foreign table (otherwise the options are presented in
@@ -48,7 +69,7 @@ class ApiController extends ControllerBase {
 	 * @return array
 	 */
 	public function foreign_key_values( $table_name ) {
-		$db = new \WordPress\Tabulate\DB\Database( $this->wpdb );
+		$db = new Database( $this->wpdb );
 		$table = $db->get_table( $table_name );
 		$table->add_filter( $table->get_title_column(), 'like', '%'.$_GET[ 'term' ].'%' );
 		$out = array();

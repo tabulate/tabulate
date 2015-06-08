@@ -10,14 +10,26 @@ class TestBase extends WP_UnitTestCase {
 
 	public function setUp() {
 		parent::setUp();
+		global $wpdb;
+
+		// Current a test user and make them current.
+		$tester = get_user_by( 'email', 'test@example.com' );
+		if ( ! $tester ) {
+			$tester_id = wp_create_user( 'tester', 'test123', 'test@example.com' );
+		} else {
+			$tester_id = $tester->ID;
+		}
+		wp_set_current_user( $tester_id );
 
 		// Get the database.
-		global $wpdb;
 		$this->wpdb = $wpdb;
 
 		// Prevent parent from enforcing TEMPORARY tables.
 		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
 		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+
+		// Activate.
+		do_action( 'activate_tabulate/tabulate.php' );
 
 		// Create some testing tables and link them together.
 		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_table`' );
@@ -47,10 +59,18 @@ class TestBase extends WP_UnitTestCase {
 	}
 
 	public function tearDown() {
+		// Remove test tables.
 		$this->wpdb->query( 'SET FOREIGN_KEY_CHECKS = 0' );
 		$this->wpdb->query( 'DROP TABLE `test_types`' );
 		$this->wpdb->query( 'DROP TABLE `test_table`' );
 		$this->wpdb->query( 'SET FOREIGN_KEY_CHECKS = 1' );
+
+		// Uninstall
+		if (!  defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+			define( 'WP_UNINSTALL_PLUGIN', 'tabulate/tabulate.php' );
+		}
+		require __DIR__ . '/../uninstall.php';
+
 		parent::tearDown();
 	}
 

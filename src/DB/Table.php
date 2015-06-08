@@ -836,6 +836,13 @@ class Table {
 			unset( $data[ $pk_name ] );
 		}
 
+		/**
+		 * Fires before data saved to a table (after initial filtering of the data).
+		 * @param Table $table The Table that's being modified.
+		 * @param array $data The data that's being saved.
+		*/
+		do_action( TABULATE_SLUG . '_before_save', $this, $data, $pk_value );
+
 		if ( $pk_value ) { // Update?
 			// Check permission.
 			if ( ! Grants::current_user_can( Grants::UPDATE, $this->get_name() ) ) {
@@ -857,10 +864,18 @@ class Table {
 			$new_pk_value = $this->database->get_wpdb()->insert_id;
 
 		}
+		$new_record = $this->get_record( $new_pk_value );
+
+		/**
+		 * Fires before data saved to a table (after initial filtering of the data).
+		 * @param Table $table The Table that's being modified.
+		 * @param array $data The data that's being saved.
+		*/
+		do_action( TABULATE_SLUG . '_after_save', $this, $new_record );
 
 		// Show errors again and return the new or updated record.
 		$this->database->get_wpdb()->show_errors();
-		return $this->get_record( $new_pk_value );
+		return $new_record;
 	}
 
 	public function get_url($action = 'index', $merge_existing = false) {

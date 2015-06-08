@@ -21,19 +21,25 @@ if ( !file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 }
 require __DIR__ . '/vendor/autoload.php';
 
-// This is the only global usage of wpdb; it's injected from here to everywhere.
+// This file contains the only global usages of wpdb; it's injected from here to
+// everywhere else.
 global $wpdb;
 
 // Set up the menus; their callbacks do the actual dispatching to controllers.
-$menus = new \WordPress\Tabulate\Menus($wpdb);
+$menus = new \WordPress\Tabulate\Menus( $wpdb );
 $menus->init();
 
 // Add grants-checking callback.
 add_filter( 'user_has_cap', '\\WordPress\\Tabulate\\DB\\Grants::check', 0, 3 );
 
+// Changesets. (Uninstall is handled by uninstall.php.)
+add_action( TABULATE_SLUG . '_before_save', '\\WordPress\\Tabulate\\DB\\ChangeSets::before_save', 10, 3 );
+add_action( TABULATE_SLUG . '_after_save', '\\WordPress\\Tabulate\\DB\\ChangeSets::after_save', 10, 2 );
+register_activation_hook( __FILE__, '\\WordPress\\Tabulate\\DB\\ChangeSets::activate' );
+
 // Register JSON API.
 add_action( 'wp_json_server_before_serve', function() {
 	global $wpdb;
-	$jsonController = new WordPress\Tabulate\Controllers\ApiController($wpdb);
+	$jsonController = new WordPress\Tabulate\Controllers\ApiController( $wpdb );
 	add_filter( 'json_endpoints', array( $jsonController, 'register_routes' ) );
 } );

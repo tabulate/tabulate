@@ -109,9 +109,12 @@
 
 		<tr>
 			<td></td>
-			<td>
+			<td colspan="2">
 				<p><label>* An asterisk denotes a required field.</label></p>
 				<p>
+					Describe the changes you've made:
+					<input type="text" name="changeset_comment" />
+
 					<input type="submit" value="Save" class="button success" />
 					<!--<a href="{{table.get_url}}" class="button" title="Return to search">Cancel</a>-->
 					{% if record %}
@@ -124,7 +127,41 @@
 	</table>
 </form>
 
+<h3>History</h3>
+<table>
+	<caption>Changes made to this record.</caption>
+	<thead>
+		<tr>
+			<th>Change ID</th>
+			<th>Changeset ID</th>
+			<th>Date and Time</th>
+			<th>User</th>
+			<th>Column Name</th>
+			<th>Old Value</th>
+			<th></th>
+			<th>New Value</th>
+			<th>Changeset comment</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for change in record.get_changes %}
+		<tr>
+			<td>{{change.id}}</td>
+			<td>{{change.changeset_id}}</td>
+			<td>{{change.get_referenced_record('changeset_id').date_and_time}}</td>
+			<td>{{change.get_referenced_record('changeset_id').get_referenced_record('user_id').user_nicename}}</td>
+			<td>{{change.column_name}}</td>
+			<td>{{change.old_value}}</td>
+			<td>&rArr;</td>
+			<td>{{change.new_value}}</td>
+			<td>{{change.get_referenced_record('changeset_id').comment}}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
 {% if table.get_referencing_tables %}
+<h3>Related tables</h3>
 <p>Tables that refer to this table:</p>
 <ul class="referencing-tables">
 

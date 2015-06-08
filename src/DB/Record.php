@@ -110,4 +110,12 @@ class Record {
 		return admin_url( 'admin.php?' . http_build_query( $params ) );
 	}
 
+	public function get_changes() {
+		$db = $this->table->get_database();
+		$changes_tbl = $db->get_table( $db->get_wpdb()->prefix . 'changes' );
+		$changes_tbl->add_filter( 'table_name', '=', $this->table->get_name() );
+		$changes = $changes_tbl->get_records();
+		return $changes;
+	}
+
 }
