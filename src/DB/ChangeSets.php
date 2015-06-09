@@ -9,6 +9,7 @@ use WordPress\Tabulate\DB\Record;
 class ChangeSets {
 
 	private static $current_changeset = false;
+	private static $current_changeset_comment = null;
 	private static $old_record = false;
 
 	/**
@@ -24,6 +25,10 @@ class ChangeSets {
 		);
 	}
 
+	public static function before_validate( Table $table, $data, $pk_value ) {
+		self::$current_changeset_comment = isset( $data['changeset_comment'] ) ? $data['changeset_comment'] : null;
+	}
+
 	public static function before_save( Table $table, $data, $pk_value ) {
 		global $wpdb, $current_user;
 
@@ -36,11 +41,10 @@ class ChangeSets {
 		if ( ! self::$current_changeset ) {
 			$changesets_name = $wpdb->prefix . 'changesets';
 			$changesets = $table->get_database()->get_table( $changesets_name );
-			$comment = isset( $data['changeset_comment'] ) ? $data['changeset_comment'] : null;
 			$data = array(
 				'date_and_time' => date( 'Y-m-d H:i:s' ),
 				'user_id' => $current_user->ID,
-				'comment' => $comment,
+				'comment' => self::$current_changeset_comment,
 			);
 			self::$current_changeset = $changesets->save_record( $data );
 		}
@@ -61,7 +65,7 @@ class ChangeSets {
 		$changes_table = $table->get_database()->get_table( $changes_name );
 		foreach ( $table->get_columns() as $column ) {
 			$col_name = $column->get_name();
-			$old_val = ( method_exists( self::$old_record, $col_name ) ) ? self::$old_record->$col_name() : null;
+			$old_val = ( is_callable( [ self::$old_record, $col_name ] ) ) ? self::$old_record->$col_name() : null;
 			$new_val = $new_record->$col_name();
 			if ($new_val == $old_val ) {
 				// Ignore unchanged columns.
@@ -80,6 +84,7 @@ class ChangeSets {
 		}
 		// Close this changeset.
 		self::$current_changeset = false;
+		self::$current_changeset_comment = null;
 	}
 
 	public static function activate() {

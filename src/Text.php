@@ -75,4 +75,22 @@ class Text {
 		}
 	}
 
+	/**
+	 * Format a date according to WP's preference.
+	 * @param string $date
+	 * @return string|int|bool
+	 */
+	public static function wp_date_format( $date ) {
+		return mysql2date( get_option( 'date_format' ), $date );
+	}
+
+	/**
+	 * Format a time according to WP's preference.
+	 * @param string $time
+	 * @return string|int|bool
+	 */
+	public function wp_time_format( $time ) {
+		return mysql2date( get_option( 'time_format' ), $time );
+	}
+
 }

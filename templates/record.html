@@ -127,38 +127,41 @@
 	</table>
 </form>
 
+{% if table.has_changes_recorded %}
 <h3>History</h3>
 <table>
 	<caption>Changes made to this record.</caption>
 	<thead>
 		<tr>
-			<th>Change ID</th>
-			<th>Changeset ID</th>
 			<th>Date and Time</th>
-			<th>User</th>
-			<th>Column Name</th>
+			<th>Field</th>
 			<th>Old Value</th>
 			<th></th>
 			<th>New Value</th>
-			<th>Changeset comment</th>
+			<th>User</th>
+			<th>Comment</th>
 		</tr>
 	</thead>
 	<tbody>
 		{% for change in record.get_changes %}
 		<tr>
-			<td>{{change.id}}</td>
-			<td>{{change.changeset_id}}</td>
-			<td>{{change.get_referenced_record('changeset_id').date_and_time}}</td>
-			<td>{{change.get_referenced_record('changeset_id').get_referenced_record('user_id').user_nicename}}</td>
-			<td>{{change.column_name}}</td>
+			<td>
+				<a href="admin.php?page=tabulate&controller=table&action=index&table={{wpdb_prefix}}changesets&filter[0][column]=date_and_time&filter[0][operator]=%3D&filter[0][value]={{change.date_and_time}}">
+				{{change.date_and_time|wp_date_format}}
+				{{change.date_and_time|wp_time_format}}
+				</a>
+			</td>
+			<td>{{change.column_name|titlecase}}</td>
 			<td>{{change.old_value}}</td>
 			<td>&rArr;</td>
 			<td>{{change.new_value}}</td>
-			<td>{{change.get_referenced_record('changeset_id').comment}}</td>
+			<td>{{change.user_nicename}}</td>
+			<td>{{change.comment}}</td>
 		</tr>
 		{% endfor %}
 	</tbody>
 </table>
+{% endif %}
 
 {% if table.get_referencing_tables %}
 <h3>Related tables</h3>

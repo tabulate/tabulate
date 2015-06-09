@@ -219,9 +219,15 @@ class Table {
 		return $this->order_by;
 	}
 
+	/**
+	 * Change the column by which this table is ordered.
+	 * @param string $order_by The name of the column to order by.
+	 */
 	public function set_order_by($order_by) {
 		if ( in_array( $order_by, array_keys( $this->columns ) ) ) {
 			$this->order_by = $order_by;
+		} else {
+			throw new Exception("Unable to order by '$order_by'; not a column on ".$this->get_name());
 		}
 	}
 
@@ -232,11 +238,23 @@ class Table {
 		return $this->orderdir;
 	}
 
+	/**
+	 * Set the direction of ordering.
+	 * @param string $orderdir Either 'ASC' or 'DESC' (case insensitive).
+	 */
 	public function set_order_dir($orderdir) {
 		if ( in_array( strtoupper( $orderdir ), array( 'ASC', 'DESC' ) ) ) {
 			$this->orderdir = $orderdir;
 		}
 	}
+
+//	public function join_with( Table $table ) {
+//		$join_clause = ' LEFT OUTER JOIN `' . $fk1_table->get_name() . '` AS f' . $this->alias_count
+//			. ' ON (`' . $this->get_name() . '`.`' . $column->get_name() . '` '
+//			. ' = `f' . $this->alias_count . '`.`' . $fk1_table->get_pk_column()->get_name() . '`)';
+//		$column_alias = "`f$this->alias_count`.`" . $fk1_title_column->get_name() . "`";
+//		
+//	}
 
 	/**
 	 * For a given foreign key column, get an alias and join clause for selecting
@@ -247,7 +265,7 @@ class Table {
 	 * @param Column $column The FK column
 	 * @return array Array with 'join_clause' and 'column_alias' keys
 	 */
-	protected function join_on($column) {
+	public function join_on($column) {
 		$join_clause = '';
 		$column_alias = '`' . $this->get_name() . '`.`' . $column->get_name() . '`';
 		if ( $column->is_foreign_key() ) {
@@ -385,6 +403,10 @@ class Table {
 		return $record;
 	}
 
+	public function has_changes_recorded() {
+		return ! in_array( $this->get_name(), ChangeSets::table_names() );
+	}
+
 	/**
 	 * Get this table's name.
 	 *
@@ -449,7 +471,7 @@ class Table {
 	 * @return integer
 	 */
 	public function count_records() {
-		if ( !$this->record_count ) {
+		if ( ! $this->record_count ) {
 			if ($this->get_pk_column()) {
 				$count_col = '`' . $this->get_name() . '`.`'.$this->get_pk_column()->get_name().'`';
 			} else {
@@ -779,6 +801,12 @@ class Table {
 	 * @return Record The updated or inserted record.
 	 */
 	public function save_record($data, $pk_value = null) {
+		/**
+		 * Fires before data to be saved has been modified (validated) in any way.
+		 * @param Table $table The Table that's being modified.
+		 * @param array $data The data that's being saved.
+		*/
+		do_action( TABULATE_SLUG . '_before_validate', $this, $data, $pk_value );
 
 		$columns = $this->get_columns();
 
@@ -873,8 +901,10 @@ class Table {
 		*/
 		do_action( TABULATE_SLUG . '_after_save', $this, $new_record );
 
-		// Show errors again and return the new or updated record.
+		// Show errors again, reset the record count,
+		// and return the new or updated record.
 		$this->database->get_wpdb()->show_errors();
+		$this->record_count = false;
 		return $new_record;
 	}
 

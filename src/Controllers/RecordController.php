@@ -73,7 +73,9 @@ class RecordController extends ControllerBase {
 				$template->record = new \WordPress\Tabulate\DB\Record( $table, $data );
 			}
 		}
-		return $template->render();
+		// Redirect back to the edit form.
+		header("Location: ".$template->record->get_url());
+		exit(0);
 	}
 
 }

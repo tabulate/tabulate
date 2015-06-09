@@ -35,15 +35,33 @@ class ChangesetsTest extends TestBase {
 		$changes = $this->db->get_table( $this->wpdb->prefix . 'changes' );
 		$this->assertEquals( 2, $changes->count_records() );
 		// Check the second change record.
-		$change_rec_2 = $changes->get_record(2);
+		$change_rec_2 = $changes->get_record( 2 );
+		$this->assertequals( 'title', $change_rec_2->column_name() );
 		$this->assertNull( $change_rec_2->old_value() );
 		$this->assertEquals( 'One', $change_rec_2->new_value() );
 
 		// Modify one value, and a new changeset and one change is created.
 		$test_table->save_record( array( 'title' => 'Two' ), $rec->id() );
-		//$this->assertEquals( 2, $changesets->count_records() );
-		//$this->assertEquals( 3, $changes->count_records() );
+		$this->assertEquals( 2, $changesets->count_records() );
+		$this->assertEquals( 3, $changes->count_records() );
 
+		// Check the new (3rd) change record.
+		$change_rec_3 = $changes->get_record( 3 );
+		$this->assertequals( 'title', $change_rec_3->column_name() );
+		$this->assertequals( 'One', $change_rec_3->old_value() );
+		$this->assertEquals( 'Two', $change_rec_3->new_value() );
+	}
+
+	/**
+	 * @testdox A changeset can have an associated comment.
+	 * @test
+	 */
+	public function changeset_comment() {
+		$test_table = $this->db->get_table( 'test_types' );
+		$rec = $test_table->save_record( [ 'title' => 'One', 'changeset_comment' => 'Testing.' ] );
+		$changes = $rec->get_changes();
+		$change = array_pop( $changes );
+		$this->assertEquals( "Testing.", $change->comment );
 	}
 
 }

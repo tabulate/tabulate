@@ -8,12 +8,14 @@ class Template {
 	protected $data;
 
 	public function __construct( $templateName ) {
+		global $wpdb;
 		$this->templateName = $templateName;
 		$this->data = array(
 			'tabulate_version' => TABULATE_VERSION,
 			'notices' => array(),
 			'wp_api' => is_plugin_active( 'json-rest-api/plugin.php' ),
 			'tfo_graphviz' => is_plugin_active( 'tfo-graphviz/tfo-graphviz.php' ),
+			'wpdb_prefix' => $wpdb->prefix,
 		);
 	}
 
@@ -71,6 +73,12 @@ class Template {
 		// Add titlecase filter.
 		$titlecase_filter = new \Twig_SimpleFilter( 'titlecase', '\\WordPress\\Tabulate\\Text::titlecase' );
 		$twig->addFilter( $titlecase_filter );
+
+		// Add date and time filters.
+		$date_filter = new \Twig_SimpleFilter( 'wp_date_format', '\\WordPress\\Tabulate\\Text::wp_date_format' );
+		$twig->addFilter( $date_filter );
+		$time_filter = new \Twig_SimpleFilter( 'wp_time_format', '\\WordPress\\Tabulate\\Text::wp_time_format' );
+		$twig->addFilter( $time_filter );
 
 		// Add strtolower filter.
 		$strtolower_filter = new \Twig_SimpleFilter( 'strtolower', function( $str ){

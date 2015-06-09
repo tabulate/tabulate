@@ -33,6 +33,7 @@ $menus->init();
 add_filter( 'user_has_cap', '\\WordPress\\Tabulate\\DB\\Grants::check', 0, 3 );
 
 // Changesets. (Uninstall is handled by uninstall.php.)
+add_action( TABULATE_SLUG . '_before_validate', '\\WordPress\\Tabulate\\DB\\ChangeSets::before_validate', 10, 3 );
 add_action( TABULATE_SLUG . '_before_save', '\\WordPress\\Tabulate\\DB\\ChangeSets::before_save', 10, 3 );
 add_action( TABULATE_SLUG . '_after_save', '\\WordPress\\Tabulate\\DB\\ChangeSets::after_save', 10, 2 );
 register_activation_hook( __FILE__, '\\WordPress\\Tabulate\\DB\\ChangeSets::activate' );
