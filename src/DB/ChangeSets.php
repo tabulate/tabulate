@@ -65,7 +65,7 @@ class ChangeSets {
 		$changes_table = $table->get_database()->get_table( $changes_name );
 		foreach ( $table->get_columns() as $column ) {
 			$col_name = $column->get_name();
-			$old_val = ( is_callable( [ self::$old_record, $col_name ] ) ) ? self::$old_record->$col_name() : null;
+			$old_val = ( is_callable( array( self::$old_record, $col_name ) ) ) ? self::$old_record->$col_name() : null;
 			$new_val = $new_record->$col_name();
 			if ($new_val == $old_val ) {
 				// Ignore unchanged columns.

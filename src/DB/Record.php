@@ -123,7 +123,7 @@ class Record {
 			. "WHERE table_name = %s AND record_ident = %s"
 			. "ORDER BY date_and_time DESC "
 			. "LIMIT 15 ";
-		$params = [ $this->table->get_name(), $this->get_primary_key() ];
+		$params = array( $this->table->get_name(), $this->get_primary_key() );
 		return $wpdb->get_results( $wpdb->prepare( $sql, $params ) );
 	}
 

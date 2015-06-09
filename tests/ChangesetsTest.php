@@ -58,7 +58,7 @@ class ChangesetsTest extends TestBase {
 	 */
 	public function changeset_comment() {
 		$test_table = $this->db->get_table( 'test_types' );
-		$rec = $test_table->save_record( [ 'title' => 'One', 'changeset_comment' => 'Testing.' ] );
+		$rec = $test_table->save_record( array( 'title' => 'One', 'changeset_comment' => 'Testing.' ) );
 		$changes = $rec->get_changes();
 		$change = array_pop( $changes );
 		$this->assertEquals( "Testing.", $change->comment );
