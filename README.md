@@ -44,6 +44,8 @@ Features (in no particular order):
    can be automatically generated, with any specified subset of tables. Foreign
    keys are displayed as directed edges. This feature is only available if the
    [TFO Graphviz plugin](https://wordpress.org/plugins/tfo-graphviz/) is installed.
+7. All data modifications are recorded, along with optional comments that users
+   can provide when updating data.
 
 ## Installation
 
@@ -66,14 +68,19 @@ tracker: https://github.com/tabulate/tabulate/issues
 
 ### What modifications does Tabulate make to the database?
 
-None. Some [options](http://codex.wordpress.org/Option_Reference) are created,
-all prefixed with `tabulate_`. These store the granted permissions (one per
-Tabulate grant; i.e. five so far).
+Two database tables are created, and one [option](http://codex.wordpress.org/Option_Reference),
+all prefixed with `tabulate_`. When Tabulate is uninstalled, all of these are
+deleted (but custom tables are not touched).
 
 ### Is row-level access control possible?
 
 This should be done by creating a [view](https://dev.mysql.com/doc/refman/5.1/en/create-view.html)
 (of one or more tables) and granting access to that.
+
+## Where is the developers' documentation?
+For information about the development of Tabulate or integrating other plugins
+with it please see
+[CONTRIBUTING.md](https://github.com/tabulate/tabulate/blob/master/CONTRIBUTING.md#contributing).
 
 ## Screenshots
 
@@ -93,4 +100,7 @@ them, and nothing is stable yet).
 
 No special action needs to be taken to upgrade. Tabulate can be deactivated and
 reactivated without losing any data; if uninstalled, it will remove everything
-that it's added (but you'll be warned of this, don't worry).
+that it's added (but you will be warned before this happens, don't worry).
+
+No custom database tables are modified during upgrade, activation, deactivation,
+or uninstallation.

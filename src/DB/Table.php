@@ -802,7 +802,7 @@ class Table {
 	 */
 	public function save_record($data, $pk_value = null) {
 		/**
-		 * Fires before data to be saved has been modified (validated) in any way.
+		 * Fires before data to be saved has been filtered/validated in any way.
 		 * @param Table $table The Table that's being modified.
 		 * @param array $data The data that's being saved.
 		*/
@@ -865,7 +865,7 @@ class Table {
 		}
 
 		/**
-		 * Fires before data saved to a table (after initial filtering of the data).
+		 * Fires before data is saved to a table (but after initial filtering of the data).
 		 * @param Table $table The Table that's being modified.
 		 * @param array $data The data that's being saved.
 		*/
@@ -895,9 +895,9 @@ class Table {
 		$new_record = $this->get_record( $new_pk_value );
 
 		/**
-		 * Fires before data saved to a table (after initial filtering of the data).
-		 * @param Table $table The Table that's being modified.
-		 * @param array $data The data that's being saved.
+		 * Fires after data has been saved.
+		 * @param Table $table The Table that's been modified.
+		 * @param array $data The data that's been saved.
 		*/
 		do_action( TABULATE_SLUG . '_after_save', $this, $new_record );
 

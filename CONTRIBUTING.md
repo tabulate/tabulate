@@ -1,6 +1,14 @@
 # Contributing
 
-This file is for any notes aimed at developers of Tabulate.
+This file is for any notes aimed at developers of Tabulate or related projects.
+
+## Hooks
+
+There are three hooks, all in `WordPress\Tabulate\DB\Table::save_record()`:
+
+1. `tabulate_before_validate` fires before data to be saved has been filtered/validated in any way.
+2. `tabulate_before_save` fires before data is saved to a table (but after initial filtering of the data).
+3. `tabulate_after_save` fires after data has been saved.
 
 ## Revision control
 
