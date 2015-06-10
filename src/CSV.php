@@ -142,11 +142,11 @@ class CSV {
 					$col_errors[] = 'Required but empty';
 				}
 				// Already exists
-				if ( $column->is_unique() ) {
-					// @TODO
+				if ( $column->is_unique() && $this->value_exists( $table, $column, $value ) ) {
+					$col_errors[] = "Unique value already present: '$value'";
 				}
 				// Too long (if the column has a size and the value is greater than this)
-				if ( !$column->is_foreign_key() AND ! $column->is_boolean()
+				if ( ! $column->is_foreign_key() AND ! $column->is_boolean()
 						AND $column->get_size() > 0
 						AND strlen( $value ) > $column->get_size() ) {
 					$col_errors[] = 'Value (' . $value . ') too long (maximum length of ' . $column->get_size() . ')';
@@ -229,7 +229,7 @@ class CSV {
 	 * @return FALSE if the value is valid
 	 * @return array error array if the value is not valid
 	 */
-	public function validate_foreign_key($column, $col_num, $row_num, $value) {
+	protected function validate_foreign_key($column, $col_num, $row_num, $value) {
 		$foreign_table = $column->get_referenced_table();
 		if ( ! $this->get_fk_rows( $foreign_table, $value ) ) {
 			$link = '<a href="' . $foreign_table->get_url() . '" title="Opens in a new tab or window" target="_blank" >'
@@ -237,7 +237,7 @@ class CSV {
 				. '</a>';
 			return "Value <code>$value</code> not found in $link";
 		}
-		return FALSE;
+		return false;
 	}
 
 	/**
@@ -248,10 +248,25 @@ class CSV {
 	 * @param string $value The value to match against the title column.
 	 * @return Database_Result
 	 */
-	private function get_fk_rows($foreign_table, $value) {
+	protected function get_fk_rows($foreign_table, $value) {
 		$foreign_table->reset_filters();
 		$foreign_table->add_filter( $foreign_table->get_title_column()->get_name(), '=', $value );
 		return $foreign_table->get_records();
+	}
+
+	/**
+	 * Determine whether the given value exists.
+	 * @param DB\Table $table
+	 * @param DB\Column $column
+	 * @param mixed $value
+	 */
+	protected function value_exists( $table, $column, $value ) {
+		$wpdb = $table->get_database()->get_wpdb();
+		$sql = 'SELECT 1 FROM `' . $table->get_name() . '` '
+			. 'WHERE `' . $column->get_name() . '` = %s '
+			. 'LIMIT 1';
+		$exists = $wpdb->get_row( $wpdb->prepare( $sql, array( $value ) ) );
+		return ! is_null( $exists );
 	}
 
 }
