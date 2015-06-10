@@ -1,7 +1,6 @@
 <?php
 
 if( ! defined( 'ABSPATH') || ! defined('WP_UNINSTALL_PLUGIN') ) {
-	echo "Not uninstalling.\n";
 	return false;
 }
 
@@ -9,10 +8,10 @@ if( ! defined( 'ABSPATH') || ! defined('WP_UNINSTALL_PLUGIN') ) {
 $grants = new \WordPress\Tabulate\DB\Grants();
 $grants->delete();
 
-// Drop ChangeSets' tables.
+// Drop the ChangeTracker's tables.
 global $wpdb;
 $wpdb->query( 'SET FOREIGN_KEY_CHECKS = 0' );
-foreach ( \WordPress\Tabulate\DB\ChangeSets::table_names() as $tbl ) {
+foreach ( \WordPress\Tabulate\DB\ChangeTracker::table_names() as $tbl ) {
 	$wpdb->query( "DROP TABLE IF EXISTS `$tbl`;" );
 }
 $wpdb->query( 'SET FOREIGN_KEY_CHECKS = 1' );

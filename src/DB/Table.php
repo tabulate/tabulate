@@ -248,14 +248,6 @@ class Table {
 		}
 	}
 
-//	public function join_with( Table $table ) {
-//		$join_clause = ' LEFT OUTER JOIN `' . $fk1_table->get_name() . '` AS f' . $this->alias_count
-//			. ' ON (`' . $this->get_name() . '`.`' . $column->get_name() . '` '
-//			. ' = `f' . $this->alias_count . '`.`' . $fk1_table->get_pk_column()->get_name() . '`)';
-//		$column_alias = "`f$this->alias_count`.`" . $fk1_title_column->get_name() . "`";
-//		
-//	}
-
 	/**
 	 * For a given foreign key column, get an alias and join clause for selecting
 	 * against that column's foreign values. If the column is not a foreign key,
@@ -404,7 +396,7 @@ class Table {
 	}
 
 	public function has_changes_recorded() {
-		return ! in_array( $this->get_name(), ChangeSets::table_names() );
+		return ! in_array( $this->get_name(), ChangeTracker::table_names() );
 	}
 
 	/**
@@ -801,12 +793,8 @@ class Table {
 	 * @return Record The updated or inserted record.
 	 */
 	public function save_record($data, $pk_value = null) {
-		/**
-		 * Fires before data to be saved has been filtered/validated in any way.
-		 * @param Table $table The Table that's being modified.
-		 * @param array $data The data that's being saved.
-		*/
-		do_action( TABULATE_SLUG . '_before_validate', $this, $data, $pk_value );
+		$changeset_comment = isset( $data['changeset_comment'] ) ? $data['changeset_comment'] : null;
+		$change_tracker = new ChangeTracker( $this->get_database()->get_wpdb(), $changeset_comment );
 
 		$columns = $this->get_columns();
 
@@ -864,12 +852,7 @@ class Table {
 			unset( $data[ $pk_name ] );
 		}
 
-		/**
-		 * Fires before data is saved to a table (but after initial filtering of the data).
-		 * @param Table $table The Table that's being modified.
-		 * @param array $data The data that's being saved.
-		*/
-		do_action( TABULATE_SLUG . '_before_save', $this, $data, $pk_value );
+		$change_tracker->before_save( $this, $data, $pk_value );
 
 		if ( $pk_value ) { // Update?
 			// Check permission.
@@ -894,12 +877,8 @@ class Table {
 		}
 		$new_record = $this->get_record( $new_pk_value );
 
-		/**
-		 * Fires after data has been saved.
-		 * @param Table $table The Table that's been modified.
-		 * @param array $data The data that's been saved.
-		*/
-		do_action( TABULATE_SLUG . '_after_save', $this, $new_record );
+		// Save the changes.
+		$change_tracker->after_save( $this, $new_record );
 
 		// Show errors again, reset the record count,
 		// and return the new or updated record.

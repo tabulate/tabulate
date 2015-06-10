@@ -77,7 +77,7 @@ deleted (but custom tables are not touched).
 This should be done by creating a [view](https://dev.mysql.com/doc/refman/5.1/en/create-view.html)
 (of one or more tables) and granting access to that.
 
-## Where is the developers' documentation?
+### Where is the developers' documentation?
 For information about the development of Tabulate or integrating other plugins
 with it please see
 [CONTRIBUTING.md](https://github.com/tabulate/tabulate/blob/master/CONTRIBUTING.md#contributing).

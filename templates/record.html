@@ -129,8 +129,8 @@
 
 {% if table.has_changes_recorded %}
 <h3>History</h3>
-<table>
-	<caption>Changes made to this record.</caption>
+<table class="tabulate-change-tracker">
+	<caption>Recent changes made to this record.</caption>
 	<thead>
 		<tr>
 			<th>Date and Time</th>
@@ -146,17 +146,17 @@
 		{% for change in record.get_changes %}
 		<tr>
 			<td>
-				<a href="admin.php?page=tabulate&controller=table&action=index&table={{wpdb_prefix}}changesets&filter[0][column]=date_and_time&filter[0][operator]=%3D&filter[0][value]={{change.date_and_time}}">
+				<a href="admin.php?page=tabulate&controller=table&action=index&table={{wpdb_prefix}}tabulate_changesets&filter[0][column]=date_and_time&filter[0][operator]=%3D&filter[0][value]={{change.date_and_time}}">
 				{{change.date_and_time|wp_date_format}}
 				{{change.date_and_time|wp_time_format}}
 				</a>
 			</td>
 			<td>{{change.column_name|titlecase}}</td>
-			<td>{{change.old_value}}</td>
+			<td class="value">{{change.old_value}}</td>
 			<td>&rArr;</td>
-			<td>{{change.new_value}}</td>
+			<td class="value">{{change.new_value}}</td>
 			<td>{{change.user_nicename}}</td>
-			<td>{{change.comment}}</td>
+			<td><em>{{change.comment}}</em></td>
 		</tr>
 		{% endfor %}
 	</tbody>

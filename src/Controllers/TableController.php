@@ -139,7 +139,9 @@ class TableController extends ControllerBase {
 		 */
 		if ( $csv_file->loaded() AND isset( $_POST['import'] ) ) {
 			$template->stage = $template->stages[ 3 ];
+			$this->wpdb->query( 'BEGIN' );
 			$result = $csv_file->import_data( $table, unserialize( wp_unslash( $_POST['columns'] ) ) );
+			$this->wpdb->query( 'COMMIT' );
 			$template->add_notice( 'updated', 'Import complete; ' . $result . ' rows imported.' );
 		}
 

@@ -1,0 +1,93 @@
+<?php
+
+use WordPress\Tabulate\DB\ChangeTracker;
+use WordPress\Tabulate\DB\Grants;
+
+class ChangeTrackerTest extends TestBase {
+
+	public function setUp() {
+		parent::setUp();
+		// Let the current user do anything.
+		global $current_user;
+		$current_user->add_cap( 'promote_users' );
+	}
+
+	/**
+	 * @testdox Two changeset tables are created on activation.
+	 * @test
+	 */
+	public function activate() {
+		$changesets = $this->db->get_table( $this->wpdb->prefix . TABULATE_SLUG . '_changesets' );
+		$this->assertEquals( $this->wpdb->prefix . TABULATE_SLUG . '_changesets', $changesets->get_name() );
+		$changes = $this->db->get_table( $this->wpdb->prefix . TABULATE_SLUG . '_changes' );
+		$this->assertEquals( $this->wpdb->prefix . TABULATE_SLUG . '_changes', $changes->get_name() );
+	}
+
+	/**
+	 * @testdox Saving a new record creates a changeset and some changes.
+	 * @test
+	 */
+	public function basic() {
+		// test_table: { id, title }
+		$test_table = $this->db->get_table( 'test_types' );
+		$rec = $test_table->save_record( array( 'title' => 'One' ) );
+
+		// Initial changeset and changes.
+		$changes1 = $rec->get_changes();
+		$this->assertCount( 2, $changes1 );
+		// Check the second change record.
+		$changes1_rec_1 = $changes1[ 1 ];
+		$this->assertequals( 'title', $changes1_rec_1->column_name );
+		$this->assertNull( $changes1_rec_1->old_value );
+		$this->assertEquals( 'One', $changes1_rec_1->new_value );
+
+		// Modify one value, and inspect the new change record.
+		$rec2 = $test_table->save_record( array( 'title' => 'Two' ), $rec->id() );
+		$changes2 = $rec2->get_changes();
+		$this->assertCount( 3, $changes2 );
+		$changes2_rec_2 = $changes2[ 2 ];
+		$this->assertequals( 'title', $changes2_rec_2->column_name );
+		$this->assertequals( 'One', $changes2_rec_2->old_value );
+		$this->assertEquals( 'Two', $changes2_rec_2->new_value );
+	}
+
+	/**
+	 * @testdox A changeset can have an associated comment.
+	 * @test
+	 */
+	public function changeset_comment() {
+		$test_types = $this->db->get_table( 'test_types' );
+		$rec = $test_types->save_record( array( 'title' => 'One', 'changeset_comment' => 'Testing.' ) );
+		$changes = $rec->get_changes();
+		$change = array_pop( $changes );
+		$this->assertEquals( "Testing.", $change->comment );
+	}
+
+	/**
+	 * @testdox A user who can only create records in one table can still use the change-tracker (i.e. creating changesets is not influenced by standard grants).
+	 * @test
+	 */
+	public function minimal_grants() {
+		global $current_user;
+		$current_user->remove_cap( 'promote_users' );
+		$current_user->add_role( 'subscriber' );
+		$grants = new Grants();
+		$grants->set(
+			array(
+				'test_table' => array(
+					Grants::READ => array( 'subscriber' ),
+					Grants::CREATE => array( 'subscriber' ),
+				),
+			)
+		);
+		// Assert that the permissions are set as we want them.
+		$this->assertTrue( Grants::current_user_can( Grants::CREATE, 'test_table' ) );
+		$this->assertFalse( Grants::current_user_can( Grants::CREATE, ChangeTracker::changesets_name() ) );
+		$this->assertFalse( Grants::current_user_can( Grants::CREATE, ChangeTracker::changes_name() ) );
+		// Succcessfully save a record.
+		$test_table = $this->db->get_table( 'test_table' );
+		$rec = $test_table->save_record( array( 'title' => 'One', 'changeset_comment' => 'Testing.' ) );
+		$this->assertEquals( 1, $rec->id() );
+	}
+
+}

@@ -111,14 +111,13 @@ class Record {
 
 	/**
 	 * Get most recent changes.
-	 * @global wpdb $wpdb
 	 * @return array|string
 	 */
 	public function get_changes() {
-		global $wpdb;
+		$wpdb = $this->table->get_database()->get_wpdb();
 		$sql = "SELECT * "
-			. "FROM {$wpdb->prefix}changes c "
-			. "  JOIN {$wpdb->prefix}changesets cs ON (c.changeset_id=cs.id) "
+			. "FROM " . ChangeTracker::changes_name() . " c "
+			. "  JOIN " . ChangeTracker::changesets_name() . " cs ON (c.changeset_id=cs.id) "
 			. "  JOIN {$wpdb->prefix}users u ON (u.ID=cs.user_id) "
 			. "WHERE table_name = %s AND record_ident = %s"
 			. "ORDER BY date_and_time DESC "

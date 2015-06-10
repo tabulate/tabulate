@@ -66,7 +66,9 @@ class RecordController extends ControllerBase {
 			// Otherwise, create a new one.
 			try {
 				$data = wp_unslash( $_POST );
+				$this->wpdb->query( 'BEGIN' );
 				$template->record = $table->save_record( $data, $record_ident );
+				$this->wpdb->query( 'COMMIT' );
 				$template->add_notice( 'updated', 'Record saved.' );
 			} catch ( \WordPress\Tabulate\DB\Exception $e ) {
 				$template->add_notice( 'error', $e->getMessage() );
@@ -74,8 +76,7 @@ class RecordController extends ControllerBase {
 			}
 		}
 		// Redirect back to the edit form.
-		header("Location: ".$template->record->get_url());
-		exit(0);
+		wp_redirect( $template->record->get_url() );
 	}
 
 }

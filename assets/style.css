@@ -18,6 +18,8 @@ form.tabulate-record input.foreign-key { display:inline }
 form.tabulate-record input.foreign-key-actual-value { width:14% }
 form.tabulate-record input.foreign-key { width:83% }
 
+.tabulate-change-tracker .value { font-family:monospace; background-color:white; color:black }
+
 .tabulate.wrap .import .stages { width:100%; height:2em; margin-left:0 }
 .tabulate.wrap .import .stages dt,
 .tabulate.wrap .import .stages dd { float:left; margin:0; padding:0.2em 1.5em }

@@ -2,14 +2,14 @@
 /**
  * Plugin Name: Tabulate
  * Description: Manage relational tabular data within the WP admin area, using the full power of your MySQL database.
- * Version: 0.12.1
+ * Version: 0.13.0
  * Author: Sam Wilson
  * Author URI: http://samwilson.id.au/
  * License: GPL-2.0+
  * Text Domain: tabulate
  */
 
-define( 'TABULATE_VERSION', '0.12.1' );
+define( 'TABULATE_VERSION', '0.13.0' );
 define( 'TABULATE_SLUG', 'tabulate' );
 
 // Make sure Composer has been set up (for installation from Git, mostly).
@@ -32,11 +32,8 @@ $menus->init();
 // Add grants-checking callback.
 add_filter( 'user_has_cap', '\\WordPress\\Tabulate\\DB\\Grants::check', 0, 3 );
 
-// Changesets. (Uninstall is handled by uninstall.php.)
-add_action( TABULATE_SLUG . '_before_validate', '\\WordPress\\Tabulate\\DB\\ChangeSets::before_validate', 10, 3 );
-add_action( TABULATE_SLUG . '_before_save', '\\WordPress\\Tabulate\\DB\\ChangeSets::before_save', 10, 3 );
-add_action( TABULATE_SLUG . '_after_save', '\\WordPress\\Tabulate\\DB\\ChangeSets::after_save', 10, 2 );
-register_activation_hook( __FILE__, '\\WordPress\\Tabulate\\DB\\ChangeSets::activate' );
+// Activation for the ChangeTracker. (Uninstall is handled by uninstall.php.)
+register_activation_hook( __FILE__, '\\WordPress\\Tabulate\\DB\\ChangeTracker::activate' );
 
 // Register JSON API.
 add_action( 'wp_json_server_before_serve', function() {

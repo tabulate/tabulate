@@ -48,7 +48,7 @@ class Grants {
 	 */
 	public function get($table = null) {
 		$options = get_option( $this->option_name, array() );
-		if ($table && isset($options[$table] ) ) {
+		if ( ! is_null($table) && isset($options[$table] ) ) {
 			return $options[$table];
 		}
 		return $options;
