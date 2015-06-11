@@ -89,7 +89,7 @@ class Text {
 	 * @param string $time
 	 * @return string|int|bool
 	 */
-	public function wp_time_format( $time ) {
+	public static function wp_time_format( $time ) {
 		return mysql2date( get_option( 'time_format' ), $time );
 	}
 

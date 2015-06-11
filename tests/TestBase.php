@@ -39,6 +39,7 @@ class TestBase extends WP_UnitTestCase {
 			. ' description TEXT NULL,'
 			. ' active BOOLEAN NULL DEFAULT TRUE,'
 			. ' a_date DATE NULL,'
+			. ' a_year YEAR NULL,'
 			. ' type_id INT(10) NULL DEFAULT NULL,'
 			. ' widget_size DECIMAL(10,2) NOT NULL DEFAULT 5.6,'
 			. ' ranking INT(3) NULL DEFAULT NULL'

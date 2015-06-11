@@ -3,7 +3,9 @@ jQuery(document).ready(function ($) {
 	/**
 	 * Data entry helpers.
 	 */
-	$("input.datepicker").datepicker({ dateFormat: 'yy-mm-dd' });
+	$("input[data-column-type='date']").datepicker({ dateFormat: 'yy-mm-dd' });
+	$("input[data-column-type='date']").mask("9999-99-99", { placeholder:"yyyy-mm-dd" } );
+	$("input[data-column-type='year']").mask("9999");
 
 
 	/**

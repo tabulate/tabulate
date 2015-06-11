@@ -132,4 +132,19 @@ class SchemaTest extends TestBase {
 		$this->assertNull( $record->description() );
 	}
 
+	/**
+	 * @testdox Date and time values are saved correctly.
+	 * @test
+	 */
+	public function date_and_time() {
+		$test_table = $this->db->get_table( 'test_table' );
+		$rec = $test_table->save_record( array(
+			'title' => 'Test',
+			'a_date' => '1980-01-01',
+			'a_year' => '1980',
+		) );
+		$this->assertEquals( '1980-01-01', $rec->a_date() );
+		$this->assertEquals( '1980', $rec->a_year() );
+	}
+
 }

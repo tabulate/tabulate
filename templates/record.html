@@ -70,11 +70,9 @@
 
 			{% else %}
 			<input type="text" name="{{column.get_name}}" id="{{column.get_name}}" value="{{ attribute(record, column.get_name)}}" 
-				   aria-describedby="{{column.get_name}}-help"
+				   aria-describedby="{{column.get_name}}-help" data-column-type="{{column.get_type}}"
 				   {% if column.is_auto_increment %}readonly{% endif %}
 				   {% if column.is_required and not column.is_auto_increment %}required{% endif %}
-				   {% if column.get_type == 'year' %}pattern="number"{% endif %}
-				   {% if column.get_type == 'date' %}class="datepicker"{% endif %}
 				   />
 
 			{% endif %}
@@ -100,6 +98,13 @@
 					{% endif %}
 
 					{% if column.is_auto_increment %}A value for this field will be assigned automatically.{% endif %}
+
+					{% if column.get_type == 'year' %}
+					Only the years 1901&ndash;2155 can be entered here.
+					<a href="https://dev.mysql.com/doc/refman/5.6/en/year.html" target="_blank" title="The MySQL DATE type (opens in a new tab)">
+						(Why?)
+					</a>
+					{% endif %}
 
 				</label>
 			</td>

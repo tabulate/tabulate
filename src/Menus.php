@@ -117,6 +117,8 @@ class Menus {
 			$deps[] = 'wp-api';
 		}
 		wp_enqueue_script( 'tabulate-scripts', $script_url, $deps, TABULATE_VERSION );
+		$maskedinput_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery.maskedinput.min.js';
+		wp_enqueue_script( 'tabulate-maskedinput', $maskedinput_url, array(), '1.4.1' );
 		$js_vars = array(
 			'admin_url' => admin_url() . 'admin.php?page=' . TABULATE_SLUG
 		);
