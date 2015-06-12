@@ -212,7 +212,10 @@ class CSV {
 				// All other values are used as they are
 				$row[$db_column_name] = $value;
 			}
-			$table->save_record( $row );
+			
+			$pk_name = $table->get_pk_column()->get_name();
+			$pk_value = ( isset( $row[ $pk_name ] ) ) ? $row[ $pk_name ] : null;
+			$table->save_record( $row, $pk_value );
 			$count++;
 		}
 		return $count;

@@ -34,7 +34,8 @@ Features (in no particular order):
    records in any or all tables. (This can be done by anyone with the
    *promote_users* capability.)
 2. CSV data can be imported, with the UI supporting column mapping, data
-   validation, and previewing prior to final import.
+   validation, and previewing prior to final import. If an imported row has a
+   value for the Primary Key, the existing row will be overwritten.
 3. Data can be exported to CSV, including after filters have been applied. 
 4. A quick-jump navigation box (located top right of every page) can be
    activated by installing the [WP REST API](https://wordpress.org/plugins/json-rest-api/)
