@@ -793,6 +793,7 @@ class Table {
 	 * @return Record The updated or inserted record.
 	 */
 	public function save_record($data, $pk_value = null) {
+		// Changeset only created here if not already in progress.
 		$changeset_comment = isset( $data['changeset_comment'] ) ? $data['changeset_comment'] : null;
 		$change_tracker = new ChangeTracker( $this->get_database()->get_wpdb(), $changeset_comment );
 

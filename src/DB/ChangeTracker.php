@@ -8,33 +8,57 @@ use WordPress\Tabulate\DB\Record;
 
 class ChangeTracker {
 
-	private $current_changeset_id = false;
+	private static $current_changeset_id = false;
+
 	private $current_changeset_comment = null;
+
 	private $old_record = false;
+
+	/** @var boolean Whether the changeset should be closed after the first after_save() call. */
+	private $keep_changeset_open = false;
 
 	public function __construct( $wpdb, $comment = null ) {
 		$this->wpdb = $wpdb;
 		$this->current_changeset_comment = $comment;
 	}
 
-	public function before_save( Table $table, $data, $pk_value ) {
+	/**
+	 * Open a new changeset. If one is already open, this does nothing.
+	 * @global \WP_User $current_user
+	 * @param string $comment
+	 * @param boolean $keep_open Whether the changeset should be kept open (and manually closed) after after_save() is called.
+	 */
+	public function open_changeset( $comment, $keep_open = false ) {
 		global $current_user;
+		$this->keep_changeset_open = $keep_open;
+		if ( ! self::$current_changeset_id ) {
+			$data = array(
+				'date_and_time' => date( 'Y-m-d H:i:s' ),
+				'user_id' => $current_user->ID,
+				'comment' => $comment,
+			);
+			$this->wpdb->insert( $this->changesets_name(), $data );
+			self::$current_changeset_id = $this->wpdb->insert_id;
+		}
+	}
 
+	/**
+	 * Close the current changeset.
+	 * @return void
+	 */
+	public function close_changeset() {
+		self::$current_changeset_id = false;
+		$this->current_changeset_comment = null;
+	}
+
+	public function before_save( Table $table, $data, $pk_value ) {
 		// Don't save changes to the changes tables.
 		if ( in_array( $table->get_name(), $this->table_names() ) ) {
 			return false;
 		}
 
 		// Open a changeset if required.
-		if ( ! $this->current_changeset_id ) {
-			$data = array(
-				'date_and_time' => date( 'Y-m-d H:i:s' ),
-				'user_id' => $current_user->ID,
-				'comment' => $this->current_changeset_comment,
-			);
-			$this->wpdb->insert( $this->changesets_name(), $data );
-			$this->current_changeset_id = $this->wpdb->insert_id;
-		}
+		$this->open_changeset( $this->current_changeset_comment );
 
 		// Get the current (i.e. soon-to-be-old) data for later use.
 		$this->old_record = $table->get_record( $pk_value );
@@ -56,7 +80,7 @@ class ChangeTracker {
 				continue;
 			}
 			$data = array(
-				'changeset_id' => $this->current_changeset_id,
+				'changeset_id' => self::$current_changeset_id,
 				'change_type' => 'field',
 				'table_name' => $table->get_name(),
 				'column_name' => $col_name,
@@ -72,9 +96,11 @@ class ChangeTracker {
 			// Save the change record.
 			$this->wpdb->insert( $this->changes_name(), $data );
 		}
-		// Close this changeset.
-		$this->current_changeset_id = false;
-		$this->current_changeset_comment = null;
+
+		// Close the changeset if required.
+		if ( ! $this->keep_changeset_open ) {
+			$this->close_changeset();
+		}
 	}
 
 	public static function activate() {

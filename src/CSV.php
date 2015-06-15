@@ -28,24 +28,28 @@ class CSV {
 	 * In either case, if a valid CSV file cannot be found and parsed, throw an
 	 * exception.
 	 *
-	 * @return CSV
+	 * @param string $hash The hash of an in-progress import.
+	 * @param array $uploaded The result of wp_handle_upload().
 	 */
-	public function __construct( $hash = false ) {
-		if ( isset( $_FILES['file'] ) ) {
-			$this->get_from_files();
+	public function __construct( $hash = false, $uploaded = false ) {
+		if ( $uploaded ) {
+			$this->save_file( $uploaded );
 		}
 
 		if ( $hash ) {
 			$this->hash = $hash;
 		}
 
-		if ( $this->hash ) {
-			$this->load_data();
-		}
+		$this->load_data();
 	}
 
-	private function get_from_files() {
-		$uploaded = wp_handle_upload( $_FILES['file'] );
+	/**
+	 * Check the (already-handled) upload and rename the uploaded file.
+	 * @see wp_handle_upload()
+	 * @param array $uploaded
+	 * @throws \Exception
+	 */
+	private function save_file( $uploaded ) {
 		if ( isset( $uploaded['error'] ) ) {
 			throw new \Exception( $uploaded['error'] );
 		}
@@ -57,7 +61,16 @@ class CSV {
 		rename( $uploaded['file'], get_temp_dir().'/'.$this->hash );
 	}
 
-	private function load_data() {
+	/**
+	 * Load CSV data from the file identified by the current hash. If no hash is
+	 * set, this method does nothing.
+	 * @return void
+	 * @throws \Exception If the hash-identified file doesn't exist.
+	 */
+	public function load_data() {
+		if ( ! $this->hash ) {
+			return;
+		}
 		$file_path = get_temp_dir() . '/' . $this->hash;
 		if ( !file_exists( $file_path ) ) {
 			throw new \Exception( "No import was found with the identifier &lsquo;$this->hash&rsquo;" );
@@ -105,7 +118,7 @@ class CSV {
 		$heads = array();
 		foreach ( $column_map as $db_col_name => $csv_col_name ) {
 			foreach ( $this->headers as $head_num => $head_name ) {
-				if ( strtolower( $head_name ) == $csv_col_name ) {
+				if ( strcasecmp( $head_name, $csv_col_name ) === 0 ) {
 					$heads[$head_num] = $db_col_name;
 				}
 			}
@@ -186,6 +199,9 @@ class CSV {
 	 * @return integer The number of rows imported.
 	 */
 	public function import_data($table, $column_map) {
+		global $wpdb;
+		$change_tracker = new \WordPress\Tabulate\DB\ChangeTracker( $wpdb );
+		$change_tracker->open_changeset( 'CSV import.', true );
 		$count = 0;
 		$headers = $this->remap( $column_map );
 		for ( $row_num = 1; $row_num <= $this->row_count(); $row_num++ ) {
@@ -218,6 +234,7 @@ class CSV {
 			$table->save_record( $row, $pk_value );
 			$count++;
 		}
+		$change_tracker->close_changeset();
 		return $count;
 	}
 
