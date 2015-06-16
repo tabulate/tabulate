@@ -15,7 +15,7 @@ class ChangeTracker {
 	private $old_record = false;
 
 	/** @var boolean Whether the changeset should be closed after the first after_save() call. */
-	private $keep_changeset_open = false;
+	private static $keep_changeset_open = false;
 
 	public function __construct( $wpdb, $comment = null ) {
 		$this->wpdb = $wpdb;
@@ -28,9 +28,11 @@ class ChangeTracker {
 	 * @param string $comment
 	 * @param boolean $keep_open Whether the changeset should be kept open (and manually closed) after after_save() is called.
 	 */
-	public function open_changeset( $comment, $keep_open = false ) {
+	public function open_changeset( $comment, $keep_open = null ) {
 		global $current_user;
-		$this->keep_changeset_open = $keep_open;
+		if ( ! is_null( $keep_open ) ) {
+			self::$keep_changeset_open = $keep_open;
+		}
 		if ( ! self::$current_changeset_id ) {
 			$data = array(
 				'date_and_time' => date( 'Y-m-d H:i:s' ),
@@ -98,7 +100,7 @@ class ChangeTracker {
 		}
 
 		// Close the changeset if required.
-		if ( ! $this->keep_changeset_open ) {
+		if ( ! self::$keep_changeset_open ) {
 			$this->close_changeset();
 		}
 	}

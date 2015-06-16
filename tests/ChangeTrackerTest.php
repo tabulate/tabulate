@@ -36,19 +36,19 @@ class ChangeTrackerTest extends TestBase {
 		$changes1 = $rec->get_changes();
 		$this->assertCount( 2, $changes1 );
 		// Check the second change record.
-		$changes1_rec_1 = $changes1[ 1 ];
-		$this->assertequals( 'title', $changes1_rec_1->column_name );
-		$this->assertNull( $changes1_rec_1->old_value );
-		$this->assertEquals( 'One', $changes1_rec_1->new_value );
+		$changes1_rec = array_pop( $changes1 );
+		$this->assertequals( 'title', $changes1_rec->column_name );
+		$this->assertNull( $changes1_rec->old_value );
+		$this->assertEquals( 'One', $changes1_rec->new_value );
 
 		// Modify one value, and inspect the new change record.
 		$rec2 = $test_table->save_record( array( 'title' => 'Two' ), $rec->id() );
 		$changes2 = $rec2->get_changes();
 		$this->assertCount( 3, $changes2 );
-		$changes2_rec_2 = $changes2[ 2 ];
-		$this->assertequals( 'title', $changes2_rec_2->column_name );
-		$this->assertequals( 'One', $changes2_rec_2->old_value );
-		$this->assertEquals( 'Two', $changes2_rec_2->new_value );
+		$changes2_rec = array_shift( $changes2 );
+		$this->assertequals( 'title', $changes2_rec->column_name );
+		$this->assertequals( 'One', $changes2_rec->old_value );
+		$this->assertEquals( 'Two', $changes2_rec->new_value );
 	}
 
 	/**

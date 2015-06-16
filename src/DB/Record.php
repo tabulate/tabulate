@@ -120,7 +120,7 @@ class Record {
 			. "  JOIN " . ChangeTracker::changesets_name() . " cs ON (c.changeset_id=cs.id) "
 			. "  JOIN {$wpdb->prefix}users u ON (u.ID=cs.user_id) "
 			. "WHERE table_name = %s AND record_ident = %s"
-			. "ORDER BY date_and_time DESC "
+			. "ORDER BY date_and_time DESC, cs.id DESC "
 			. "LIMIT 15 ";
 		$params = array( $this->table->get_name(), $this->get_primary_key() );
 		return $wpdb->get_results( $wpdb->prepare( $sql, $params ) );
