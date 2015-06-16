@@ -67,13 +67,12 @@ Features (in no particular order):
 ### How does one use the shortcode?
 
 A [Shortcode](http://codex.wordpress.org/Shortcode) is a WordPress method of
-embedding content into posts and pages. Tabulate provides one short code,
-`[tabulate]`, which can be used to add tables, lists, and record-counts to your
-content. Its parameters are as follows:
+embedding content into posts and pages. Tabulate provides one short code, `[tabulate]`,
+which can be used to add tables, lists, and record-counts to your content.
+Its parameters are as follows:
 
-`table` — The name of the table in question. Required. No default.
-
-`format` — One of `table`, `list`, or `count`. Optional. Defaults to `table`.
+1. `table` — The name of the table in question. Required. No default.
+2. `format` — One of `table`, `list`, or `count`. Optional. Defaults to `table`.
 
 Do note that if a table is not accessible to the browsing user then nothing will
 be displayed. (This currently means that anonymous users can not view any
