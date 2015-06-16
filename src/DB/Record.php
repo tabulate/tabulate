@@ -26,6 +26,13 @@ class Record {
 		$this->data->$name = $value;
 	}
 
+	/**
+	 * Get a column's value. If suffixed with 'FKTITLE', then get the title of
+	 * the foreign record (where applicable).
+	 * @param string $name The column name.
+	 * @param array $args [Parameter not used]
+	 * @return string|boolean
+	 */
 	public function __call($name, $args) {
 
 		// Foreign key 'title' values.
@@ -115,7 +122,9 @@ class Record {
 	 */
 	public function get_changes() {
 		$wpdb = $this->table->get_database()->get_wpdb();
-		$sql = "SELECT * "
+		$sql = "SELECT cs.id AS changeset_id, c.id AS change_id, date_and_time, "
+			. "user_nicename, table_name, record_ident, column_name, old_value, "
+			. "new_value, comment "
 			. "FROM " . ChangeTracker::changes_name() . " c "
 			. "  JOIN " . ChangeTracker::changesets_name() . " cs ON (c.changeset_id=cs.id) "
 			. "  JOIN {$wpdb->prefix}users u ON (u.ID=cs.user_id) "

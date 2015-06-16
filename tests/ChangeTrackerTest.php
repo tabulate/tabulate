@@ -90,4 +90,22 @@ class ChangeTrackerTest extends TestBase {
 		$this->assertEquals( 1, $rec->id() );
 	}
 
+	/**
+	 * @testdox Foreign Keys are tracked by their titles (not their PKs).
+	 * @test
+	 */
+	public function fk_titles() {
+		// Set up data.
+		$test_types = $this->db->get_table( 'test_types' );
+		$type = $test_types->save_record( array( 'title' => 'The Type' ) );
+		$test_table = $this->db->get_table( 'test_table' );
+		$rec = $test_table->save_record( array( 'title' => 'A Record', 'type_id' => $type->id() ) );
+		// Test.
+		$changes = $rec->get_changes();
+		//print_r($changes);
+		$change = $changes[ 3 ];
+		$this->assertEquals( "type_id", $change->column_name );
+		$this->assertEquals( "The Type", $change->new_value );
+	}
+
 }
