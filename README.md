@@ -30,23 +30,25 @@ Features (in no particular order):
    operators ('contains', 'is', 'empty', 'greater than', 'less than', and the
    negations of all of these). Multiple filters are conjunctive (i.e. with a
    logical *and*).
-1. Access can be granted to *read*, *create*, *update*, *delete*, and *import*
+2. Access can be granted to *read*, *create*, *update*, *delete*, and *import*
    records in any or all tables. (This can be done by anyone with the
    *promote_users* capability.)
-2. CSV data can be imported, with the UI supporting column mapping, data
+3. CSV data can be imported, with the UI supporting column mapping, data
    validation, and previewing prior to final import. If an imported row has a
    value for the Primary Key, the existing row will be overwritten.
-3. Data can be exported to CSV, including after filters have been applied. 
-4. A quick-jump navigation box (located top right of every page) can be
+4. Data can be exported to CSV, including after filters have been applied. 
+5. A quick-jump navigation box (located top right of every page) can be
    activated by installing the [WP REST API](https://wordpress.org/plugins/json-rest-api/)
    plugin.
-5. Records in tables with *date* columns can be viewed in a calendar.
-6. Entity Relationship Diagrams (drawn with [GraphViz](http://graphviz.org/))
+6. Records in tables with *date* columns can be viewed in a calendar.
+7. Entity Relationship Diagrams (drawn with [GraphViz](http://graphviz.org/))
    can be automatically generated, with any specified subset of tables. Foreign
    keys are displayed as directed edges. This feature is only available if the
    [TFO Graphviz plugin](https://wordpress.org/plugins/tfo-graphviz/) is installed.
-7. All data modifications are recorded, along with optional comments that users
+8. All data modifications are recorded, along with optional comments that users
    can provide when updating data.
+9. The `[tabulate]` shortcode can be used to embed tables, lists, and row-counts
+   into WordPress content. For more details, see the [FAQ section](https://wordpress.org/plugins/tabulate/faq/).
 
 ## Installation
 
@@ -62,10 +64,26 @@ Features (in no particular order):
 
 ## Frequently Asked Questions
 
-### How should issues be reported?
+### How does one use the shortcode?
+
+A [Shortcode](http://codex.wordpress.org/Shortcode) is a WordPress method of
+embedding content into posts and pages. Tabulate provides one short code,
+`[tabulate]`, which can be used to add tables, lists, and record-counts to your
+content. Its parameters are as follows:
+
+`table` — The name of the table in question. Required. No default.
+
+`format` — One of `table`, `list`, or `count`. Optional. Defaults to `table`.
+
+Do note that if a table is not accessible to the browsing user then nothing will
+be displayed. (This currently means that anonymous users can not view any
+Tabulate data, because there is no way to grant them access; this will be fixed
+soon.)
+
+### Where should issues be reported?
 
 Please log all bugs, feature requests, and other issues in the GitHub issue
-tracker: https://github.com/tabulate/tabulate/issues
+tracker at https://github.com/tabulate/tabulate/issues
 
 ### What modifications does Tabulate make to the database?
 
@@ -79,6 +97,7 @@ This should be done by creating a [view](https://dev.mysql.com/doc/refman/5.1/en
 (of one or more tables) and granting access to that.
 
 ### Where is the developers' documentation?
+
 For information about the development of Tabulate or integrating other plugins
 with it please see
 [CONTRIBUTING.md](https://github.com/tabulate/tabulate/blob/master/CONTRIBUTING.md#contributing).
@@ -94,7 +113,7 @@ with it please see
 A full list of changes can be found at
 https://github.com/tabulate/tabulate/commits/master
 
-Prior to version 1, changes are not being lsited here (there are too many of
+Prior to version 1, changes are not being listed here (there are too many of
 them, and nothing is stable yet).
 
 ## Upgrade Notice

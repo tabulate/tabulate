@@ -2,14 +2,14 @@
 /**
  * Plugin Name: Tabulate
  * Description: Manage relational tabular data within the WP admin area, using the full power of your MySQL database.
- * Version: 0.15.0
+ * Version: 0.16.0
  * Author: Sam Wilson
  * Author URI: http://samwilson.id.au/
  * License: GPL-2.0+
  * Text Domain: tabulate
  */
 
-define( 'TABULATE_VERSION', '0.15.0' );
+define( 'TABULATE_VERSION', '0.16.0' );
 define( 'TABULATE_SLUG', 'tabulate' );
 
 // Make sure Composer has been set up (for installation from Git, mostly).
@@ -41,3 +41,7 @@ add_action( 'wp_json_server_before_serve', function() {
 	$jsonController = new WordPress\Tabulate\Controllers\ApiController( $wpdb );
 	add_filter( 'json_endpoints', array( $jsonController, 'register_routes' ) );
 } );
+
+// Shortcode.
+$shortcode = new \WordPress\Tabulate\Shortcode( $wpdb );
+add_shortcode(TABULATE_SLUG, array( $shortcode, 'run' ) );
