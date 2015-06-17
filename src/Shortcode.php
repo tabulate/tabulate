@@ -30,19 +30,18 @@ class Shortcode {
 		}
 		$format_method = $attrs['format'].'_format';
 		if (  is_callable( array($this, $format_method ) ) ) {
-			return $this->$format_method( $attrs );
+			return $this->$format_method( $table, $attrs );
 		} else {
 			return "Format '{$attrs['format']}' not available.";
 		}
 	}
 
-	protected function count_format( $attrs ) {
+	protected function count_format( DB\Table $table, $attrs ) {
 		$count = number_format( $table->count_records() );
 		return '<span class="tabulate count-format">'.$count.'</span>';
 	}
 
-	protected function list_format( $attrs ) {
-		$table = $this->db->get_table( $attrs['table'] );
+	protected function list_format( DB\Table $table, $attrs ) {
 		$titles = array();
 		foreach ( $table->get_records() as $rec ) {
 			$titles[] = $rec->get_title();
@@ -51,8 +50,7 @@ class Shortcode {
 		return '<span class="tabulate list-format">' . join( $glue, $titles ) . '</span>';
 	}
 
-	protected function table_format( $attrs ) {
-		$table = $this->db->get_table( $attrs['table'] );
+	protected function table_format( DB\Table $table, $attrs ) {
 		$template = new \WordPress\Tabulate\Template( 'data_table.html' );
 		$template->table = $table;
 		$template->links = false;

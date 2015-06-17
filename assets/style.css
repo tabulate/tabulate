@@ -4,7 +4,9 @@
 
 form.tabulate-filters td.label { text-align:right }
 
-form.tabulate-grants label.checkbox { white-space:nowrap; display:inline-block; width:45% }
+form.tabulate-grants label.checkbox { white-space:nowrap; display:inline-block; width:45%; border-bottom:1px solid white }
+form.tabulate-grants label.checkbox:hover { background-color:#9acfea }
+form.tabulate-grants label.checkbox.checked { color:green; border-bottom-color:#060 }
 
 form.tabulate-grants tr.select-all td,
 form.tabulate-grants td.select-all { border:1px solid #e1e1e1; background-color:#efffef; font-style:italic }

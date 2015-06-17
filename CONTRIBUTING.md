@@ -28,9 +28,8 @@ also need to be updated (or should these just be changed to also use `TABULATE_V
 
 Some possibilities:
 
-* Shortcode and widget for FoH display of data.
-* Map display, where there is spacial data in a table.
-* An audit trail, logging all modifications.
+* Widget for FoH display of data (akin to the Shortcode).
+* Map display, where there is spatial data in a table.
 * File storage, for blob types.
 * Bulk changes, for modifying filtered data.
 * LaTeX output.
