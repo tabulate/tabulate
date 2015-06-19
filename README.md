@@ -95,6 +95,17 @@ deleted (but custom tables are not touched).
 This should be done by creating a [view](https://dev.mysql.com/doc/refman/5.1/en/create-view.html)
 (of one or more tables) and granting access to that.
 
+### What reasons exist for the 'failed to create *.csv' error?
+
+If you are getting an error like "Failed to create C:/Windows/Temp/tabulate_5593a4c432a67.csv"
+or "Failed to create C:/Windows/Temp/tabulate_5593a4c432a67.csv"
+then should
+
+1. firstly check that your database user has the [FILE privilege](https://dev.mysql.com/doc/refman/5.7/en/privileges-provided.html#priv_file);
+2. then make sure your web server user has write-access to the system temp directory;
+3. and if those don't work, add the following to your `wp-config.php`:
+   `define( 'WP_TEMP_DIR', ABSPATH . 'wp-content/tmp/' );` and create the `wp-content/tmp/` directory.
+
 ### Where is the developers' documentation?
 
 For information about the development of Tabulate or integrating other plugins

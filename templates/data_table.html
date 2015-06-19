@@ -36,6 +36,9 @@
 				<!-- Null -->
 				{% endif %}
 
+				{% elseif column.get_type=='date' %}
+				{{ attribute(record, column.get_name)|wp_date_format }}
+
 				{% else %}
 				{{ attribute(record, column.get_name) }}
 
