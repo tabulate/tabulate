@@ -109,7 +109,9 @@ class CSV {
 
 	/**
 	 * Take a mapping of DB column name to CSV column name, and convert it to
-	 * a mapping of CSV column number to DB column name.
+	 * a mapping of CSV column number to DB column name. This ignores empty
+	 * column headers in the CSV (so we don't have to distinguish between
+	 * not-matching and matching-on-empty-string).
 	 *
 	 * @param array $column_map
 	 * @return array Keys are CSV indexes, values are DB column names
@@ -118,7 +120,8 @@ class CSV {
 		$heads = array();
 		foreach ( $column_map as $db_col_name => $csv_col_name ) {
 			foreach ( $this->headers as $head_num => $head_name ) {
-				if ( strcasecmp( $head_name, $csv_col_name ) === 0 ) {
+				// If the header has a name, and it matches that of the column.
+				if ( ! empty( $head_name ) && strcasecmp( $head_name, $csv_col_name ) === 0 ) {
 					$heads[$head_num] = $db_col_name;
 				}
 			}
