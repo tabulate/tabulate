@@ -37,6 +37,10 @@ class RecordController extends ControllerBase {
 				$template->add_notice( 'error', 'You do not have permission to create records in this table.' );
 			}
 		}
+		// Don't save to non-updatable views.
+		if ( ! $table->is_updatable() ) {
+			$template->add_notice( 'error', "This table can not be updated." );
+		}
 
 		return $template->render();
 	}

@@ -11,7 +11,7 @@
 		{% for record in records %}
 		<tr>
 			<td>
-				{% if links %}
+				{% if links and table.is_updatable %}
 				<a href="{{ record.get_url() }}" class="">Edit</a>
 				{% endif %}
 			</td>

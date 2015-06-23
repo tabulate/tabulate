@@ -418,6 +418,35 @@ class Table {
 	}
 
 	/**
+	 * Whether this table is a table (as opposed to a view).
+	 * @return boolean
+	 */
+	public function is_table() {
+		return $this->get_type() == self::TYPE_TABLE;
+	}
+
+	/**
+	 * Whether this table is a view.
+	 * @return boolean
+	 */
+	public function is_view() {
+		return $this->get_type() == self::TYPE_VIEW;
+	}
+
+	/**
+	 * Whether this view is updatable. Always true for base tables. Currently
+	 * always false for all views.
+	 * @todo Implement this.
+	 * @link https://dev.mysql.com/doc/refman/5.6/en/view-updatability.html
+	 */
+	public function is_updatable() {
+		if ($this->is_table()) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Get this table's title. This is the title-cased name, if not otherwise
 	 * defined.
 	 *
