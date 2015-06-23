@@ -121,8 +121,11 @@ class TableController extends ControllerBase {
 			// Make sure all required columns are selected
 			foreach ( $table->get_columns() as $col ) {
 				// Handle missing columns separately; other column errors are
-				// done in the CSV class.
-				if ( $col->is_required() && empty( $_POST['columns'][ $col->get_name() ] ) ) {
+				// done in the CSV class. Missing columns don't matter if importing
+				// existing records.
+				$missing = empty( $_POST['columns'][ $col->get_name() ] );
+				$pk_present = isset( $_POST['columns'][ $table->get_pk_column()->get_name() ] );
+				if ( ! $pk_present && $col->is_required() && $missing ) {
 					$errors[] = array(
 						'column_name' => '',
 						'column_number' => '',

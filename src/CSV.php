@@ -141,11 +141,20 @@ class CSV {
 	 * @return array Array of error messages.
 	 */
 	public function match_fields($table, $column_map) {
-		// First get the indexes of the headers
+		// First get the indexes of the headers, including the PK if it's there.
 		$heads = $this->remap( $column_map );
+		$pk_col_num = false;
+		foreach ($heads as $head_index => $head_name) {
+			if ( $head_name == $table->get_pk_column()->get_name() ) {
+				$pk_col_num = $head_index;
+				break;
+			}
+		}
 
+		// Collect all errors.
 		$errors = array();
 		for ( $row_num = 1; $row_num <= $this->row_count(); $row_num++ ) {
+			$pk_set = isset( $this->data[ $row_num ][ $pk_col_num ] );
 			foreach ( $this->data[$row_num] as $col_num => $value ) {
 				if ( !isset( $heads[$col_num] ) ) {
 					continue;
@@ -153,12 +162,12 @@ class CSV {
 				$col_errors = array();
 				$db_column_name = $heads[$col_num];
 				$column = $table->get_column( $db_column_name );
-				// Required, has no default, and is empty
-				if ( $column->is_required() AND ! $column->get_default() AND empty( $value ) ) {
+				// Required, is not an update, has no default, and is empty
+				if ( $column->is_required() && ! $pk_set && ! $column->get_default() && empty( $value ) ) {
 					$col_errors[] = 'Required but empty';
 				}
-				// Already exists
-				if ( $column->is_unique() && $this->value_exists( $table, $column, $value ) ) {
+				// Already exists, and is not an update.
+				if ( $column->is_unique() && ! $pk_set && $this->value_exists( $table, $column, $value ) ) {
 					$col_errors[] = "Unique value already present: '$value'";
 				}
 				// Too long (if the column has a size and the value is greater than this)
@@ -177,6 +186,9 @@ class CSV {
 				// Dates
 				if ( $column->get_type() == 'date' AND ! empty( $value ) AND preg_match( '/\d{4}-\d{2}-\d{2}/', $value ) !== 1 ) {
 					$col_errors[] = 'Value (' . $value . ') not in date format';
+				}
+				if ( $column->get_type() == 'year' AND ! empty( $value ) AND ( $value < 1901 || $value > 2155 ) ) {
+					$col_errors[] = 'Year values must be between 1901 and 2155 (' . $value . ' given)';
 				}
 
 				if ( count( $col_errors ) > 0 ) {
