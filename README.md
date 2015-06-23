@@ -1,7 +1,7 @@
 # Tabulate
 * Contributors: samwilson
 * Donate link: https://www.bushheritage.org.au/donatenow
-* Tags: MySQL, databases, tables, data, CRUD, importing, CSV
+* Tags: MySQL, databases, tables, data, CRUD, import, export, CSV, shortcode
 * Requires at least: 4.2
 * Tested up to: 4.2
 * Stable tag: trunk
@@ -69,7 +69,7 @@ Features (in no particular order):
 A [Shortcode](http://codex.wordpress.org/Shortcode) is a WordPress method of
 embedding content into posts and pages. Tabulate provides one short code, `[tabulate]`,
 which can be used to add tables, lists, and record-counts to your content.
-Its parameters are as follows:
+Its parameters (which can appear in any order) are as follows:
 
 1. `table` — The name of the table in question. Required. No default.
 2. `format` — One of `table`, `list`, or `count`. Optional. Defaults to `table`.
@@ -97,9 +97,9 @@ This should be done by creating a [view](https://dev.mysql.com/doc/refman/5.1/en
 
 ### What reasons exist for the 'failed to create *.csv' error?
 
-If you are getting an error like "Failed to create C:/Windows/Temp/tabulate_5593a4c432a67.csv"
-or "Failed to create C:/Windows/Temp/tabulate_5593a4c432a67.csv"
-then should
+If you are getting an error like "Failed to create C:\Windows\Temp\tabulate_5593a4c432a67.csv"
+or "Failed to create /tmp/tabulate_5593a4c432a67.csv"
+then you should
 
 1. firstly check that your database user has the [FILE privilege](https://dev.mysql.com/doc/refman/5.7/en/privileges-provided.html#priv_file);
 2. then make sure your web server user has write-access to the system temp directory;
