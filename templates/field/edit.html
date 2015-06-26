@@ -16,13 +16,16 @@
 
 
 
-{% elseif column.is_foreign_key and column.get_referenced_table.count_records > 20 %}
-<input type="text" class="foreign-key-actual-value" readonly name="{{column.get_name}}"
-	   value="{{ attribute(record, column.get_name)}}" {% if column.is_required %}required{% endif %} />
-<input type="text" class="foreign-key form-control" {% if column.is_required %}required{% endif %}
-	   data-fk-table="{{column.get_referenced_table.get_name}}"
-	   value="{{ record.get_referenced_record(column.get_name).get_title }}"
-/>
+{% elseif column.is_foreign_key and column.get_referenced_table.count_records > 30 %}
+<div class="foreign-key input-group">
+	<input type="hidden" class="actual-value" name="{{column.get_name}}"
+		   value="{{ attribute(record, column.get_name) }}" />
+	<span class="input-group-addon">{{ attribute(record, column.get_name) }}</span>
+	<input type="text" class="form-control" {% if column.is_required %}required{% endif %}
+		   data-fk-table="{{column.get_referenced_table.get_name}}"
+		   value="{{ record.get_referenced_record(column.get_name).get_title }}"
+	/>
+</div>
 
 
 

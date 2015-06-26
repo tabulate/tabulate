@@ -30,7 +30,8 @@ class Menus {
 	public function init() {
 		add_action( 'admin_init', array( $this, 'dispatch' ) );
 		add_action( 'admin_menu', array( $this, 'add_menu_pages' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue' ) );
 	}
 
 	/**
@@ -95,18 +96,19 @@ class Menus {
 
 	/**
 	 * This is the callback method used in self::init() to add scripts and
-	 * styles to the admin pages.
+	 * styles to the Tabulate admin pages and everywhere the shortcode is used.
 	 *
 	 * @return void
 	 */
-	public function admin_enqueue($page) {
+	public function enqueue( $page ) {
 		// Make sure we only enqueue on Tabulate pages.
 		$allowed_pages = array(
+			'tabulate_shortcode', // Not really a page! :-(
 			'toplevel_page_tabulate',
 			'tabulate_page_tabulate_erd',
 			'tabulate_page_tabulate_grants',
 		);
-		if ( ! in_array( $page, $allowed_pages ) ) {
+		if ( ! ( empty( $page ) || in_array( $page, $allowed_pages ) ) ) {
 			return;
 		}
 

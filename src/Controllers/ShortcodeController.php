@@ -18,7 +18,9 @@ class ShortcodeController extends ControllerBase {
 	}
 
 	/**
-	 * 
+	 * Substitute the Shortcode with the relevant formatted output.
+	 * @param array $atts
+	 * @return string
 	 */
 	public function run( $atts ) {
 		$defaults = array(
@@ -35,7 +37,7 @@ class ShortcodeController extends ControllerBase {
 			return '';
 		}
 		$format_method = $attrs['format'].'_format';
-		if (  is_callable( array($this, $format_method ) ) ) {
+		if ( is_callable( array( $this, $format_method ) ) ) {
 			return $this->$format_method( $table, $attrs );
 		} else {
 			return "Format '{$attrs['format']}' not available.";

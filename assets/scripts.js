@@ -35,20 +35,22 @@ jQuery(document).ready(function ($) {
 		/**
 		 * Handle foreign-key select lists (autocomplete when greater than N options).
 		 */
-		$(".tabulate input.foreign-key").each(function() {
+		$(".tabulate .foreign-key .form-control:input").each(function() {
 			// Autocomplete.
 			$(this).autocomplete({
 				source: WP_API_Settings.root + "/tabulate/fk/" + $(this).data('fk-table'),
 				select: function( event, ui ) {
 					event.preventDefault();
 					$(this).val(ui.item.label);
-					$(this).closest("td").find("input.foreign-key-actual-value").val(ui.item.value);
+					$(this).closest(".foreign-key").find(".actual-value").val(ui.item.value);
+					$(this).closest(".foreign-key").find(".input-group-addon").text(ui.item.value);
 				}
 			});
 			// Clear actual-value if emptied.
 			$(this).change(function(){
 				if ($(this).val().length === 0) {
-					$(this).closest("td").find("input.foreign-key-actual-value").val("");
+					$(this).closest(".foreign-key").find(".actual-value").val("");
+					$(this).closest(".foreign-key").find(".input-group-addon").text("");
 				}
 			});
 		});
