@@ -1,4 +1,6 @@
-{% if column.is_foreign_key and column.get_referenced_table.count_records <= 20 %}
+{% set fk_threshold = 30 %}
+
+{% if column.is_foreign_key and column.get_referenced_table.count_records <= fk_threshold %}
 <select name="{{column.get_name}}" id="{{column.get_name}}" aria-describedby="{{column.get_name}}-help"
 	{% if column.is_required %}required{% endif %} class="form-control"
 	>
@@ -16,7 +18,7 @@
 
 
 
-{% elseif column.is_foreign_key and column.get_referenced_table.count_records > 30 %}
+{% elseif column.is_foreign_key and column.get_referenced_table.count_records > fk_threshold %}
 <div class="foreign-key input-group">
 	<input type="hidden" class="actual-value" name="{{column.get_name}}"
 		   value="{{ attribute(record, column.get_name) }}" />
