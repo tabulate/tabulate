@@ -14,68 +14,7 @@
 			</th>
 
 			<td class='form-field form-required'><!-- Data entry cell -->
-
-			{% if column.is_foreign_key and column.get_referenced_table.count_records <= 20 %}
-			<select name="{{column.get_name}}" id="{{column.get_name}}" aria-describedby="{{column.get_name}}-help"
-				{% if column.is_required %}required{% endif %}
-				>
-				{% if column.nullable %}<option></option>{% endif %}
-				{% for row in column.get_referenced_table.get_records %}
-				<option value="{{ attribute(row, column.get_referenced_table.get_pk_column.get_name) }}"
-					{% if attribute(record, column.get_name) == attribute(row, column.get_referenced_table.get_pk_column.get_name) %}
-					selected
-					{% endif %}
-					>
-					{{ attribute(row, column.get_referenced_table.get_title_column.get_name) }}
-				</option>
-				{% endfor %}
-			</select><!-- End foreign key select -->
-
-			{% elseif column.is_foreign_key and column.get_referenced_table.count_records > 20 %}
-			<input type="text" class="foreign-key-actual-value" readonly name="{{column.get_name}}"
-				   value="{{ attribute(record, column.get_name)}}" {% if column.is_required %}required{% endif %} />
-			<input type="text" class="foreign-key" {% if column.is_required %}required{% endif %}
-				   data-fk-table="{{column.get_referenced_table.get_name}}"
-				   value="{{ record.get_referenced_record(column.get_name).get_title }}" />
-
-			{% elseif column.get_type=='enum' %}
-			<select name="{{column.get_name}}" id="{{column.get_name}}" aria-describedby="{{column.get_name}}-help"
-				{% if column.is_required %}required{% endif %}
-				>
-				{% if column.nullable %}<option></option>{% endif %}
-				{% for option in column.get_options %}
-				<option value="{{option}}" {% if attribute(record, column.get_name) == option %}selected{% endif %}>
-					{{option}}
-				</option>
-				{% endfor %}
-			</select><!-- End ENUM select -->
-
-			{% elseif column.is_boolean %}
-			<input type="radio" name="{{column.get_name}}" id="{{column.get_name}}-yes"
-				   value="1" {% if attribute(record, column.get_name) is sameas(true) %}checked{% endif %} />
-			<label for="{{column.get_name}}-yes">Yes</label>
-			<input type="radio" name="{{column.get_name}}" id="{{column.get_name}}-no"
-				   value="0" {% if attribute(record, column.get_name) is sameas(false) %}checked{% endif %} />
-			<label for="{{column.get_name}}-no">No</label>
-			{% if column.is_null %}
-			<input type="radio" name="{{column.get_name}}" id="{{column.get_name}}-null"
-				   value="" {% if attribute(record, column.get_name) is null %}checked{% endif %} />
-			<label for="{{column.get_name}}-null" title="Not Applicable">N/A</label>
-			{% endif %}
-
-			{% elseif column.get_type=='text' %}
-			<textarea name="{{column.get_name}}" id="{{column.get_name}}" aria-describedby="{{column.get_name}}-help"
-					  {% if column.is_required %}required{% endif %} rows="5" cols="80"
-					  >{{ attribute(record, column.get_name)}}</textarea>
-
-			{% else %}
-			<input type="text" name="{{column.get_name}}" id="{{column.get_name}}" value="{{ attribute(record, column.get_name)}}" 
-				   aria-describedby="{{column.get_name}}-help" data-column-type="{{column.get_type}}"
-				   {% if column.is_auto_increment %}readonly{% endif %}
-				   {% if column.is_required and not column.is_auto_increment %}required{% endif %}
-				   />
-
-			{% endif %}
+				{% include 'field/edit.html' %}
 			</td><!-- End data entry cell -->
 
 			<td>
@@ -111,7 +50,6 @@
 		</tr>
 
 	{% endfor %}
-
 		<tr>
 			<td></td>
 			<td colspan="2">

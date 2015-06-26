@@ -1,14 +1,20 @@
 <?php
 
-namespace WordPress\Tabulate;
+namespace WordPress\Tabulate\Controllers;
 
-class Shortcode {
+use WordPress\Tabulate\DB\Database;
+use WordPress\Tabulate\DB\Table;
+use WordPress\Tabulate\DB\Grants;
+use WordPress\Tabulate\Template;
+
+class ShortcodeController extends ControllerBase {
 
 	/** @var DB\Database */
 	private $db;
 
 	public function __construct( $wpdb ) {
-		$this->db = new DB\Database( $wpdb );
+		parent::__construct( $wpdb );
+		$this->db = new Database( $wpdb );
 	}
 
 	/**
@@ -36,12 +42,23 @@ class Shortcode {
 		}
 	}
 
-	protected function count_format( DB\Table $table, $attrs ) {
+	protected function form_format( Table $table, $attrs ) {
+		if ( ! Grants::current_user_can( Grants::CREATE, $table ) ) {
+			return 'You do not have permission to create ' . $table->get_title() . ' records.';
+		}
+		$template = new Template( 'record/shortcode.html' );
+		$template->table = $table;
+		$template->record = $table->get_default_record();
+		$template->return_to = get_the_permalink();
+		return $template->render();
+	}
+
+	protected function count_format( Table $table, $attrs ) {
 		$count = number_format( $table->count_records() );
 		return '<span class="tabulate count-format">'.$count.'</span>';
 	}
 
-	protected function list_format( DB\Table $table, $attrs ) {
+	protected function list_format( Table $table, $attrs ) {
 		$titles = array();
 		foreach ( $table->get_records() as $rec ) {
 			$titles[] = $rec->get_title();
@@ -50,8 +67,8 @@ class Shortcode {
 		return '<span class="tabulate list-format">' . join( $glue, $titles ) . '</span>';
 	}
 
-	protected function table_format( DB\Table $table, $attrs ) {
-		$template = new \WordPress\Tabulate\Template( 'data_table.html' );
+	protected function table_format( Table $table, $attrs ) {
+		$template = new Template( 'data_table.html' );
 		$template->table = $table;
 		$template->links = false;
 		$template->record = $table->get_default_record();

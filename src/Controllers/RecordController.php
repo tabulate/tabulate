@@ -10,7 +10,7 @@ class RecordController extends ControllerBase {
 	 * @return \WordPress\Tabulate\Template
 	 */
 	private function get_template( $table ) {
-		$template = new \WordPress\Tabulate\Template( 'record.html' );
+		$template = new \WordPress\Tabulate\Template( 'record/admin.html' );
 		$template->table = $table;
 		$template->controller = 'record';
 		return $template;
@@ -80,7 +80,9 @@ class RecordController extends ControllerBase {
 			}
 		}
 		// Redirect back to the edit form.
-		wp_redirect( $template->record->get_url() );
+		$return_to = ( ! empty( $_REQUEST['return_to'] ) ) ? $_REQUEST['return_to'] : $template->record->get_url();
+		wp_redirect( $return_to );
+		exit( 0 );
 	}
 
 }

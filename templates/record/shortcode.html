@@ -1,0 +1,37 @@
+{% include 'notices.html' %}
+
+<form method="post" action="{{record.get_url('save')}}" class="tabulate-record">
+
+	{% for column in table.get_columns %}
+	<div class="form-group">
+
+		<label for="{{column.get_name}}" class="right inline">{{column.get_title}}
+		{% if column.is_required and not column.is_auto_increment %}*{% endif %}
+		</label>
+
+		{% include 'field/edit.html' %}
+
+		<p class="help-block" id="{{column.get_name}}-help">
+			<em>{{column.get_comment}}</em>
+
+			{% if column.is_auto_increment %}A value for this field will be assigned automatically.{% endif %}
+
+			{% if column.is_foreign_key %}
+			This field is a cross reference to {{column.get_referenced_table.get_title}}.
+			{% endif %}
+
+			{% if column.get_type == 'year' %}
+			Only the years 1901&ndash;2155 can be entered here.
+			{% endif %}
+		</p>
+
+	</div>
+	{% endfor %}
+
+	<p>
+		<input type="hidden" name="changeset_comment" value="Data entered via form at {{return_to}}" />
+		<input type="hidden" name="return_to" value="{{return_to}}" />
+		<input type="submit" value="Save" class="btn btn-default" />
+	</p>
+
+</form>

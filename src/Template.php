@@ -5,14 +5,23 @@ namespace WordPress\Tabulate;
 class Template {
 
 	protected $templateName;
+
 	protected $data;
+
+	/** @var string The name of the transient used to store notices. */
+	protected $transient_notices;
 
 	public function __construct( $templateName ) {
 		global $wpdb;
 		$this->templateName = $templateName;
+		$this->transient_notices = TABULATE_SLUG . '_notices';
+		$notices = get_transient( $this->transient_notices );
+		if ( ! is_array( $notices ) ) {
+			$notices = array();
+		}
 		$this->data = array(
 			'tabulate_version' => TABULATE_VERSION,
-			'notices' => array(),
+			'notices' => $notices,
 			'wp_api' => is_plugin_active( 'json-rest-api/plugin.php' ),
 			'tfo_graphviz' => is_plugin_active( 'tfo-graphviz/tfo-graphviz.php' ),
 			'wpdb_prefix' => $wpdb->prefix,
@@ -44,7 +53,9 @@ class Template {
 	}
 
 	/**
-	 * Add a notice.
+	 * Add a notice. All notices are saved to a Transient, which is deleted when
+	 * the template is rendered but otherwise available to all subsequent
+	 * instances of the Template class.
 	 * @param string $type Either 'updated' or 'error'.
 	 * @param string $message The message to display.
 	 */
@@ -53,6 +64,7 @@ class Template {
 			'type' => $type,
 			'message' => $message,
 		);
+		set_transient( $this->transient_notices, $this->data['notices'] );
 	}
 
 	/**
@@ -64,6 +76,7 @@ class Template {
 	}
 
 	public function render() {
+		delete_transient( $this->transient_notices );
 		$loader = new \Twig_Loader_Filesystem( __DIR__ . '/../templates' );
 		$twig = new \Twig_Environment( $loader );
 

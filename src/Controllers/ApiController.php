@@ -46,11 +46,12 @@ class ApiController extends ControllerBase {
 	}
 
 	/**
-	 * Privide details of the database schema, for use by TabulateApp.
+	 * Privide details of the relevant parts of the database schema, for use by
+	 * TabulateApp.
 	 */
 	public function app_schema() {
 		$db = new Database( $this->wpdb );
-		$tables = $db->get_tables( false );
+		$tables = $db->get_tables();
 		$out = array();
 		foreach ( $tables as $table ) {
 			if ( Grants::current_user_can( Grants::CREATE, $table->get_name() ) ) {

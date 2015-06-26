@@ -108,7 +108,16 @@ class Grants {
 
 	}
 
+	/**
+	 * Find out whether the current user can perform $grant on $table.
+	 * @param string $grant On of the constants defined in this class.
+	 * @param string|Table $table_name The Table or name of the table.
+	 * @return type
+	 */
 	public static function current_user_can( $grant, $table_name ) {
+		if ( $table_name instanceof Table ) {
+			$table_name = $table_name->get_name();
+		}
 		$capability = TABULATE_SLUG . '_' . $grant;
 		return current_user_can( $capability, $table_name );
 	}

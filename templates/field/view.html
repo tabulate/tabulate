@@ -1,0 +1,25 @@
+{% if column.is_foreign_key %}
+	{% if links %}
+	<a href="{{ record.get_referenced_record(column.get_name).get_url }}">
+		{{ attribute(record, column.get_name~'FKTITLE') }}
+	</a>
+	{% else %}
+		{{ attribute(record, column.get_name~'FKTITLE') }}
+	{% endif %}
+
+{% elseif column.is_boolean %}
+{% if attribute(record, column.get_name) is sameas(true) %}
+Yes
+{% elseif attribute(record, column.get_name) is sameas(false) %}
+No
+{% else %}
+<!-- Null -->
+{% endif %}
+
+{% elseif column.get_type=='date' %}
+{{ attribute(record, column.get_name)|wp_date_format }}
+
+{% else %}
+{{ attribute(record, column.get_name) }}
+
+{% endif %}

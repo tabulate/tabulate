@@ -6,9 +6,7 @@
 
 	<h1>Tabulate</h1>
 
-	{% for notice in notices %}
-	<div class="{{notice.type}} notice"><p>{{notice.message}}</p></div>
-	{% endfor %}
+	{% include 'notices.html' %}
 
 	{% if table %}
 	<h2>{{table.get_title}} <small class='about-text'>{{table.get_comment}}</small></h2>
