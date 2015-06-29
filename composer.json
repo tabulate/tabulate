@@ -12,6 +12,7 @@
 	},
 	"require": {
 		"twig/twig": "1.*",
-		"yohang/calendr": "1.*"
+		"yohang/calendr": "1.*",
+		"trentrichardson/jquery-timepicker-addon": "^1.5"
 	}
 }

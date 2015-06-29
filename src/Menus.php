@@ -120,15 +120,21 @@ class Menus {
 		}
 		wp_enqueue_script( 'tabulate-scripts', $script_url, $deps, TABULATE_VERSION );
 		$maskedinput_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery.maskedinput.min.js';
-		wp_enqueue_script( 'tabulate-maskedinput', $maskedinput_url, array(), '1.4.1' );
+		wp_enqueue_script( 'tabulate-maskedinput', $maskedinput_url, array( 'tabulate-scripts' ), '1.4.1' );
+		$timepicker_url = plugins_url( TABULATE_SLUG ) . '/components/jquery-timepicker-addon/jquery-ui-timepicker-addon-built.js';
+		wp_enqueue_script( 'tabulate-timepicker', $timepicker_url, array( 'tabulate-scripts' ), TABULATE_VERSION );
+
+		// Javascript page variables.
 		$js_vars = array(
 			'admin_url' => admin_url() . 'admin.php?page=' . TABULATE_SLUG
 		);
 		wp_localize_script( 'tabulate-scripts', 'tabulate', $js_vars );
 
 		// Add stylesheets.
-		$style_url_1 = plugins_url( TABULATE_SLUG ) . '/assets/jquery-ui-1.11.4/jquery-ui.min.css';
-		wp_enqueue_style( 'tabulate-jquery-ui', $style_url_1, null, TABULATE_VERSION );
+		$timepicker_url = plugins_url( TABULATE_SLUG ) . '/components/jquery-timepicker-addon/jquery-ui-timepicker-addon-built.css';
+		wp_enqueue_style( 'tabulate-timepicker', $timepicker_url, null, TABULATE_VERSION );
+		$jqueryui_url = plugins_url( TABULATE_SLUG ) . '/components/jquery-ui/themes/base/minified/jquery-ui.min.css';
+		wp_enqueue_style( 'tabulate-jquery-ui', $jqueryui_url, null, TABULATE_VERSION );
 		$style_url_2 = plugins_url( TABULATE_SLUG ) . '/assets/style.css';
 		wp_enqueue_style( 'tabulate-styles', $style_url_2, null, TABULATE_VERSION );
 	}
