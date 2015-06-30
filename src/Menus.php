@@ -114,14 +114,14 @@ class Menus {
 
 		// Add scripts.
 		$script_url = plugins_url( TABULATE_SLUG ) . '/assets/scripts.js';
-		$deps = array( 'jquery-ui-datepicker', 'jquery-ui-autocomplete' );
+		$deps = array( 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'jquery-ui-slider' );
 		if ( is_plugin_active( 'json-rest-api/plugin.php' ) ) {
 			$deps[] = 'wp-api';
 		}
 		wp_enqueue_script( 'tabulate-scripts', $script_url, $deps, TABULATE_VERSION );
 		$maskedinput_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery.maskedinput.min.js';
 		wp_enqueue_script( 'tabulate-maskedinput', $maskedinput_url, array( 'tabulate-scripts' ), '1.4.1' );
-		$timepicker_url = plugins_url( TABULATE_SLUG ) . '/components/jquery-timepicker-addon/jquery-ui-timepicker-addon-built.js';
+		$timepicker_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery-ui-timepicker-addon.min.js';
 		wp_enqueue_script( 'tabulate-timepicker', $timepicker_url, array( 'tabulate-scripts' ), TABULATE_VERSION );
 
 		// Javascript page variables.
@@ -131,12 +131,14 @@ class Menus {
 		wp_localize_script( 'tabulate-scripts', 'tabulate', $js_vars );
 
 		// Add stylesheets.
-		$timepicker_url = plugins_url( TABULATE_SLUG ) . '/components/jquery-timepicker-addon/jquery-ui-timepicker-addon-built.css';
+		$timepicker_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery-ui-timepicker-addon.css';
 		wp_enqueue_style( 'tabulate-timepicker', $timepicker_url, null, TABULATE_VERSION );
-		$jqueryui_url = plugins_url( TABULATE_SLUG ) . '/components/jquery-ui/themes/base/minified/jquery-ui.min.css';
+		$jqueryui_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery-ui/jquery-ui.min.css';
 		wp_enqueue_style( 'tabulate-jquery-ui', $jqueryui_url, null, TABULATE_VERSION );
-		$style_url_2 = plugins_url( TABULATE_SLUG ) . '/assets/style.css';
-		wp_enqueue_style( 'tabulate-styles', $style_url_2, null, TABULATE_VERSION );
+		$jqueryui_theme_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery-ui/jquery-ui.theme.min.css';
+		wp_enqueue_style( 'tabulate-jquery-ui-theme', $jqueryui_theme_url, null, TABULATE_VERSION );
+		$style_url = plugins_url( TABULATE_SLUG ) . '/assets/style.css';
+		wp_enqueue_style( 'tabulate-styles', $style_url, null, TABULATE_VERSION );
 	}
 
 }

@@ -15,7 +15,7 @@ form.tabulate-grants td.select-all { border-width:0 1px }
 form.tabulate-grants tr.select-all td.label { border-width:0 0 0 1px; vertical-align:middle; text-align:center; font-size:larger }
 
 form.tabulate-record input.datepicker { width:9em }
-
+form.tabulate-record th.column-title { vertical-align:top; text-align:left }
 form.tabulate-record .foreign-key label { text-align:left }
 form.tabulate-record .foreign-key input.form-control { width:83% }
 form.tabulate-record .foreign-key span.input-group-addon { width:14% }
