@@ -1,4 +1,4 @@
-{% set fk_threshold = 30 %}
+{% set fk_threshold = table.get_records_per_page %}
 
 {% if column.is_foreign_key and column.get_referenced_table.count_records <= fk_threshold %}
 <select name="{{column.get_name}}" id="{{column.get_name}}" aria-describedby="{{column.get_name}}-help"
