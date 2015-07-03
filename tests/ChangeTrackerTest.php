@@ -108,4 +108,19 @@ class ChangeTrackerTest extends TestBase {
 		$this->assertEquals( "The Type", $change->new_value );
 	}
 
+	/**
+	 * @testdox A record can be deleted, and it's history along with it.
+	 */
+	public function delete() {
+		// Create two, to make sure only one is deleted.
+		$test_types = $this->db->get_table( 'test_types' );
+		$test_types->save_record( array( 'title' => 'First Type' ) );
+		$test_types->save_record( array( 'title' => 'Second Type' ) );
+		$this->assertEquals( 2, $test_types->count_records() );
+		$test_types->delete_record( 2 );
+		$this->assertEquals( 1, $test_types->count_records() );
+		$changes = $this->db->get_table( ChangeTracker::changesets_name() );
+		$this->assertEquals( 1, $changes->count_records() );
+	}
+
 }

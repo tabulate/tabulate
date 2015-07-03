@@ -1,0 +1,17 @@
+<h2>Confirmation required</h2>
+
+<p>You are about to delete the following record:</p>
+<dl>
+	{% for column in table.get_columns %}
+	<dt>{{column.get_title}}</dt>
+	<dd>{{attribute(record, column.get_name)}}</dd>
+	{% endfor %}
+</dl>
+
+<form action="{{record.get_url('delete')}}" method="post">
+	<p>
+		<input type="hidden" name="confirm_deletion" value="yes" />
+		<input type="submit" value="Yes, I'm sure" class="button" />
+		<a href="{{record.get_url()}}" class="button">No, do not delete this</a>
+	</p>
+</form>

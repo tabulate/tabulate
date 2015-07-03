@@ -85,4 +85,26 @@ class RecordController extends ControllerBase {
 		exit( 0 );
 	}
 
+	public function delete( $args ) {
+		$db = new \WordPress\Tabulate\DB\Database( $this->wpdb );
+		$table = $db->get_table( $args[ 'table' ] );
+		$record_ident = isset( $args[ 'ident' ] ) ? $args[ 'ident' ] : false;
+		if ( ! $record_ident ) {
+			wp_redirect( $table->get_url() );
+			exit( 0 );
+		}
+
+		// Ask for confirmation.
+		if ( ! isset( $_POST['confirm_deletion'] ) ) {
+			$template = new \WordPress\Tabulate\Template( 'record/delete.html' );
+			$template->table = $table;
+			$template->record = $table->get_record( $record_ident );
+			return $template->render();
+		}
+
+		$table->delete_record( $record_ident );
+		wp_redirect( $table->get_url() );
+		exit( 0 );
+	}
+
 }

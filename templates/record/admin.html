@@ -62,7 +62,7 @@
 					<!--<a href="{{table.get_url}}" class="button" title="Return to search">Cancel</a>-->
 					{% if record %}
 					<input type="hidden" name="primary_key_value" value="{{record.get_primary_key}}" />
-					<a href="{{record.get_url('delete')}}" class="button alert" title="Delete this record">Delete</a>
+					<a href="{{record.get_url('delete')}}" class="button" title="Delete this record">Delete</a>
 					{% endif %}
 				</p>
 			</td>

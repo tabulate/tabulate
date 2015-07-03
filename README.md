@@ -52,6 +52,8 @@ Features (in no particular order):
 
 ## Installation
 
+### Installing
+
 1. Follow the [usual plugin installation procedure](http://codex.wordpress.org/Managing_Plugins#Installing_Plugins).
 2. To get a quick-jump navigation box, also install the
    [WP REST API](https://wordpress.org/plugins/json-rest-api/) plugin.
@@ -61,6 +63,12 @@ Features (in no particular order):
    as [PHPmyAdmin](http://www.phpmyadmin.net) or [MySQL Workbench](http://mysqlworkbench.org/).
 5. Browse to the Tabulate overview page via the main menu in the WordPress admin
    interface.
+
+### Upgrading
+
+When upgrading, please *deactivate* and then *reactivate* the plugin. This will
+ensure that all required database updates are carried out (but will avoid the
+overhead of checking whether these are required on every Tabulate page load).
 
 ## Frequently Asked Questions
 

@@ -484,11 +484,7 @@ class Table {
 	}
 
 	/**
-	 * Get the number of rows in the current filtered set.  This leaves the
-	 * actual counting up to `$this->get_rows()`, rather than doing the query
-	 * itself, because filtering is applied in that method, and I didn't want to
-	 * duplicate that here (or anywhere else).
-	 *
+	 * Get the number of rows in the current filtered set.
 	 * @return integer
 	 */
 	public function count_records() {
@@ -805,11 +801,26 @@ class Table {
 		$this->recordCount = false;
 	}
 
-	public function delete_record($primaryKeyValue) {
-		$sql = "DELETE FROM `" . $this->get_name() . "` "
-				. "WHERE `" . $this->get_pk_column()->get_name() . "` = :primaryKeyValue";
-		$data = array( 'primaryKeyValue' => $primaryKeyValue );
-		return $this->database->get_wpdb()->query( $sql, $data );
+	/**
+	 * Delete a record and its associated change-tracker records.
+	 * @param string $pk_value
+	 * @return int|false Number of rows affected/selected or false on error
+	 */
+	public function delete_record( $pk_value ) {
+		// Check permission.
+		if ( ! Grants::current_user_can( Grants::DELETE, $this->get_name() ) ) {
+			throw new Exception( 'You do not have permission to delete data from this table.' );
+		}
+		$rec = $this->get_record( $pk_value );
+		$wpdb = $this->database->get_wpdb();
+		$wpdb->delete( $this->get_name(), array( $this->get_pk_column()->get_name() => $pk_value ) );
+		foreach ( $rec->get_changes() as $change ) {
+			$where_1 = array( 'table_name' => $this->get_name(), 'record_ident' => $pk_value );
+			$wpdb->delete( ChangeTracker::changes_name(), $where_1 );
+			$where_2 = array( 'id' => $change->changeset_id );
+			$wpdb->delete( ChangeTracker::changesets_name(), $where_2 );
+		}
+		$this->record_count = false;
 	}
 
 	/**
