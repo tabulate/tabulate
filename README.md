@@ -47,8 +47,9 @@ Features (in no particular order):
    [TFO Graphviz plugin](https://wordpress.org/plugins/tfo-graphviz/) is installed.
 8. All data modifications are recorded, along with optional comments that users
    can provide when updating data.
-9. The `[tabulate]` shortcode can be used to embed tables, lists, and row-counts
-   into WordPress content. For more details, see the [FAQ section](https://wordpress.org/plugins/tabulate/faq/).
+9. The `[tabulate]` shortcode can be used to embed tables, lists, row-counts,
+   and data-entry forms into WordPress content. For more details, see the
+   [FAQ section](https://wordpress.org/plugins/tabulate/faq/).
 
 ## Installation
 
@@ -76,11 +77,11 @@ overhead of checking whether these are required on every Tabulate page load).
 
 A [Shortcode](http://codex.wordpress.org/Shortcode) is a WordPress method of
 embedding content into posts and pages. Tabulate provides one short code, `[tabulate]`,
-which can be used to add tables, lists, and record-counts to your content.
-Its parameters (which can appear in any order) are as follows:
+which can be used to add tables, lists, data-entry forms, and record-counts to
+your content. Its parameters (which can appear in any order) are as follows:
 
 1. `table` — The name of the table in question. Required. No default.
-2. `format` — One of `table`, `list`, or `count`. Optional. Defaults to `table`.
+2. `format` — One of `table`, `list`, `form`, or `count`. Optional. Defaults to `table`.
 
 Do note that if a table is not accessible to the browsing user then nothing will
 be displayed. (This currently means that anonymous users can not view any

@@ -102,7 +102,18 @@ class RecordController extends ControllerBase {
 			return $template->render();
 		}
 
-		$table->delete_record( $record_ident );
+		// Delete the record.
+		try {
+			$this->wpdb->query( 'BEGIN' );
+			$table->delete_record( $record_ident );
+			$this->wpdb->query( 'COMMIT' );
+		} catch ( \Exception $e ) {
+			$template = $this->get_template( $table );
+			$template->record = $table->get_record( $record_ident );
+			$template->add_notice( 'error', $e->getMessage() );
+			return $template->render();
+		}
+
 		wp_redirect( $table->get_url() );
 		exit( 0 );
 	}

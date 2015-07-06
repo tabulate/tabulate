@@ -3,7 +3,7 @@
 <p>You are about to delete the following record:</p>
 <dl>
 	{% for column in table.get_columns %}
-	<dt>{{column.get_title}}</dt>
+	<dt>{{column.get_title}}:</dt>
 	<dd>{{attribute(record, column.get_name)}}</dd>
 	{% endfor %}
 </dl>

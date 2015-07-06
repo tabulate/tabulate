@@ -813,7 +813,11 @@ class Table {
 		}
 		$rec = $this->get_record( $pk_value );
 		$wpdb = $this->database->get_wpdb();
-		$wpdb->delete( $this->get_name(), array( $this->get_pk_column()->get_name() => $pk_value ) );
+		$wpdb->hide_errors();
+		$del = $wpdb->delete( $this->get_name(), array( $this->get_pk_column()->get_name() => $pk_value ) );
+		if ( ! $del ) {
+			throw new \Exception( $wpdb->last_error );
+		}
 		foreach ( $rec->get_changes() as $change ) {
 			$where_1 = array( 'table_name' => $this->get_name(), 'record_ident' => $pk_value );
 			$wpdb->delete( ChangeTracker::changes_name(), $where_1 );
