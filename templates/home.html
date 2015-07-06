@@ -10,7 +10,10 @@
 			<div class="inside">
 				<ol>
 					{% for table in tables %}
-					<li><a href="{{table.get_url}}">{{table.get_title}}</a></li>
+					<li>
+						<a href="{{table.get_url}}">{{table.get_title}}</a>
+						({{table.count_records|number_format}})
+					</li>
 					{% endfor %}
 				</ol>
 			</div>
@@ -23,7 +26,10 @@
 			<div class="inside">
 				<ol>
 					{% for table in views %}
-					<li><a href="{{table.get_url}}">{{table.get_title}}</a></li>
+					<li>
+						<a href="{{table.get_url}}">{{table.get_title}}</a>
+						({{table.count_records|number_format}})
+					</li>
 					{% endfor %}
 				</ol>
 			</div>

@@ -36,7 +36,7 @@ class CSV {
 			$this->save_file( $uploaded );
 		}
 
-		if ( $hash !== false ) {
+		if ( ! empty( $hash ) ) {
 			$this->hash = $hash;
 		}
 

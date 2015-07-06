@@ -110,7 +110,7 @@ class Record {
 			'action' => $action,
 			'table' => $this->table->get_name(),
 		);
-		if ( $include_ident && $this->get_primary_key() ) {
+		if ( $include_ident && $this->get_primary_key() !== false ) {
 			$params['ident'] = $this->get_primary_key();
 		}
 		return admin_url( 'admin.php?' . http_build_query( $params ) );
