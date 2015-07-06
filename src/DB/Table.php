@@ -290,7 +290,7 @@ class Table {
 	 * allows column names to begin with a number, but PHP does not variables to
 	 * do so.
 	 *
-	 * @return array|Record The row data
+	 * @return Record[] The row data
 	 */
 	public function get_records($with_pagination = true, $save_sql = false) {
 		$columns = array();
@@ -459,7 +459,7 @@ class Table {
 	/**
 	 * Get a list of permitted operators.
 	 *
-	 * @return array[string]=>string List of operators.
+	 * @return string[] List of operators.
 	 */
 	public function get_operators() {
 		return $this->operators;
@@ -575,7 +575,7 @@ class Table {
 	 * Get a list of this table's columns, optionally constrained by their type.
 	 *
 	 * @param string $type Only return columns of this type.
-	 * @return array|Column This table's columns.
+	 * @return Column[] This table's columns.
 	 */
 	public function get_columns($type = null) {
 		if ( is_null( $type ) ) {

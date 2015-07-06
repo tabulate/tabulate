@@ -8,10 +8,10 @@ namespace WordPress\Tabulate;
  */
 class CSV {
 
-	/** @var array|string The headers in the CSV data. */
+	/** @var string[] The headers in the CSV data. */
 	public $headers;
 
-	/** @var array two-dimenstional integer-indexed array of the CSV's data */
+	/** @var array[] two-dimenstional integer-indexed array of the CSV's data */
 	public $data;
 
 	/** @var string Temporary identifier for CSV file. */
@@ -36,7 +36,7 @@ class CSV {
 			$this->save_file( $uploaded );
 		}
 
-		if ( $hash ) {
+		if ( $hash !== false ) {
 			$this->hash = $hash;
 		}
 

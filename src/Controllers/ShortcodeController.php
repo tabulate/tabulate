@@ -9,7 +9,7 @@ use WordPress\Tabulate\Template;
 
 class ShortcodeController extends ControllerBase {
 
-	/** @var WordPress\Tabulate\DB\Database */
+	/** @var \WordPress\Tabulate\DB\Database */
 	private $db;
 
 	public function __construct( $wpdb ) {

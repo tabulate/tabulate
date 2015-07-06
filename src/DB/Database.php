@@ -55,7 +55,7 @@ class Database {
 	/**
 	 * Get all tables in this database.
 	 *
-	 * @return Table|array An array of all Tables.
+	 * @return Table[] An array of all Tables.
 	 */
 	public function get_tables( $exclude_views = true ) {
 		$out = array();
