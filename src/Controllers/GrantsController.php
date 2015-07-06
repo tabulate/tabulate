@@ -47,6 +47,7 @@ class GrantsController extends ControllerBase {
 		$grants->set( $new_grants );
 		$this->template->add_notice( 'updated', 'Grants saved.' );
 		wp_redirect($this->get_url( 'index' ) );
+		exit;
 	}
 
 	/**

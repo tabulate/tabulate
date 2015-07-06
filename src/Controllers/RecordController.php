@@ -48,6 +48,10 @@ class RecordController extends ControllerBase {
 	public function save( $args ) {
 		$db = new \WordPress\Tabulate\DB\Database( $this->wpdb );
 		$table = $db->get_table( $args[ 'table' ] );
+		if ( ! $table ) {
+			// It shouldn't be possible to get here via the UI, so no message.
+			return false;
+		}
 
 		// Guard against non-post requests. c.f. wp-comments-post.php
 		if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' != $_SERVER['REQUEST_METHOD'] ) {
@@ -82,7 +86,7 @@ class RecordController extends ControllerBase {
 		// Redirect back to the edit form.
 		$return_to = ( ! empty( $_REQUEST['return_to'] ) ) ? $_REQUEST['return_to'] : $template->record->get_url();
 		wp_redirect( $return_to );
-		exit( 0 );
+		exit;
 	}
 
 	public function delete( $args ) {
@@ -91,7 +95,7 @@ class RecordController extends ControllerBase {
 		$record_ident = isset( $args[ 'ident' ] ) ? $args[ 'ident' ] : false;
 		if ( ! $record_ident ) {
 			wp_redirect( $table->get_url() );
-			exit( 0 );
+			exit;
 		}
 
 		// Ask for confirmation.
@@ -115,7 +119,7 @@ class RecordController extends ControllerBase {
 		}
 
 		wp_redirect( $table->get_url() );
-		exit( 0 );
+		exit;
 	}
 
 }

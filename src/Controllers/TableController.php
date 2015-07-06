@@ -7,11 +7,17 @@ use \WordPress\Tabulate\DB\Database;
 
 class TableController extends ControllerBase {
 
-	public function index( $args ) {
-
-		// Get database and table.
+	private function get_table( $table_name ) {
 		$db = new Database( $this->wpdb );
-		$table = $db->get_table( $args[ 'table' ] );
+		$table = $db->get_table( $table_name );
+		if ( ! $table ) {
+			throw new \Exception( "Table '$table' not found." );
+		}
+		return $table;
+	}
+
+	public function index( $args ) {
+		$table = $this->get_table( $args[ 'table' ] );
 
 		// Pagination.
 		$page_num = (isset( $args[ 'p' ] )) ? $args[ 'p' ] : 1;
@@ -79,8 +85,7 @@ class TableController extends ControllerBase {
 		$template->stage = 'choose_file';
 
 		// First make sure the user is allowed to import data into this table.
-		$db = new Database( $this->wpdb );
-		$table = $db->get_table( $args[ 'table' ] );
+		$table = $this->get_table( $args['table'] );
 		$template->record = $table->get_default_record();
 		$template->action = 'import';
 		$template->table = $table;
@@ -158,13 +163,8 @@ class TableController extends ControllerBase {
 		$monthNum = (isset( $args['month'] )) ? $args['month'] : date( 'm' );
 
 		$template = new \WordPress\Tabulate\Template( 'calendar.html' );
-		$db = new Database( $this->wpdb );
-		$table = $db->get_table( $args['table'] );
+		$table = $this->get_table( $args['table'] );
 
-		if ( ! $table ) {
-			$template->add_notice( 'error', "The '$table_name' table was not found." );
-			return $template->render();
-		}
 		$template->table = $table;
 		$template->action = 'calendar';
 		$template->record = $table->get_default_record();
@@ -205,8 +205,7 @@ class TableController extends ControllerBase {
 	public function export( $args )
 	{
 		// Get database and table.
-		$db = new Database( $this->wpdb );
-		$table = $db->get_table( $args[ 'table' ] );
+		$table = $this->get_table( $args['table'] );
 
 		// Filter and export.
 		$filter_param = (isset( $args[ 'filter' ] )) ? $args[ 'filter' ] : array();
@@ -220,7 +219,7 @@ class TableController extends ControllerBase {
 		header('Content-Disposition: attachment; filename="'.$download_name.'"');
 		echo "\xEF\xBB\xBF";
 		readfile($filename);
-		exit(0);
+		exit( 0 );
 	}
 
 }
