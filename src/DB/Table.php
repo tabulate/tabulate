@@ -170,7 +170,7 @@ class Table {
 				$join_clause .= $join['join_clause'];
 			} else {
 				// The result of join_on() above is quoted, so this must also be.
-				$f_column = "`$f_column`";
+				$f_column = "`" . $this->get_name() . "`.`$f_column`";
 			}
 
 			// LIKE or NOT LIKE
