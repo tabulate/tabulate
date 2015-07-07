@@ -548,16 +548,24 @@ class Table {
 			. ' ENCLOSED BY \'"\''
 			. ' ESCAPED BY \'"\''
 			. ' LINES TERMINATED BY "\r\n"';
-		// Execute the SQL.
+		// Execute the SQL (hiding errors for now).
+		$wpdb = $this->database->get_wpdb();
 		if ( $params ) {
-			$sql = $this->database->get_wpdb()->prepare( $sql, $params );
+			$sql = $wpdb->prepare( $sql, $params );
 		}
-		$this->database->get_wpdb()->query( $sql );
+		$wpdb->hide_errors();
+		$wpdb->query( $sql );
 		// Make sure it exported.
 		if ( ! file_exists( $filename ) ) {
-			echo '<pre>' . $sql . '</pre>';
-			throw new \Exception( "Failed to create $filename" );
+			$msg = "<p>Unable to create temporary export file:<br /><code>$filename</code></p>";
+			if ( WP_DEBUG ) {
+				$msg .= "<h2>Debug info:</h2>"
+					. "<p>Error was: " . $wpdb->last_error . "</p>"
+					. "<p>Query was:</p><pre>$sql</pre>";
+			}
+			wp_die( $msg, "Export failed", array( 'back_link' => true ) );
 		}
+		$wpdb->show_errors();
 		// Give the filename back to the controller, to send to the client.
 		return $filename;
 	}
