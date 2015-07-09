@@ -8,6 +8,9 @@ class Template {
 
 	protected $data;
 
+	/** @var string[] Paths at which to find templates. */
+	protected $paths;
+
 	/** @var string The name of the transient used to store notices. */
 	protected $transient_notices;
 
@@ -26,6 +29,15 @@ class Template {
 			'tfo_graphviz' => is_plugin_active( 'tfo-graphviz/tfo-graphviz.php' ),
 			'wpdb_prefix' => $wpdb->prefix,
 		);
+		$this->paths = array( realpath( __DIR__ . '/../templates' ) );
+	}
+
+	/**
+	 * Add a filesystem path under which to look for template files.
+	 * @param string $new_path
+	 */
+	public function add_path( $new_path ) {
+		$this->paths[] = realpath( $new_path );
 	}
 
 	public function __set( $name, $value ) {
@@ -77,7 +89,7 @@ class Template {
 
 	public function render() {
 		delete_transient( $this->transient_notices );
-		$loader = new \Twig_Loader_Filesystem( __DIR__ . '/../templates' );
+		$loader = new \Twig_Loader_Filesystem( $this->paths );
 		$twig = new \Twig_Environment( $loader );
 
 		// Add the admin_url() function.
