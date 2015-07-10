@@ -576,7 +576,7 @@ class Table {
 	 * @return Column The column.
 	 */
 	public function get_column($name) {
-		return $this->columns[$name];
+		return ( isset( $this->columns[ $name ] ) ) ? $this->columns[ $name ] : false;
 	}
 
 	/**
@@ -940,10 +940,10 @@ class Table {
 		return $new_record;
 	}
 
-	public function get_url($action = 'index', $merge_existing = false) {
+	public function get_url($action = 'index', $merge_existing = false, $controller = 'table') {
 		$params = array(
 			'page' => 'tabulate',
-			'controller' => 'table',
+			'controller' => $controller,
 			'action' => $action,
 			'table' => $this->get_name(),
 		);

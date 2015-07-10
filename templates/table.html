@@ -60,8 +60,13 @@
 	<!-- Right side -->
 	<div class="alignleft actions bulkactions">
 		<a href="{{table.get_url('export', true)}}" class="button">
-			Export to CSV
+			Export CSV
 		</a>
+		{% if table.get_column('latitude') and table.get_column('longitude') %}
+		<a href="{{table.get_url('kml', true, 'map')}}" class="button">
+			Export KML
+		</a>
+		{% endif %}
 	</div>
 
 	<!-- Left side -->

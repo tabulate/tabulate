@@ -26,30 +26,31 @@ Somewhat akin to phpMyAdmin, but including only data-modification features.
 
 Features (in no particular order):
 
-1. Tables can be filtered by any column or columns, and with a range of
-   operators ('contains', 'is', 'empty', 'greater than', 'less than', and the
-   negations of all of these). Multiple filters are conjunctive (i.e. with a
-   logical *and*).
-2. Access can be granted to *read*, *create*, *update*, *delete*, and *import*
-   records in any or all tables. (This can be done by anyone with the
-   *promote_users* capability.)
-3. CSV data can be imported, with the UI supporting column mapping, data
-   validation, and previewing prior to final import. If an imported row has a
-   value for the Primary Key, the existing row will be overwritten.
-4. Data can be exported to CSV, including after filters have been applied. 
-5. A quick-jump navigation box (located top right of every page) can be
-   activated by installing the [WP REST API](https://wordpress.org/plugins/json-rest-api/)
-   plugin.
-6. Records in tables with *date* columns can be viewed in a calendar.
-7. Entity Relationship Diagrams (drawn with [GraphViz](http://graphviz.org/))
-   can be automatically generated, with any specified subset of tables. Foreign
-   keys are displayed as directed edges. This feature is only available if the
-   [TFO Graphviz plugin](https://wordpress.org/plugins/tfo-graphviz/) is installed.
-8. All data modifications are recorded, along with optional comments that users
-   can provide when updating data.
-9. The `[tabulate]` shortcode can be used to embed tables, lists, row-counts,
-   and data-entry forms into WordPress content. For more details, see the
-   [FAQ section](https://wordpress.org/plugins/tabulate/faq/).
+1.  Tables can be filtered by any column or columns, and with a range of
+    operators ('contains', 'is', 'empty', 'greater than', 'less than', and the
+    negations of all of these). Multiple filters are conjunctive (i.e. with a
+    logical *and*).
+2.  Access can be granted to *read*, *create*, *update*, *delete*, and *import*
+    records in any or all tables. (This can be done by anyone with the
+    *promote_users* capability.)
+3.  CSV data can be imported, with the UI supporting column mapping, data
+    validation, and previewing prior to final import. If an imported row has a
+    value for the Primary Key, the existing row will be overwritten.
+4.  Data can be exported to CSV, including after filters have been applied. 
+5.  A quick-jump navigation box (located top right of every page) can be
+    activated by installing the [WP REST API](https://wordpress.org/plugins/json-rest-api/)
+    plugin.
+6.  Records in tables with *date* columns can be viewed in a calendar.
+7.  Entity Relationship Diagrams (drawn with [GraphViz](http://graphviz.org/))
+    can be automatically generated, with any specified subset of tables. Foreign
+    keys are displayed as directed edges. This feature is only available if the
+    [TFO Graphviz plugin](https://wordpress.org/plugins/tfo-graphviz/) is installed.
+8.  All data modifications are recorded, along with optional comments that users
+    can provide when updating data.
+9.  The `[tabulate]` shortcode can be used to embed tables, lists, row-counts,
+    and data-entry forms into WordPress content. For more details, see the
+    [FAQ section](https://wordpress.org/plugins/tabulate/faq/).
+10. Tables with *latitude* and *longitude* columns can be exported to KML.
 
 ## Installation
 

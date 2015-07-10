@@ -74,7 +74,7 @@ class ShortcodeController extends ControllerBase {
 		$template->table = $table;
 		$template->links = false;
 		$template->record = $table->get_default_record();
-		$template->records = $table->get_records();
+		$template->records = $table->get_records( false );
 		return $template->render();
 	}
 
