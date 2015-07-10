@@ -129,5 +129,28 @@ jQuery(document).ready(function ($) {
 		$boxen.prop("checked", $(this).prop("checked")).change();
 	});
 
+
+	/**
+	 * Enable point-selection for the editing form field.
+	 */
+	$(".tabulate-record .point-column").each(function() {
+		var $formField = $(this).find(":input");
+		var attrib = '&copy; <a href="http://openstreetmap.org">OSM</a> contributors <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+		var map = L.map($(this).attr("id")+"-map").setView([-32, 116], 18);
+		L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: attrib }).addTo(map);
+		var marker;
+		map.on('click', function(e) {
+			if (map.hasLayer(marker)) {
+				map.removeLayer(marker);
+			}
+			marker = L.marker(e.latlng, { clickable:true, draggable:true });
+			marker.on("add", moveMarker).on("move", moveMarker);
+			marker.addTo(map);
+		});
+		function moveMarker(e) {
+			$formField.val("POINT("+marker.getLatLng().lat+" "+marker.getLatLng().lng+")");
+		}
+	});
+
 });
 

@@ -19,6 +19,7 @@ form.tabulate-record th.column-title { vertical-align:top; text-align:left }
 form.tabulate-record .foreign-key label { text-align:left }
 form.tabulate-record .foreign-key input.form-control { width:83% }
 form.tabulate-record .foreign-key span.input-group-addon { color:#555 }
+form.tabulate-record .point-column .map { width:450px; height:200px }
 
 .tabulate-change-tracker .value { font-family:monospace; background-color:white; color:black }
 

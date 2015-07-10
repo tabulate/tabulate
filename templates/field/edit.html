@@ -67,6 +67,14 @@
 
 
 
+{% elseif column.get_type=='point' %}
+<div class="point-column" id="{{column.get_name}}">
+	<input type="text" readonly name="{{column.get_name}}" value="{{ attribute(record, column.get_name)}}" />
+	<div class="map" id="{{column.get_name}}-map"></div>
+</div>
+
+
+
 {% else %}
 <input type="text" name="{{column.get_name}}" id="{{column.get_name}}" value="{{ attribute(record, column.get_name)}}" 
 	   aria-describedby="{{column.get_name}}-help" data-column-type="{{column.get_type}}"

@@ -371,7 +371,15 @@ class Table {
 		if ( !$pk_column ) {
 			return false;
 		}
-		$sql = "SELECT `" . join( '`, `', array_keys( $this->get_columns() ) ) . "` "
+		$select = array();
+		foreach ( $this->get_columns() as $col_name => $col ) {
+			if ( $col->get_type() == 'point' ) {
+				$select[] = "AsText(`$col_name`) AS `$col_name`";
+			} else {
+				$select[] = "`$col_name`";
+			}
+		}
+		$sql = "SELECT " . join( ', ', $select ) . " "
 				. "FROM `" . $this->get_name() . "` "
 				. "WHERE `" . $pk_column->get_name() . "` = %s "
 				. "LIMIT 1";
@@ -854,6 +862,7 @@ class Table {
 		/*
 		 * Go through all data and clean it up before saving.
 		 */
+		$sql_values = array();
 		foreach ( $data as $field => $value ) {
 			// Make sure this column exists in the DB.
 			if ( !isset( $columns[$field] ) ) {
@@ -865,18 +874,37 @@ class Table {
 			// Boolean values.
 			if ( $column->is_boolean() ) {
 				$zeroValues = array( 0, '0', false, 'false', 'FALSE', 'off', 'OFF', 'no', 'NO' );
-				if ( ($value === null || $value === '') && $column->nullable() ) {
-					$data[$field] = null;
+				if ( ( $value === null || $value === '') && $column->nullable() ) {
+					$data[ $field ] = null;
+					$sql_values[ $field ] = 'NULL';
 				} elseif ( in_array( $value, $zeroValues, true ) ) {
-					$data[$field] = false;
+					$data[ $field ] = false;
+					$sql_values[ $field ] = '0';
 				} else {
-					$data[$field] = true;
+					$data[ $field ] = true;
+					$sql_values[ $field ] = '1';
 				}
 			}
 
 			// Empty strings.
-			if ( ! $column->allows_empty_string() && '' === $value && $column->nullable() ) {
+			elseif ( ! $column->allows_empty_string() && '' === $value && $column->nullable() ) {
 				$data[ $field ] = null;
+				$sql_values[ $field ] = 'NULL';
+			}
+
+			// POINT columns.
+			elseif ( $column->get_type() == 'point' ) {
+				$sql_values[ $field ] = "GeomFromText('" . esc_sql( $value ) ."')";
+			}
+
+			// Numeric values.
+			elseif ( $column->is_numeric() ) {
+				$sql_values[ $field ] = $value;
+			}
+
+			// Everything else.
+			else {
+				$sql_values[ $field ] = "'" . esc_sql( $value ) ."'";
 			}
 		}
 
@@ -888,14 +916,7 @@ class Table {
 		// This is a workaround for NULL support in $wpdb->update() and $wpdb->insert().
 		// Can probably be removed when https://core.trac.wordpress.org/ticket/15158 is resolved.
 		$set_items = array();
-		foreach ( $data as $field => $datum ) {
-			if ( is_null( $datum ) ) {
-				$escd_datum = 'NULL';
-			} elseif ( is_numeric( $datum ) ) {
-				$escd_datum = $datum;
-			} else {
-				$escd_datum = "'" . esc_sql( $datum ) ."'";
-			}
+		foreach ( $sql_values as $field => $escd_datum ) {
 			$set_items[] = "`$field` = $escd_datum";
 		}
 		$set_clause = 'SET ' . join( ', ', $set_items );

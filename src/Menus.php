@@ -123,6 +123,8 @@ class Menus {
 		wp_enqueue_script( 'tabulate-maskedinput', $maskedinput_url, array( 'tabulate-scripts' ), '1.4.1' );
 		$timepicker_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery-ui-timepicker-addon.min.js';
 		wp_enqueue_script( 'tabulate-timepicker', $timepicker_url, array( 'tabulate-scripts' ), TABULATE_VERSION );
+		$leaflet_url = plugins_url( TABULATE_SLUG ) . '/assets/leaflet/leaflet.js';
+		wp_enqueue_script( 'tabulate-leaflet', $leaflet_url, array( 'tabulate-scripts' ), TABULATE_VERSION );
 
 		// Javascript page variables.
 		$js_vars = array(
@@ -133,6 +135,8 @@ class Menus {
 		// Add stylesheets.
 		$timepicker_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery-ui-timepicker-addon.css';
 		wp_enqueue_style( 'tabulate-timepicker', $timepicker_url, null, TABULATE_VERSION );
+		$leaflet_css_url = plugins_url( TABULATE_SLUG ) . '/assets/leaflet/leaflet.css';
+		wp_enqueue_style( 'tabulate-leaflet', $leaflet_css_url, null, TABULATE_VERSION );
 		$jqueryui_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery-ui/jquery-ui.min.css';
 		wp_enqueue_style( 'tabulate-jquery-ui', $jqueryui_url, null, TABULATE_VERSION );
 		$jqueryui_theme_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery-ui/jquery-ui.theme.min.css';
