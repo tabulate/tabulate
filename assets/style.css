@@ -18,7 +18,7 @@ form.tabulate-record input.datepicker { width:9em }
 form.tabulate-record th.column-title { vertical-align:top; text-align:left }
 form.tabulate-record .foreign-key label { text-align:left }
 form.tabulate-record .foreign-key input.form-control { width:83% }
-form.tabulate-record .foreign-key span.input-group-addon { width:14% }
+form.tabulate-record .foreign-key span.input-group-addon { color:#555 }
 
 .tabulate-change-tracker .value { font-family:monospace; background-color:white; color:black }
 

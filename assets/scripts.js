@@ -11,6 +11,10 @@ jQuery(document).ready(function ($) {
 	$("input[data-column-type='time']").timepicker( { dateFormat: 'yy-mm-dd', timeFormat: 'HH:mm:ss' } );
 	$("input[data-column-type='year']").mask("9999");
 
+	$("form :submit").attr("");
+	$("form :input[required]").each(function(){
+		
+	});
 
 	/**
 	 * Set up the bits that use WP_API.
@@ -54,6 +58,12 @@ jQuery(document).ready(function ($) {
 				if ($(this).val().length === 0) {
 					$(this).closest(".foreign-key").find(".actual-value").val("");
 					$(this).closest(".foreign-key").find(".input-group-addon").text("");
+				}
+			});
+			// Clear entered text if no value was selected.
+			$(this).on("blur", function() {
+				if ($(this).closest(".foreign-key").find(".actual-value").val().length === 0) {
+					$(this).val("");
 				}
 			});
 		});
