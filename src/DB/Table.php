@@ -293,13 +293,8 @@ class Table {
 	 * @return Record[] The row data
 	 */
 	public function get_records($with_pagination = true, $save_sql = false) {
-		$columns = array();
-		foreach ( array_keys( $this->columns ) as $col ) {
-			$columns[] = "`$this->name`.`$col`";
-		}
-
 		// Build basic SELECT statement.
-		$sql = 'SELECT ' . join( ',', $columns ) . ' FROM `' . $this->get_name() . '`';
+		$sql = 'SELECT ' . $this->columns_sql_select() . ' FROM `' . $this->get_name() . '`';
 
 		// Ordering.
 		if ($this->get_order_by()) {
@@ -361,6 +356,23 @@ class Table {
 	}
 
 	/**
+	 * Get the SQL for SELECTing all columns in this table.
+	 * @return string
+	 */
+	private function columns_sql_select() {
+		$select = array();
+		$table_name = $this->get_name();
+		foreach ( $this->get_columns() as $col_name => $col ) {
+			if ( $col->get_type() == 'point' ) {
+				$select[] = "AsText(`$table_name`.`$col_name`) AS `$col_name`";
+			} else {
+				$select[] = "`$table_name`.`$col_name`";
+			}
+		}
+		return join( ', ', $select );
+	}
+
+	/**
 	 * Get a single record as an associative array.
 	 *
 	 * @param string $pk_val The value of the PK of the record to get.
@@ -368,18 +380,10 @@ class Table {
 	 */
 	public function get_record($pk_val) {
 		$pk_column = $this->get_pk_column();
-		if ( !$pk_column ) {
+		if ( ! $pk_column ) {
 			return false;
 		}
-		$select = array();
-		foreach ( $this->get_columns() as $col_name => $col ) {
-			if ( $col->get_type() == 'point' ) {
-				$select[] = "AsText(`$col_name`) AS `$col_name`";
-			} else {
-				$select[] = "`$col_name`";
-			}
-		}
-		$sql = "SELECT " . join( ', ', $select ) . " "
+		$sql = "SELECT " . $this->columns_sql_select() . " "
 				. "FROM `" . $this->get_name() . "` "
 				. "WHERE `" . $pk_column->get_name() . "` = %s "
 				. "LIMIT 1";
@@ -565,13 +569,8 @@ class Table {
 		$wpdb->query( $sql );
 		// Make sure it exported.
 		if ( ! file_exists( $filename ) ) {
-			$msg = "<p>Unable to create temporary export file:<br /><code>$filename</code></p>";
-			if ( WP_DEBUG ) {
-				$msg .= "<h2>Debug info:</h2>"
-					. "<p>Error was: " . $wpdb->last_error . "</p>"
-					. "<p>Query was:</p><pre>$sql</pre>";
-			}
-			wp_die( $msg, "Export failed", array( 'back_link' => true ) );
+			$msg = "Unable to create temporary export file:<br /><code>$filename</code>";
+			Exception::wp_die($msg, "Export failed", $wpdb->last_error, $sql);
 		}
 		$wpdb->show_errors();
 		// Give the filename back to the controller, to send to the client.
@@ -871,8 +870,13 @@ class Table {
 			}
 			$column = $this->get_column($field);
 
+			// Auto-incrementing columns.
+			if ( $column->is_auto_increment() ) {
+				// Don't set $sql_values item.
+			}
+
 			// Boolean values.
-			if ( $column->is_boolean() ) {
+			elseif ( $column->is_boolean() ) {
 				$zeroValues = array( 0, '0', false, 'false', 'FALSE', 'off', 'OFF', 'no', 'NO' );
 				if ( ( $value === null || $value === '') && $column->nullable() ) {
 					$data[ $field ] = null;
@@ -888,6 +892,12 @@ class Table {
 
 			// Empty strings.
 			elseif ( ! $column->allows_empty_string() && '' === $value && $column->nullable() ) {
+				$data[ $field ] = null;
+				$sql_values[ $field ] = 'NULL';
+			}
+
+			// Nulls
+			elseif ( is_null( $value ) && $column->nullable() ) {
 				$data[ $field ] = null;
 				$sql_values[ $field ] = 'NULL';
 			}
@@ -942,9 +952,10 @@ class Table {
 			if ( ! Grants::current_user_can( Grants::CREATE, $this->get_name() ) ) {
 				throw new \Exception( 'You do not have permission to insert records into this table.' );
 			}
-			$this->database->get_wpdb()->query( 'INSERT INTO ' . $this->get_name() . " $set_clause;" );
+			$sql = 'INSERT INTO ' . $this->get_name() . ' ' . $set_clause . ';';
+			$this->database->get_wpdb()->query( $sql );
 			if ( ! empty( $this->database->get_wpdb()->last_error ) ) {
-				throw new Exception( $this->database->get_wpdb()->last_error );
+				Exception::wp_die( 'The record was not created.', 'Unable to create record', $this->database->get_wpdb()->last_error, $sql );
 			}
 			$new_pk_value = $this->database->get_wpdb()->insert_id;
 

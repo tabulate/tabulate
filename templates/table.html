@@ -62,7 +62,7 @@
 		<a href="{{table.get_url('export', true)}}" class="button">
 			Export CSV
 		</a>
-		{% if table.get_column('latitude') and table.get_column('longitude') %}
+		{% if table.get_columns('point') %}
 		<a href="{{table.get_url('kml', true, 'map')}}" class="button">
 			Export KML
 		</a>

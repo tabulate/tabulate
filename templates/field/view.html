@@ -19,6 +19,9 @@ No
 {% elseif column.get_type=='date' %}
 {{ attribute(record, column.get_name)|wp_date_format }}
 
+{% elseif column.get_type=='point' %}
+{{ attribute(record, column.get_name) }}
+
 {% else %}
 {{ attribute(record, column.get_name) }}
 

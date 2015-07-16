@@ -125,6 +125,8 @@ class Menus {
 		wp_enqueue_script( 'tabulate-timepicker', $timepicker_url, array( 'tabulate-scripts' ), TABULATE_VERSION );
 		$leaflet_url = plugins_url( TABULATE_SLUG ) . '/assets/leaflet/leaflet.js';
 		wp_enqueue_script( 'tabulate-leaflet', $leaflet_url, array( 'tabulate-scripts' ), TABULATE_VERSION );
+		$onmivore_url = plugins_url( TABULATE_SLUG ) . '/assets/leaflet/leaflet-omnivore.min.js';
+		wp_enqueue_script( 'tabulate-onmivore', $onmivore_url, array( 'tabulate-leaflet' ), TABULATE_VERSION );
 
 		// Javascript page variables.
 		$js_vars = array(

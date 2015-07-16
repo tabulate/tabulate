@@ -29,7 +29,6 @@ also need to be updated (or should these just be changed to also use `TABULATE_V
 Some possibilities:
 
 * Widget for FoH display of data (akin to the Shortcode).
-* Map display, where there is spatial data in a table.
 * File storage, for blob types.
 * Bulk changes, for modifying filtered data.
 * LaTeX output.

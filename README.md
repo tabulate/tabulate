@@ -50,7 +50,8 @@ Features (in no particular order):
 9.  The `[tabulate]` shortcode can be used to embed tables, lists, row-counts,
     and data-entry forms into WordPress content. For more details, see the
     [FAQ section](https://wordpress.org/plugins/tabulate/faq/).
-10. Tables with *latitude* and *longitude* columns can be exported to KML.
+10. Tables with *point* columns can be exported to KML. Also, data entry for these
+    columns is done with a small slippy map, on which a marker can be placed.
 
 ## Installation
 

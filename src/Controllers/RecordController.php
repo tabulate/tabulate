@@ -30,7 +30,7 @@ class RecordController extends ControllerBase {
 				$template->add_notice( 'error', 'You do not have permission to update data in this table.' );
 			}
 		}
-		if ( ! isset( $template->record ) ) {
+		if ( ! isset( $template->record ) || $template->record === false ) {
 			$template->record = $table->get_default_record();
 			// Check permission.
 			if ( ! Grants::current_user_can( Grants::CREATE, $table->get_name() ) ) {
@@ -78,7 +78,7 @@ class RecordController extends ControllerBase {
 				$template->record = $table->save_record( $data, $record_ident );
 				$this->wpdb->query( 'COMMIT' );
 				$template->add_notice( 'updated', 'Record saved.' );
-			} catch ( \WordPress\Tabulate\DB\Exception $e ) {
+			} catch ( \Exception $e ) {
 				$template->add_notice( 'error', $e->getMessage() );
 				$template->record = new \WordPress\Tabulate\DB\Record( $table, $data );
 			}

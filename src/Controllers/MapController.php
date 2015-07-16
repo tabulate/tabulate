@@ -10,19 +10,19 @@ class MapController extends ControllerBase {
 		$db = new Database( $this->wpdb );
 		$table = $db->get_table( $args['table'] );
 
-		// Check that lat and long columns exist.
-		$lat = $table->get_column( 'latitude' );
-		$lon = $table->get_column( 'longitude' );
-		if ( ! $lat || ! $lon ) {
+		// Check that a point column exists.
+		$points = $table->get_columns( 'point' );
+		if ( empty( $points ) ) {
 			// @TODO Show error.
 			return;
 		}
+		$point_col = array_shift( $points );
+		$point_col_name = $point_col->get_name();
 
 		// Apply filters.
 		$filter_param = (isset( $args['filter'] )) ? $args['filter'] : array();
 		$table->add_filters( $filter_param );
-		$table->add_filter( 'latitude', 'not empty', '' );
-		$table->add_filter( 'longitude', 'not empty', '' );
+		$table->add_filter( $point_col_name, 'not empty', '' );
 
 		// Create KML.
 		$kml = new \SimpleXMLElement( '<kml />' );
@@ -33,7 +33,8 @@ class MapController extends ControllerBase {
 			$placemark->addChild( 'name', $record->get_title() );
 			$placemark->addChild( 'description', htmlentities( '<a href="' . $record->get_url() . '">View record.</a>' ) );
 			$point = $placemark->addChild( 'Point' );
-			$point->addChild( 'coordinates', $record->longitude() . ',' . $record->latitude() );
+			$geom = \geoPHP::load($record->$point_col_name());
+			$point->addChild( 'coordinates', $geom->getX() . ',' . $geom->getY() );
 		}
 
 		// Send to browser.
