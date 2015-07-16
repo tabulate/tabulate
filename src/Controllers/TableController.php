@@ -89,6 +89,7 @@ class TableController extends ControllerBase {
 		$template->record = $table->get_default_record();
 		$template->action = 'import';
 		$template->table = $table;
+		$template->maxsize = size_format(wp_max_upload_size());
 		if ( ! Grants::current_user_can( Grants::IMPORT, $table->get_name() ) ) {
 			$template->add_notice( 'error', 'You do not have permission to import data into this table.' );
 			return $template->render();
