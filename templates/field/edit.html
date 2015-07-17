@@ -46,16 +46,22 @@
 
 
 {% elseif column.is_boolean %}
-<input type="radio" name="{{column.get_name}}" id="{{column.get_name}}-yes"
-	   value="1" {% if attribute(record, column.get_name) is sameas(true) %}checked{% endif %} />
-<label for="{{column.get_name}}-yes">Yes</label>
-<input type="radio" name="{{column.get_name}}" id="{{column.get_name}}-no"
-	   value="0" {% if attribute(record, column.get_name) is sameas(false) %}checked{% endif %} />
-<label for="{{column.get_name}}-no">No</label>
+<label for="{{column.get_name}}-yes" class="radio-inline">
+	<input type="radio" name="{{column.get_name}}" id="{{column.get_name}}-yes"
+		value="1" {% if attribute(record, column.get_name) is sameas(true) %}checked{% endif %} />
+	Yes
+</label>
+<label for="{{column.get_name}}-no" class="radio-inline">
+	<input type="radio" name="{{column.get_name}}" id="{{column.get_name}}-no" class="radio-inline"
+		value="0" {% if attribute(record, column.get_name) is sameas(false) %}checked{% endif %} />
+	No
+</label>
 {% if column.is_null %}
-<input type="radio" name="{{column.get_name}}" id="{{column.get_name}}-null"
-	   value="" {% if attribute(record, column.get_name) is null %}checked{% endif %} />
-<label for="{{column.get_name}}-null" title="Not Applicable">N/A</label>
+<label for="{{column.get_name}}-null" title="Not Applicable" class="radio-inline">
+	<input type="radio" name="{{column.get_name}}" id="{{column.get_name}}-null" class="radio-inline"
+		value="" {% if attribute(record, column.get_name) is null %}checked{% endif %} />
+	N/A
+</label>
 {% endif %}
 
 
@@ -69,7 +75,7 @@
 
 {% elseif column.get_type=='point' %}
 <div class="point-column" id="{{column.get_name}}">
-	<input type="text" readonly name="{{column.get_name}}" value="{{ attribute(record, column.get_name)}}" />
+	<input type="text" name="{{column.get_name}}" value="{{ attribute(record, column.get_name)}}" class="form-control" />
 	<div class="map" id="{{column.get_name}}-map"></div>
 </div>
 
