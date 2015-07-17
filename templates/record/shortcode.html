@@ -1,6 +1,6 @@
 {% include 'notices.html' %}
 
-<form method="post" action="{{record.get_url('save')}}" class="tabulate-record">
+<form method="post" action="{{record.get_url('save')}}" class="tabulate tabulate-record">
 
 	{% for column in table.get_columns %}
 	<div class="form-group">

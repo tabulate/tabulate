@@ -144,14 +144,8 @@ jQuery(document).ready(function ($) {
 		// If already has a value.
 		if ($formField.val()) {
 			omnivore.wkt.parse($formField.val()).eachLayer(function(m) {
-//				console.log("parsed marker ");
-				console.log(m.getLatLng());
-//				marker = L.marker(m.getLatLng(), { clickable:true, draggable:true }).addTo(map);
-//				map.setView(marker.getLatLng());
-//				map.setZoom(18);
 				addMarker(m.getLatLng());
 				marker.update();
-				//console.log(marker);
 			});
 		}
 		// On click. Dragging is handled below.
@@ -167,11 +161,9 @@ jQuery(document).ready(function ($) {
 			marker.on("add", recordNewCoords).on("dragend", recordNewCoords);
 			marker.addTo(map);
 			map.panTo(marker.getLatLng());
-			//console.log("Marker added.");
 		}
 		function recordNewCoords(e) {
 			var wkt = "POINT("+marker.getLatLng().lng+" "+marker.getLatLng().lat+")";
-			console.log("changing recorded point: "+wkt);
 			$formField.val(wkt);
 		}
 	});
