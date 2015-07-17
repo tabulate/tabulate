@@ -33,7 +33,9 @@ class ShortcodeController extends ControllerBase {
 		}
 		$table = $this->db->get_table( $attrs['table'] );
 		if ( ! $table ) {
-			// Show no error for not-found tables?
+			if ( ! is_user_logged_in() ) {
+				return "<div class='tabulate error'>You are not logged in. " . wp_loginout( get_the_permalink(), false ) . "</div>";
+			}
 			return '';
 		}
 		$format_method = $attrs['format'].'_format';
