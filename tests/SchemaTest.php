@@ -147,4 +147,41 @@ class SchemaTest extends TestBase {
 		$this->assertEquals( '1980', $rec->a_year() );
 	}
 
+	/**
+	 * @testdox A unique-keyed column is used as a record's title.
+	 * @test
+	 */
+	public function unique_keys() {
+		$this->wpdb->query( 'DROP TABLE IF EXISTS `unique_key_test`' );
+		$this->wpdb->query( 'CREATE TABLE `unique_key_test` ('
+			. ' id INT(10) AUTO_INCREMENT PRIMARY KEY,'
+			. ' a_key DATE UNIQUE'
+			. ');'
+		);
+		$tbl = $this->db->get_table( 'unique_key_test' );
+		$rec_1 = $tbl->save_record( array( 'a_key' => '2015-07-01' ) );
+		$this->assertEquals( '2015-07-01', $rec_1->get_title() );
+	}
+
+	/**
+	 * @testdox Multiple-column unique keys work as well.
+	 * @test
+	 */
+	public function multicolumn_unique_keys() {
+		$this->wpdb->query( 'DROP TABLE IF EXISTS `unique_key_test`' );
+		$this->wpdb->query( 'CREATE TABLE `unique_key_test` ('
+			. ' id INT(10) AUTO_INCREMENT PRIMARY KEY,'
+			. ' title_a VARCHAR(100),'
+			. ' title_b VARCHAR(100),'
+			. ' another_key DATE'
+			. ');'
+		);
+		$this->wpdb->query( 'ALTER TABLE `unique_key_test` ADD UNIQUE( `title_a`, `title_b`); ' );
+		$tbl = $this->db->get_table( 'unique_key_test' );
+		$this->assertCount( 1, $tbl->get_unique_keys() );
+		$this->assertCount( 2, $tbl->get_title_columns() );
+		$rec = $tbl->save_record( array( 'title_a' => 'Three', 'title_b' => 'Four' ) );
+		$this->assertEquals( 'Three, Four', $rec->get_title() );
+	}
+
 }
