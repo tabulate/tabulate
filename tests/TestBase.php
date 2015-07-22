@@ -48,7 +48,7 @@ class TestBase extends WP_UnitTestCase {
 		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_types`' );
 		$this->wpdb->query( 'CREATE TABLE `test_types` ('
 			. ' id INT(10) AUTO_INCREMENT PRIMARY KEY,'
-			. ' title VARCHAR(100) NOT NULL UNIQUE'
+			. ' title VARCHAR(100) NOT NULL'
 			. ');'
 		);
 		$this->wpdb->query( 'ALTER TABLE `test_table` '

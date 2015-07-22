@@ -43,9 +43,6 @@ class Table {
 	 */
 	protected $columns;
 
-	/** @var \WordPress\Tabulate\DB\Column[] Names and columns of unique keys. */
-	protected $unique_keys;
-
 	/** @var array */
 	protected $filters = array();
 
@@ -278,7 +275,7 @@ class Table {
 				$join_clause .= ' LEFT OUTER JOIN `' . $fk2_table->get_name() . '` AS ff' . $this->alias_count
 						. ' ON (f' . $this->alias_count . '.`' . $fk1_title_column->get_name() . '` '
 						. ' = ff' . $this->alias_count . '.`' . $fk1_table->get_pk_column()->get_name() . '`)';
-				$column_alias = "`ff$this->alias_count`.`" . $fk2_title_column->get_name() . "`";
+				$column_alias = "`ff$this->alias_count`.`" . $fk2_title_column->getName() . "`";
 				$this->joined_tables[] = $column_alias;
 			}
 			$this->alias_count++;
@@ -373,17 +370,6 @@ class Table {
 			}
 		}
 		return join( ', ', $select );
-	}
-
-	/**
-	 * Search for records based on their title.
-	 * @param string $title
-	 * @return \WordPress\Tabulate\DB\Record[]
-	 */
-	public function get_records_by_title( $title ) {
-		if ( count( $this->get_title_columns() ) == 1 ) {
-			
-		}
 	}
 
 	/**
@@ -658,46 +644,6 @@ class Table {
 			$titleColName = $columnIndices[0];
 		}
 		return $this->columns[$titleColName];
-	}
-
-	/**
-	 * Get the columns of the smallest unique key, or the PK if there are no others.
-	 * @return WordPress\Tabulate\DB\Column[]
-	 */
-	public function get_title_columns() {
-		$key_sizes = array();
-		$unique_keys = $this->get_unique_keys();
-		if ( empty( $unique_keys ) ) {
-			return array( $this->get_pk_column() );
-		}
-		foreach ( $unique_keys as $kname => $cols ) {
-			$key_sizes[$kname] = count( $cols );
-		}
-		$smallest_key = array_keys( $key_sizes, min( $key_sizes ) );
-		$smallest_key_name = array_shift( $smallest_key );
-		return $unique_keys[ $smallest_key_name ];
-	}
-
-	/**
-	 * Get all non-primary unique keys in this table.
-	 * @return WordPress\Tabulate\DB\Column[]
-	 */
-	public function get_unique_keys() {
-		if ( $this->unique_keys ) {
-			return $this->unique_keys;
-		}
-		$this->unique_keys = array();
-		$sql = "SHOW INDEXES FROM `$this->name`";
-		$indexes = $this->database->get_wpdb()->get_results( $sql );
-		foreach ( $indexes as $index ) {
-			if ( $index->Key_name != 'PRIMARY' && $index->Non_unique == false ) {
-				if ( ! isset( $this->unique_keys[ $index->Key_name ] ) ) {
-					$this->unique_keys[ $index->Key_name ] = array();
-				}
-				$this->unique_keys[ $index->Key_name ][] = $this->get_column( $index->Column_name );
-			}
-		}
-		return $this->unique_keys;
 	}
 
 	/**

@@ -72,9 +72,6 @@ class ApiController extends ControllerBase {
 	public function foreign_key_values( $table_name ) {
 		$db = new Database( $this->wpdb );
 		$table = $db->get_table( $table_name );
-//		foreach ( $table->get_title_columns() as $title_col ) {
-//			$table->add_filter( $title_col, 'like', '%'.$_GET[ 'term' ].'%' );
-//		}
 		$table->add_filter( $table->get_title_column(), 'like', '%'.$_GET[ 'term' ].'%' );
 		$out = array();
 		foreach ( $table->get_records() as $record ) {

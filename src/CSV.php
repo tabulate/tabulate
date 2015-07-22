@@ -234,7 +234,7 @@ class CSV {
 						// Ignore empty-string FKs.
 						continue;
 					} else {
-						$fk_rows = $this->get_fk_record( $column->get_referenced_table(), $value );
+						$fk_rows = $this->get_fk_rows( $column->get_referenced_table(), $value );
 						$foreign_row = array_shift( $fk_rows );
 						$value = $foreign_row->get_primary_key();
 					}
@@ -266,7 +266,7 @@ class CSV {
 	 */
 	protected function validate_foreign_key($column, $col_num, $row_num, $value) {
 		$foreign_table = $column->get_referenced_table();
-		if ( ! $this->get_fk_record( $foreign_table, $value ) ) {
+		if ( ! $this->get_fk_rows( $foreign_table, $value ) ) {
 			$link = '<a href="' . $foreign_table->get_url() . '" title="Opens in a new tab or window" target="_blank" >'
 				. $foreign_table->get_title()
 				. '</a>';
@@ -276,13 +276,14 @@ class CSV {
 	}
 
 	/**
-	 * Get the record of a foreign table where the titles equal a given value.
+	 * Get the rows of a foreign table where the title column equals a given
+	 * value.
 	 * 
-	 * @param \WordPress\Tabulate\DB\Table $foreign_table
+	 * @param DB\Table $foreign_table
 	 * @param string $value The value to match against the title column.
-	 * @return \WordPress\Tabulate\DB\Record
+	 * @return Database_Result
 	 */
-	protected function get_fk_record( $foreign_table, $value ) {
+	protected function get_fk_rows($foreign_table, $value) {
 		$foreign_table->reset_filters();
 		$foreign_table->add_filter( $foreign_table->get_title_column()->get_name(), '=', $value );
 		return $foreign_table->get_records();

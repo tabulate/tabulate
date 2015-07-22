@@ -2,7 +2,6 @@
 
 use WordPress\Tabulate\DB\ChangeTracker;
 use WordPress\Tabulate\DB\Grants;
-use WordPress\Tabulate\DB\Record;
 
 class ChangeTrackerTest extends TestBase {
 
@@ -102,10 +101,8 @@ class ChangeTrackerTest extends TestBase {
 		$test_table = $this->db->get_table( 'test_table' );
 		$rec = $test_table->save_record( array( 'title' => 'A Record', 'type_id' => $type->id() ) );
 		// Test.
-		$this->assertEquals( 1, $rec->type_id() );
-		$type_col_name = 'type_id' . Record::FKTITLE;
-		$this->assertEquals( 'The Type', $rec->$type_col_name() );
 		$changes = $rec->get_changes();
+		//print_r($changes);
 		$change = $changes[ 3 ];
 		$this->assertEquals( "type_id", $change->column_name );
 		$this->assertEquals( "The Type", $change->new_value );

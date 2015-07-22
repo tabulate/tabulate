@@ -10,7 +10,6 @@ class Record {
 	/** @var \stdClass */
 	protected $data;
 
-	/** @var string The string to append to the end of attributes, to turn them into 'titles'. */
 	const FKTITLE = 'FKTITLE';
 
 	/**
@@ -29,9 +28,7 @@ class Record {
 
 	/**
 	 * Get a column's value. If suffixed with 'FKTITLE', then get the title of
-	 * the foreign record (where applicable). If a non-FK column is suffixed
-	 * with 'FKTITLE' then the suffix is discarded and the column value returned
-	 * as usual.
+	 * the foreign record (where applicable).
 	 * @param string $name The column name.
 	 * @param array $args [Parameter not used]
 	 * @return string|boolean
@@ -42,17 +39,16 @@ class Record {
 		$useTitle = substr( $name, -strlen( self::FKTITLE ) ) == self::FKTITLE;
 		if ( $useTitle ) {
 			$name = substr( $name, 0, -strlen( self::FKTITLE ) );
-			if ( $this->table->get_column( $name )->is_foreign_key() && ! empty( $this->data->$name ) ) {
+			if ( $this->table->get_column( $name )->is_foreign_key() && !empty( $this->data->$name ) ) {
 				$referencedTable = $this->table->get_column( $name )->get_referenced_table();
 				$fkRecord = $referencedTable->get_record( $this->data->$name );
-				return $fkRecord->get_title();
-//				$fkTitleCol = $referencedTable->get_title_column();
-//				$fkTitleColName = $fkTitleCol->get_name();
-//				if ( $fkTitleCol->is_foreign_key() ) {
-//					// Use title if the FK's title column is also an FK.
-//					$fkTitleColName .= self::FKTITLE;
-//				}
-//				return $fkRecord->$fkTitleColName();
+				$fkTitleCol = $referencedTable->get_title_column();
+				$fkTitleColName = $fkTitleCol->get_name();
+				if ( $fkTitleCol->is_foreign_key() ) {
+					// Use title if the FK's title column is also an FK.
+					$fkTitleColName .= self::FKTITLE;
+				}
+				return $fkRecord->$fkTitleColName();
 			}
 		}
 
@@ -99,16 +95,8 @@ class Record {
 	 * @return string
 	 */
 	public function get_title() {
-		$titles = array();
-		foreach ( $this->table->get_title_columns() as $title_col ) {
-			// The FKTITLE will be ignored if not applicable to this column.
-			$col_name = $title_col->get_name() . self::FKTITLE;
-			$title = $this->$col_name();
-			if ( ! empty( $title ) ) {
-				$titles[] = $title;
-			}
-		}
-		return join( ', ', $titles );
+		$title_col_name = $this->table->get_title_column()->get_name();
+		return $this->data->$title_col_name;
 	}
 
 	public function get_referenced_record($column_name) {
