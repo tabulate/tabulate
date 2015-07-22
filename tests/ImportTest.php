@@ -1,5 +1,7 @@
 <?php
 
+use WordPress\Tabulate\CSV;
+
 class ImportTest extends TestBase {
 
 	public function setUp() {
@@ -34,7 +36,7 @@ class ImportTest extends TestBase {
 			. '"1","One"' . "\r\n"
 			. '"2","Two"' . "\r\n";
 		$uploaded = $this->save_data_file( $csv );
-		$csv = new WordPress\Tabulate\CSV( null, $uploaded );
+		$csv = new CSV( null, $uploaded );
 		$csv->load_data();
 		$column_map = array( 'title' => 'Title' );
 		$csv->import_data( $testtypes_table, $column_map );
@@ -51,6 +53,29 @@ class ImportTest extends TestBase {
 	}
 
 	/**
+	 * @testdox Foreign Keys are resolved according to record titles.
+	 * @test
+	 */
+	public function foreign_keys() {
+		// 1. Set up data.
+		$testtypes_table = $this->db->get_table( 'test_types' );
+		$testtypes_table->save_record( array( 'title' => 'A Type' ) );
+		$test_table = $this->db->get_table( 'test_table' );
+		$csv = '"Title","Type"' . "\r\n"
+			. '"One","A Type"' . "\r\n"
+			. '"Two","A Type"' . "\r\n";
+		$uploaded = $this->save_data_file( $csv );
+		$csv = new CSV( null, $uploaded );
+		$csv->load_data();
+		$column_map = array( 'title' => 'Title', 'type_id' => 'Type' );
+		$csv->import_data( $test_table, $column_map );
+		// 2. Tests.
+		$one = $test_table->get_record( 1 );
+		$this->assertEquals( 'One', $one->title() );
+		$this->assertEquals( 1, $one->type_id() );
+	}
+
+	/**
 	 * @testdox Import rows that specify an existing PK will update existing records.
 	 * @test
 	 */
@@ -64,7 +89,7 @@ class ImportTest extends TestBase {
 		$csv = '"ID","Title","Description"' . "\r\n"
 			. '"1","One","A description"' . "\r\n";
 		$uploaded = $this->save_data_file( $csv );
-		$csv = new WordPress\Tabulate\CSV( null, $uploaded );
+		$csv = new CSV( null, $uploaded );
 		$csv->load_data();
 		$column_map = array( 'id' => 'ID', 'title' => 'Title', 'description' => 'Description' );
 		$csv->import_data( $testtable, $column_map );
@@ -78,7 +103,7 @@ class ImportTest extends TestBase {
 		$csv = '"ID","Description"' . "\r\n"
 			. '"1","New description"' . "\r\n";
 		$uploaded2 = $this->save_data_file( $csv );
-		$csv2 = new WordPress\Tabulate\CSV( null, $uploaded2 );
+		$csv2 = new CSV( null, $uploaded2 );
 		$csv2->load_data();
 		$column_map2 = array( 'id' => 'ID', 'description' => 'Description' );
 		$csv2->import_data( $testtable, $column_map2 );

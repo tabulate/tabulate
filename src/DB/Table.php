@@ -2,6 +2,8 @@
 
 namespace WordPress\Tabulate\DB;
 
+use \NilPortugues\Sql\QueryBuilder\Builder\GenericBuilder;
+
 class Table {
 
 	/** @static A base table. */
@@ -143,11 +145,11 @@ class Table {
 		return $this->filters;
 	}
 
-	protected function get_fk_join_clause($table, $alias, $column) {
-		return 'LEFT OUTER JOIN `' . $table->get_name() . '` AS f' . $alias
-				. ' ON (`' . $this->get_name() . '`.`' . $column->get_name() . '` '
-				. ' = `f' . $alias . '`.`' . $table->get_pk_column()->get_name() . '`)';
-	}
+//	protected function get_fk_join_clause($table, $alias, $column) {
+//		return 'LEFT OUTER JOIN `' . $table->get_name() . '` AS f' . $alias
+//				. ' ON (`' . $this->get_name() . '`.`' . $column->get_name() . '` '
+//				. ' = `f' . $alias . '`.`' . $table->get_pk_column()->get_name() . '`)';
+//	}
 
 	/**
 	 * Apply the stored filters to the supplied SQL.
@@ -155,7 +157,7 @@ class Table {
 	 * @param string $sql The SQL to modify
 	 * @return array Parameter values, in the order of their occurence in $sql
 	 */
-	public function apply_filters(&$sql) {
+	public function apply_filters( &$sql ) {
 
 		$params = array();
 		$param_num = 1; // Incrementing parameter suffix, to permit duplicate columns.
@@ -260,7 +262,7 @@ class Table {
 	 * @param Column $column The FK column
 	 * @return array Array with 'join_clause' and 'column_alias' keys
 	 */
-	public function join_on($column) {
+	public function join_on( $column ) {
 		$join_clause = '';
 		$column_alias = '`' . $this->get_name() . '`.`' . $column->get_name() . '`';
 		if ( $column->is_foreign_key() ) {
@@ -286,6 +288,25 @@ class Table {
 		return array( 'join_clause' => $join_clause, 'column_alias' => $column_alias );
 	}
 
+	public function get_query( GenericBuilder $builder ) {
+		$query = $builder->select( $this->get_name() );
+		foreach ( $this->get_columns() as $col_name => $col ) {
+			if ( $col->get_type() == 'point' ) {
+				$query->setFunctionAsColumn('AsText', array($col_name), $col_name);
+			} elseif ( $col->is_foreign_key() ) {
+				$foreign_table = $col->get_referenced_table();
+				$ref_col = $foreign_table->get_pk_column()->get_name();
+				$title_col = $foreign_table->get_title_column()->get_name();
+				$cols = array( $col_name => 'max('.$title_col.')' );
+				$query->leftJoin( $foreign_table->get_name(), $col_name, $ref_col, $cols );
+			} else {
+				$select[$col_name] = $col_name; // "`$table_name`.`$col_name`";
+			}
+			$query->setColumns( $select );
+		}
+		return $query;
+	}
+
 	/**
 	 * Get rows, with pagination.
 	 *
@@ -297,7 +318,13 @@ class Table {
 	 */
 	public function get_records($with_pagination = true, $save_sql = false) {
 		// Build basic SELECT statement.
-		$sql = 'SELECT ' . $this->columns_sql_select() . ' FROM `' . $this->get_name() . '`';
+		//$sql = 'SELECT ' . $this->columns_sql_select() . ' FROM `' . $this->get_name() . '`';
+		$builder = new GenericBuilder();
+		$query = $this->get_query( $builder );
+		$sql = $builder->writeFormatted( $query );
+		$values = $builder->getValues();
+		echo '<pre>'.$sql;
+		exit();
 
 		// Ordering.
 		if ($this->get_order_by()) {
@@ -377,13 +404,18 @@ class Table {
 
 	/**
 	 * Search for records based on their title.
+	 * @todo Fix this is rather ugly work-around for not being able to do OR filters yet.
 	 * @param string $title
 	 * @return \WordPress\Tabulate\DB\Record[]
 	 */
 	public function get_records_by_title( $title ) {
-		if ( count( $this->get_title_columns() ) == 1 ) {
-			
+		$records = array();
+		foreach ( $this->get_title_columns() as $title_column ) {
+			$this->reset_filters();
+			$this->add_filter( $title_column, '=', $title );
+			$records += $this->get_records();
 		}
+		return $records;
 	}
 
 	/**
@@ -410,7 +442,7 @@ class Table {
 	/**
 	 * Get a bare record with only default values.
 	 *
-	 * @return Record
+	 * @return \WordPress\Tabulate\DB\Record
 	 */
 	public function get_default_record() {
 		$row = array();

@@ -184,4 +184,13 @@ class SchemaTest extends TestBase {
 		$this->assertEquals( 'Three, Four', $rec->get_title() );
 	}
 
+	/**
+	 * @testdox 
+	 * @test
+	 */
+	public function x() {
+		$tbl = $this->db->get_table( 'test_table' );
+		$tbl->
+	}
+
 }

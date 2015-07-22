@@ -234,9 +234,8 @@ class CSV {
 						// Ignore empty-string FKs.
 						continue;
 					} else {
-						$fk_rows = $this->get_fk_record( $column->get_referenced_table(), $value );
-						$foreign_row = array_shift( $fk_rows );
-						$value = $foreign_row->get_primary_key();
+						$fk_record = $this->get_fk_record( $column->get_referenced_table(), $value );
+						$value = $fk_record->get_primary_key();
 					}
 				}
 
@@ -283,9 +282,9 @@ class CSV {
 	 * @return \WordPress\Tabulate\DB\Record
 	 */
 	protected function get_fk_record( $foreign_table, $value ) {
-		$foreign_table->reset_filters();
-		$foreign_table->add_filter( $foreign_table->get_title_column()->get_name(), '=', $value );
-		return $foreign_table->get_records();
+		$records = $foreign_table->get_records_by_title( $value );
+		$record = array_shift( $records );
+		return $record;
 	}
 
 	/**

@@ -13,6 +13,7 @@
 	"require": {
 		"twig/twig": "1.*",
 		"yohang/calendr": "1.*",
-		"phayes/geophp": "1.*"
+		"phayes/geophp": "1.*",
+		"nilportugues/sql-query-builder": "1.*"
 	}
 }

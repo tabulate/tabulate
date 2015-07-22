@@ -4,8 +4,127 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "493f9c92286d9d8e48cc3778821ba934",
+    "hash": "5f6852d79e7315f50a5130363f5a5120",
     "packages": [
+        {
+            "name": "nilportugues/sql-query-builder",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nilportugues/sql-query-builder.git",
+                "reference": "4ee12741f11461b5d470683e45e3863d3db02464"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nilportugues/sql-query-builder/zipball/4ee12741f11461b5d470683e45e3863d3db02464",
+                "reference": "4ee12741f11461b5d470683e45e3863d3db02464",
+                "shasum": ""
+            },
+            "require": {
+                "nilportugues/sql-query-formatter": "~1.2",
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "fabpot/php-cs-fixer": "dev-master",
+                "fiunchinho/phpunit-randomizer": "1.0.*@dev",
+                "phpunit/phpunit": "~4.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NilPortugues\\Sql\\QueryBuilder\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nil Portugués Calderó",
+                    "email": "contact@nilportugues.com",
+                    "homepage": "http://nilportugues.com",
+                    "role": "Lead Developer"
+                },
+                {
+                    "name": "Woody Gilk",
+                    "email": "woody.gilk@gmail.com",
+                    "homepage": "http://shadowhand.me/",
+                    "role": "Contributor"
+                }
+            ],
+            "description": "An elegant lightweight and efficient SQL QueryInterface BuilderInterface supporting bindings and complicated query generation.",
+            "homepage": "http://nilportugues.com",
+            "keywords": [
+                "builder",
+                "mysql",
+                "orm",
+                "query",
+                "query builder",
+                "sql"
+            ],
+            "time": "2015-04-11 09:01:39"
+        },
+        {
+            "name": "nilportugues/sql-query-formatter",
+            "version": "v1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nilportugues/sql-query-formatter.git",
+                "reference": "56993b661d3c53a4666b9d3f8130812c6b88c01e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nilportugues/sql-query-formatter/zipball/56993b661d3c53a4666b9d3f8130812c6b88c01e",
+                "reference": "56993b661d3c53a4666b9d3f8130812c6b88c01e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "fabpot/php-cs-fixer": "dev-master",
+                "fiunchinho/phpunit-randomizer": "1.0.*@dev",
+                "phpunit/phpunit": "~4.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NilPortugues\\Sql\\QueryFormatter\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nil Portugués Calderó",
+                    "email": "contact@nilportugues.com",
+                    "homepage": "http://nilportugues.com",
+                    "role": "Lead Developer"
+                }
+            ],
+            "description": "A very lightweight PHP class that reformats unreadable and computer-generated SQL query statements to human-friendly, readable text.",
+            "homepage": "http://nilportugues.com",
+            "keywords": [
+                "format",
+                "formatter",
+                "mysql",
+                "parser",
+                "query",
+                "reformat",
+                "sql",
+                "sql server",
+                "tokenizer"
+            ],
+            "time": "2015-04-10 19:37:12"
+        },
         {
             "name": "phayes/geophp",
             "version": "1.2",
