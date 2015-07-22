@@ -275,7 +275,7 @@ class Table {
 				$join_clause .= ' LEFT OUTER JOIN `' . $fk2_table->get_name() . '` AS ff' . $this->alias_count
 						. ' ON (f' . $this->alias_count . '.`' . $fk1_title_column->get_name() . '` '
 						. ' = ff' . $this->alias_count . '.`' . $fk1_table->get_pk_column()->get_name() . '`)';
-				$column_alias = "`ff$this->alias_count`.`" . $fk2_title_column->getName() . "`";
+				$column_alias = "`ff$this->alias_count`.`" . $fk2_title_column->get_name() . "`";
 				$this->joined_tables[] = $column_alias;
 			}
 			$this->alias_count++;
@@ -533,7 +533,7 @@ class Table {
 			} else {
 				$column_name = "`$this->name`.`$col_name`";
 			}
-			$columns[] = "REPLACE(IFNULL($column_name, ''),'\r\n', '\n')";
+			$columns[] = "REPLACE(IFNULL($column_name, ''),CONCAT(CHAR(13),CHAR(10)),CHAR(10))"; // 13 = \r and 10 = \n
 			$column_headers[] = $col->get_title();
 		}
 
