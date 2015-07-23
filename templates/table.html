@@ -59,12 +59,15 @@
 
 	<!-- Right side -->
 	<div class="alignleft actions bulkactions">
-		<a href="{{table.get_url('export', true)}}" class="button">
-			Export CSV
+		<a href="{{table.get_url('export', true)}}" class="button"  title="Export to Comma Separated Values format">
+			CSV
 		</a>
 		{% if table.get_columns('point') %}
-		<a href="{{table.get_url('kml', true, 'map')}}" class="button">
-			Export KML
+		<a href="{{table.get_url('osm', true, 'map')}}" class="button" title="Export to OpenStreetMap's XML format">
+			OSM
+		</a>
+		<a href="{{table.get_url('kml', true, 'map')}}" class="button" title="Export to KML">
+			KML
 		</a>
 		{% endif %}
 	</div>

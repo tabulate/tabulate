@@ -1,7 +1,7 @@
 # Tabulate
 * Contributors: samwilson
 * Donate link: https://www.bushheritage.org.au/donatenow
-* Tags: MySQL, databases, tables, data, CRUD, import, export, CSV, shortcode
+* Tags: MySQL, databases, tables, data, CRUD, import, export, CSV, shortcode, OpenStreetMap, KML
 * Requires at least: 4.2
 * Tested up to: 4.2
 * Stable tag: trunk
@@ -50,8 +50,9 @@ Features (in no particular order):
 9.  The `[tabulate]` shortcode can be used to embed tables, lists, row-counts,
     and data-entry forms into WordPress content. For more details, see the
     [FAQ section](https://wordpress.org/plugins/tabulate/faq/).
-10. Tables with *point* columns can be exported to KML. Also, data entry for these
-    columns is done with a small slippy map, on which a marker can be placed.
+10. Tables with *point* columns can be exported to KML and OpenStreetMap XML.
+    Also, data entry for these columns is done with a small slippy map, on which
+    a marker can be placed.
 
 ## Installation
 
@@ -131,11 +132,15 @@ with it please see
 
 ## Changelog
 
-A full list of changes can be found at
-https://github.com/tabulate/tabulate/commits/master
+This is a chronologically ordered list of major changes to Tabulate.
+A full list of all changes can be found at https://github.com/tabulate/tabulate/commits/master
 
-Prior to version 1, changes are not being listed here (there are too many of
-them, and nothing is stable yet).
+* March to July 2015: Pre-release development.
+* July 2015: Version 1.0.0 released, with basic functionality and after having
+  been run for some months in a production environment by the plugin author.
+
+Prior to version 1, changes were listed here (there were too many of them, and
+nothing was stable yet).
 
 ## Upgrade Notice
 
