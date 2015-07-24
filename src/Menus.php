@@ -115,7 +115,7 @@ class Menus {
 		// Add scripts.
 		$script_url = plugins_url( TABULATE_SLUG ) . '/assets/scripts.js';
 		$deps = array( 'jquery-ui-datepicker', 'jquery-ui-autocomplete' );
-		if ( is_plugin_active( 'json-rest-api/plugin.php' ) ) {
+		if ( function_exists( 'is_plugin_active' ) && is_plugin_active( 'json-rest-api/plugin.php' ) ) {
 			$deps[] = 'wp-api';
 		}
 		wp_enqueue_script( 'tabulate-scripts', $script_url, $deps, TABULATE_VERSION );
