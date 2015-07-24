@@ -38,13 +38,15 @@ class MapController extends ControllerBase {
 		$osm = new \SimpleXMLElement( '<osm />' );
 		$osm->addAttribute( 'version', '0.6' );
 		$osm->addAttribute( 'generator', 'Tabulate ' . TABULATE_VERSION . ' (WordPress plugin)' );
+		$id = -1;
 		foreach ( $this->table->get_records( false ) as $record ) {
 			$geom = \geoPHP::load( $record->{$this->point_col_name}() );
 			$node = $osm->addChild( 'node' );
-			$node->addAttribute( 'id', '-'.$record->get_primary_key() );
+			$node->addAttribute( 'id', $id );
+			$id--;
 			$node->addAttribute( 'lat', $geom->getY() );
 			$node->addAttribute( 'lon', $geom->getX() );
-			$node->addAttribute( 'visible', 'true' );
+			$node->addAttribute( 'visible', 'true' ); // Required attribute.
 			foreach ( $this->table->get_columns() as $col ) {
 				if ( $col->get_name() == $this->point_col_name ) {
 					// Don't include the geometry column.
