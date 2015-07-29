@@ -69,7 +69,8 @@ class RecordController extends ControllerBase {
 		$pk = $_POST[ $pk_name ];
 		$existing = $table->get_record( $pk );
 		if ( ! $record_ident && $existing ) {
-			$template->add_notice( 'error', "A record identified by '$pk' already exists." );
+			$template->add_notice( 'updated', "The record identified by '$pk' already exists." );
+			$_REQUEST['return_to'] = $existing->get_url();
 		} else {
 			// Otherwise, create a new one.
 			try {

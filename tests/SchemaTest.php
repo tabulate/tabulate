@@ -147,4 +147,22 @@ class SchemaTest extends TestBase {
 		$this->assertEquals( '1980', $rec->a_year() );
 	}
 
+	/**
+	 * @testdox VARCHAR columns can be used as Primary Keys.
+	 * @test
+	 */
+	public function varchar_pk() {
+		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_varchar_pk`' );
+		$this->wpdb->query( 'CREATE TABLE `test_varchar_pk` ('
+			. ' ident VARCHAR(10) PRIMARY KEY,'
+			. ' description TEXT'
+			. ');'
+		);
+		$db = new WordPress\Tabulate\DB\Database( $this->wpdb );
+		$tbl = $db->get_table( 'test_varchar_pk' );
+		$this->assertEquals( 'ident', $tbl->get_pk_column()->get_name() );
+		$rec = $tbl->save_record( array( 'ident' => 'TEST123' ) );
+		$this->assertEquals( 'TEST123', $rec->get_primary_key() );
+	}
+
 }

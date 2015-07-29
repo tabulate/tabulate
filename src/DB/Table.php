@@ -957,7 +957,11 @@ class Table {
 			if ( ! empty( $this->database->get_wpdb()->last_error ) ) {
 				Exception::wp_die( 'The record was not created.', 'Unable to create record', $this->database->get_wpdb()->last_error, $sql );
 			}
-			$new_pk_value = $this->database->get_wpdb()->insert_id;
+			if ( $this->get_pk_column()->is_auto_increment() ) {
+				$new_pk_value = $this->database->get_wpdb()->insert_id;
+			} elseif ( isset( $data[ $pk_name ] ) ) {
+				$new_pk_value = $data[ $pk_name ];
+			}
 
 		}
 		$new_record = $this->get_record( $new_pk_value );
