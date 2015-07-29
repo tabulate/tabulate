@@ -972,15 +972,15 @@ class Table {
 		return $new_record;
 	}
 
-	public function get_url($action = 'index', $merge_existing = false, $controller = 'table') {
+	public function get_url( $action = 'index', $extra_params = false, $controller = 'table' ) {
 		$params = array(
 			'page' => 'tabulate',
 			'controller' => $controller,
 			'action' => $action,
 			'table' => $this->get_name(),
 		);
-		if ( $merge_existing ) {
-			$params = array_merge( $_GET, $params );
+		if ( $extra_params !== false ) {
+			$params = array_merge( $_GET, $params, $extra_params );
 		}
 		return admin_url( 'admin.php?' . http_build_query( $params ) );
 	}

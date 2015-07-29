@@ -6,14 +6,14 @@
 	<div class='tablenav-pages'>
 		<span class='pagination-links'>
 			<a class='prev-page' title='Go to the previous month'
-			   href='{{table.get_url('calendar')}}&year={{month.getPrevious().format('Y')}}&month={{month.getPrevious().format('m')}}'>
+			   href='{{table.get_url('calendar', {"year":month.getPrevious().format('Y'), "month":month.getPrevious().format('m')} ) }}'>
 				&lsaquo; <!--{{month.getPrevious().format('F')}}-->
 			</a>
 			<span>
 				<strong class='total-pages'>{{month.format('F Y')}}</strong>
 			</span>
 			<a class='next-page' title='Go to the next month'
-			   href='{{table.get_url('calendar')}}&year={{month.getNext().format('Y')}}&month={{month.getNext().format('m')}}'>
+			   href='{{table.get_url('calendar', {"year":month.getNext().format('Y'), "month":month.getNext().format('m')} ) }}'>
 				<!--{{month.getNext().format('F')}}--> &rsaquo;
 			</a>
 		</span>
