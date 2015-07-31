@@ -15,11 +15,15 @@ class ShortcodeController extends ControllerBase {
 	public function __construct( $wpdb ) {
 		parent::__construct( $wpdb );
 		$this->db = new Database( $wpdb );
+		// Dequeue scripts, but they'll be requeued in self::run() if required.
+		add_action( 'wp_enqueue_scripts', function() {
+			wp_dequeue_script( 'tabulate-scripts' );
+		} );
 	}
 
 	/**
 	 * Substitute the Shortcode with the relevant formatted output.
-	 * @param array $atts
+	 * @param string[] $atts
 	 * @return string
 	 */
 	public function run( $atts ) {
@@ -29,21 +33,31 @@ class ShortcodeController extends ControllerBase {
 		);
 		$attrs = shortcode_atts( $defaults, $atts );
 		if ( ! isset( $attrs['table'] ) ) {
-			return "<div class='tabulate error'>The 'table' attribute must be set.</div>";
+			return $this->error( "The 'table' attribute must be set." );
 		}
 		$table = $this->db->get_table( $attrs['table'] );
 		if ( ! $table ) {
 			if ( ! is_user_logged_in() ) {
-				return "<div class='tabulate error'>You are not logged in. " . wp_loginout( get_the_permalink(), false ) . "</div>";
+				return $this->error( "You are not logged in. " . wp_loginout( get_the_permalink(), false ) );
 			}
-			return '';
+			return $this->error();
 		}
 		$format_method = $attrs['format'].'_format';
 		if ( is_callable( array( $this, $format_method ) ) ) {
+			wp_enqueue_script( 'tabulate-scripts' );
 			return $this->$format_method( $table, $attrs );
 		} else {
-			return "Format '{$attrs['format']}' not available.";
+			return $this->error( "Format '{$attrs['format']}' not available." );
 		}
+	}
+
+	/**
+	 * Get an error message, and dequeue scripts.
+	 * It's too late now to dequeue styles.
+	 * @param string $message
+	 */
+	protected function error( $message ) {
+		return "<div class='tabulate shortcode-error'>$message</div>";
 	}
 
 	protected function form_format( Table $table, $attrs ) {

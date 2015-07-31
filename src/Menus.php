@@ -112,21 +112,23 @@ class Menus {
 			return;
 		}
 
-		// Add scripts.
+		// Register dependency scripts.
+		$maskedinput_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery.maskedinput.min.js';
+		wp_register_script( 'tabulate-maskedinput', $maskedinput_url, array( 'jquery' ), '1.4.1', true );
+		$timepicker_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery-ui-timepicker-addon.min.js';
+		wp_register_script( 'tabulate-timepicker', $timepicker_url, array( 'jquery-ui-datepicker' ), TABULATE_VERSION, true );
+		$onmivore_url = plugins_url( TABULATE_SLUG ) . '/assets/leaflet/leaflet-omnivore.min.js';
+		wp_register_script( 'tabulate-onmivore', $onmivore_url, array( 'tabulate-leaflet' ), TABULATE_VERSION, true );
+		$leaflet_url = plugins_url( TABULATE_SLUG ) . '/assets/leaflet/leaflet.js';
+		wp_register_script( 'tabulate-leaflet', $leaflet_url, null, TABULATE_VERSION, true );
+
+		// Enqueue Tabulate's scripts.
 		$script_url = plugins_url( TABULATE_SLUG ) . '/assets/scripts.js';
-		$deps = array( 'jquery-ui-datepicker', 'jquery-ui-autocomplete' );
+		$deps = array( 'jquery-ui-autocomplete', 'tabulate-leaflet', 'tabulate-maskedinput', 'tabulate-timepicker' );
 		if ( function_exists( 'is_plugin_active' ) && is_plugin_active( 'json-rest-api/plugin.php' ) ) {
 			$deps[] = 'wp-api';
 		}
-		wp_enqueue_script( 'tabulate-scripts', $script_url, $deps, TABULATE_VERSION );
-		$maskedinput_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery.maskedinput.min.js';
-		wp_enqueue_script( 'tabulate-maskedinput', $maskedinput_url, array( 'tabulate-scripts' ), '1.4.1' );
-		$timepicker_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery-ui-timepicker-addon.min.js';
-		wp_enqueue_script( 'tabulate-timepicker', $timepicker_url, array( 'tabulate-scripts' ), TABULATE_VERSION );
-		$leaflet_url = plugins_url( TABULATE_SLUG ) . '/assets/leaflet/leaflet.js';
-		wp_enqueue_script( 'tabulate-leaflet', $leaflet_url, array( 'tabulate-scripts' ), TABULATE_VERSION );
-		$onmivore_url = plugins_url( TABULATE_SLUG ) . '/assets/leaflet/leaflet-omnivore.min.js';
-		wp_enqueue_script( 'tabulate-onmivore', $onmivore_url, array( 'tabulate-leaflet' ), TABULATE_VERSION );
+		wp_enqueue_script( 'tabulate-scripts', $script_url, $deps, TABULATE_VERSION, true );
 
 		// Javascript page variables.
 		$js_vars = array(
