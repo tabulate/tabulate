@@ -84,6 +84,9 @@ class ApiController extends ControllerBase {
 		}
 		$db = new Database( $this->wpdb );
 		$table = $db->get_table( $table_name );
+		if ( ! $table instanceof \WordPress\Tabulate\DB\Table ) {
+			return array();
+		}
 		// First get any exact matches.
 		$out = $this->foreign_key_values_build( $table, '=', $this->get['term'] );
 		// Then get any 'contains' matches.
