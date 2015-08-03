@@ -54,6 +54,8 @@ class Table {
 		'!=' => 'is not',
 		'empty' => 'is empty',
 		'not empty' => 'is not empty',
+		'in' => 'is one of',
+		'not in' => 'is not one of',
 		'>=' => 'is greater than or equal to',
 		'>' => 'is greater than',
 		'<=' => 'is less than or equal to',
@@ -187,6 +189,11 @@ class Table {
 			} // IS NOT EMPTY
 			elseif ( $filter['operator'] == 'not empty' ) {
 				$where_clause .= " AND ($f_column IS NOT NULL AND $f_column != '')";
+			} // IS IN
+			elseif ( $filter['operator'] == 'is in' ) {
+				$values = explode( '\n', $filter['value'] );
+				$where_clause .= " AND ($f_column IS IN ('" . join() . "'))";
+				$params[$param_name] = join();
 			} // Other operators. They're already validated in $this->addFilter()
 			else {
 				$where_clause .= " AND ($f_column " . $filter['operator'] . " %s)";
