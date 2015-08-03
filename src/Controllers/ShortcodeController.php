@@ -56,7 +56,7 @@ class ShortcodeController extends ControllerBase {
 	 * It's too late now to dequeue styles.
 	 * @param string $message
 	 */
-	protected function error( $message ) {
+	protected function error( $message = '' ) {
 		return "<div class='tabulate shortcode-error'>$message</div>";
 	}
 

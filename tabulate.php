@@ -6,9 +6,9 @@
  * Author URI: http://samwilson.id.au/
  * License: GPL-2.0+
  * Text Domain: tabulate
- * Version: 1.0.4
+ * Version: 1.0.5
  */
-define( 'TABULATE_VERSION', '1.0.4' );
+define( 'TABULATE_VERSION', '1.0.5' );
 define( 'TABULATE_SLUG', 'tabulate' );
 
 // Make sure Composer has been set up (for installation from Git, mostly).
@@ -37,7 +37,7 @@ register_activation_hook( __FILE__, '\\WordPress\\Tabulate\\DB\\ChangeTracker::a
 // Register JSON API.
 add_action( 'wp_json_server_before_serve', function() {
 	global $wpdb;
-	$jsonController = new WordPress\Tabulate\Controllers\ApiController( $wpdb );
+	$jsonController = new WordPress\Tabulate\Controllers\ApiController( $wpdb, $_GET );
 	add_filter( 'json_endpoints', array( $jsonController, 'register_routes' ) );
 } );
 

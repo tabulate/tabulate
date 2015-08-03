@@ -31,11 +31,14 @@ class ApiController extends ControllerBase {
 	 * @return array
 	 */
 	public function table_names() {
+		if ( ! isset( $this->get['term'] ) ) {
+			return array();
+		}
 		$db = new Database( $this->wpdb );
 		$tables = $db->get_tables( false );
 		$out = array();
 		foreach ( $tables as $table ) {
-			if ( false !== stripos( $table->get_title(), $_GET['term'] ) ) {
+			if ( false !== stripos( $table->get_title(), $this->get['term'] ) ) {
 				$out[] = array(
 					'value' => $table->get_name(),
 					'label' => $table->get_title(),
@@ -70,16 +73,32 @@ class ApiController extends ControllerBase {
 	 * @return array
 	 */
 	public function foreign_key_values( $table_name ) {
+		if ( ! isset( $this->get['term'] ) ) {
+			return array();
+		}
 		$db = new Database( $this->wpdb );
 		$table = $db->get_table( $table_name );
-		$table->add_filter( $table->get_title_column(), 'like', '%'.$_GET[ 'term' ].'%' );
 		$out = array();
+
+		// First get any exact matches.
+		$table->add_filter( $table->get_title_column(), '=', $this->get[ 'term' ] );
 		foreach ( $table->get_records() as $record ) {
 			$out[] = array(
 				'value' => $record->get_primary_key(),
 				'label' => $record->get_title(),
 			);
 		}
+
+		// Then get any 'contains' matches.
+		$table->reset_filters();
+		$table->add_filter( $table->get_title_column(), 'like', '%'.$this->get[ 'term' ].'%' );
+		foreach ( $table->get_records() as $record ) {
+			$out[] = array(
+				'value' => $record->get_primary_key(),
+				'label' => $record->get_title(),
+			);
+		}
+
 		return $out;
 	}
 
