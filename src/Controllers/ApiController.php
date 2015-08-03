@@ -11,6 +11,12 @@ use WordPress\Tabulate\DB\Grants;
  */
 class ApiController extends ControllerBase {
 
+	/**
+	 * Register the API routes for Tabulate.
+	 * @link http://wp-api.org/guides/extending.html#registering-your-endpoints
+	 * @param array $routes The existing routes.
+	 * @return array
+	 */
 	public function register_routes($routes) {
 		$routes[ '/' . TABULATE_SLUG . '/tables' ] = array(
 			array( array( $this, 'table_names' ), \WP_JSON_Server::READABLE ),
@@ -69,7 +75,7 @@ class ApiController extends ControllerBase {
 	 * `$_GET['term']`, for foreign-key fields. Only used when there are more
 	 * than N records in a foreign table (otherwise the options are presented in
 	 * a select list).
-	 *
+	 * @param string $table_name The name of the table to query.
 	 * @return array
 	 */
 	public function foreign_key_values( $table_name ) {
@@ -78,27 +84,30 @@ class ApiController extends ControllerBase {
 		}
 		$db = new Database( $this->wpdb );
 		$table = $db->get_table( $table_name );
-		$out = array();
-
 		// First get any exact matches.
-		$table->add_filter( $table->get_title_column(), '=', $this->get[ 'term' ] );
-		foreach ( $table->get_records() as $record ) {
-			$out[] = array(
-				'value' => $record->get_primary_key(),
-				'label' => $record->get_title(),
-			);
-		}
-
+		$out = $this->foreign_key_values_build( $table, '=', $this->get['term'] );
 		// Then get any 'contains' matches.
+		$out += $this->foreign_key_values_build( $table, 'like', '%' . $this->get['term'] . '%' );
+		return $out;
+	}
+
+	/**
+	 * Get a set of results for Foreign Key lookups.
+	 * @param \WordPress\Tabulate\DB\Table $table    The table to search.
+	 * @param string                       $operator One of the permitted filter operators.
+	 * @param string                       $term     The search term.
+	 * @return string[]
+	 */
+	protected function foreign_key_values_build( $table, $operator, $term ) {
 		$table->reset_filters();
-		$table->add_filter( $table->get_title_column(), 'like', '%'.$this->get[ 'term' ].'%' );
+		$table->add_filter( $table->get_title_column(), $operator, $term );
+		$out = array();
 		foreach ( $table->get_records() as $record ) {
-			$out[] = array(
+			$out[ $record->get_primary_key() ] = array(
 				'value' => $record->get_primary_key(),
 				'label' => $record->get_title(),
 			);
 		}
-
 		return $out;
 	}
 
