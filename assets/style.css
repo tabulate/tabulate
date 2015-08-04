@@ -2,6 +2,7 @@
 
 .tabulate.wrap .footer {  }
 
+form.tabulate-filters td { vertical-align:top }
 form.tabulate-filters td.label { text-align:right }
 
 form.tabulate-grants label.checkbox { white-space:nowrap; display:inline-block; width:45%; border-bottom:1px solid white }

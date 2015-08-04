@@ -35,7 +35,11 @@
 				</select>
 			</td>
 			<td>
+				{% if filter.operator == 'in' or filter.operator == 'not in' %}
+				<textarea name="filter[{{fid}}][value]">{{filter.value}}</textarea>
+				{% else %}
 				<input type="text" name="filter[{{fid}}][value]" value="{{filter.value}}" />
+				{% endif %}
 			</td>
 		</tr>
 		{% endfor %}

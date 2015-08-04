@@ -120,7 +120,7 @@ class Table {
 			$this->filters[] = array(
 				'column' => $column,
 				'operator' => $operator,
-				'value' => trim( $value ),
+				'value' => $value,
 				'force' => $force,
 			);
 		}
@@ -178,30 +178,36 @@ class Table {
 			// LIKE or NOT LIKE
 			if ( $filter['operator'] == 'like' || $filter['operator'] == 'not like' ) {
 				$where_clause .= " AND CONVERT($f_column, CHAR) " . strtoupper( $filter['operator'] ) . " %s ";
-				$params[$param_name] = '%' . $filter['value'] . '%';
+				$params[$param_name] = '%' . trim($filter['value']) . '%';
 			} // Equals or does-not-equal
 			elseif ( $filter['operator'] == '=' || $filter['operator'] == '!=' ) {
 				$where_clause .= " AND $f_column " . strtoupper( $filter['operator'] ) . " %s ";
-				$params[$param_name] = $filter['value'];
+				$params[$param_name] = trim($filter['value']);
 			} // IS EMPTY
 			elseif ( $filter['operator'] == 'empty' ) {
 				$where_clause .= " AND ($f_column IS NULL OR $f_column = '')";
 			} // IS NOT EMPTY
 			elseif ( $filter['operator'] == 'not empty' ) {
 				$where_clause .= " AND ($f_column IS NOT NULL AND $f_column != '')";
-			} // IS IN
-			elseif ( $filter['operator'] == 'is in' ) {
-				$values = explode( '\n', $filter['value'] );
-				$where_clause .= " AND ($f_column IS IN ('" . join() . "'))";
-				$params[$param_name] = join();
+			} // IN or NOT IN
+			elseif ( $filter['operator'] == 'in' || $filter['operator'] == 'not in') {
+				$values = explode( "\n", $filter['value'] );
+				$placeholders = array();
+				foreach ( $values as $vid => $val ) {
+					$placeholders[] = "%s";
+					$params[ $param_name . '_' . $vid ] = trim($val);
+				}
+				$negate = ( $filter['operator'] == 'not in' ) ? 'NOT' : '';
+				$where_clause .= " AND ($f_column $negate IN (" . join( ", ", $placeholders ) . "))";
 			} // Other operators. They're already validated in $this->addFilter()
 			else {
 				$where_clause .= " AND ($f_column " . $filter['operator'] . " %s)";
-				$params[$param_name] = $filter['value'];
+				$params[$param_name] = trim($filter['value']);
 			}
 
 			$param_num++;
 		} // end foreach filter
+
 		// Add clauses into SQL
 		if ( !empty( $where_clause ) ) {
 			$where_clause_pattern = '/^(.* FROM .*?)((?:GROUP|HAVING|ORDER|LIMIT|$).*)$/m';

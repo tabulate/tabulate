@@ -91,9 +91,8 @@ jQuery(document).ready(function ($) {
 	/**
 	 * Change 'is one of' filters to multi-line text input box.
 	 */
-	$(".tabulate-filters select[name*='operator']").on('change', function(){
+	$(".tabulate-filters").on("change", "select[name*='operator']", function(){
 		var $oldFilter = $(this).parents("tr").find("[name*='value']");
-		console.log($oldFilter);
 		var newType = $oldFilter.is("input") ? "textarea" : "input";
 		var requiresMulti = ($(this).val() === 'in' || $(this).val() === 'not in');
 		var $newFilter = $("<"+newType+" name='"+$oldFilter.attr("name")+"'/>");
@@ -101,11 +100,12 @@ jQuery(document).ready(function ($) {
 
 		if ($oldFilter.is("input") && requiresMulti) {
 			// If changing TO a multi-line value.
-			$oldFilter.replaceWith($newFilter);
 			$newFilter.attr("rows", 2);
+			$oldFilter.replaceWith($newFilter);
 
 		} else if ($oldFilter.is("textarea") && !requiresMulti) {
 			// If changing AWAY FROM a multi-line value.
+			$newFilter.attr("type", "text");
 			$oldFilter.replaceWith($newFilter);
 
 		}
