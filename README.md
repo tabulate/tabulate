@@ -3,7 +3,7 @@
 * Donate link: https://www.bushheritage.org.au/donatenow
 * Tags: MySQL, databases, tables, data, CRUD, import, export, CSV, shortcode, OpenStreetMap, KML
 * Requires at least: 4.2
-* Tested up to: 4.2
+* Tested up to: 4.3
 * Stable tag: trunk
 * License: GPLv2 or later
 * License URI: http://www.gnu.org/licenses/gpl-2.0.html

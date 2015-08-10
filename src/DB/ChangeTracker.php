@@ -8,10 +8,14 @@ use WordPress\Tabulate\DB\Record;
 
 class ChangeTracker {
 
+	/** @var \wpdb */
+	protected $wpdb;
+
 	private static $current_changeset_id = false;
 
 	private $current_changeset_comment = null;
 
+	/** @var \WordPress\Tabulate\DB\Record|false */
 	private $old_record = false;
 
 	/** @var boolean Whether the changeset should be closed after the first after_save() call. */

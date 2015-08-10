@@ -42,12 +42,11 @@ class Column {
 	/** @var boolean Whether NULL values are allowed for this column. */
 	private $nullable;
 
-	/**
-	 * @var string A comma-separated list of the privileges that the database
-	 * user has for this column.
-	 * For example: 'select,insert,update,references'
-	 */
-	private $dbUserPrivileges;
+	/** @var boolean Is this an unsigned number? */
+	private $unsigned = false;
+
+	/** @var string[] ENUM options. */
+	private $options;
 
 	/** @var string The comment attached to this column. */
 	private $comment;
@@ -289,7 +288,7 @@ class Column {
 	private function parse_type($type_string) {
 
 		if ( preg_match( '/unsigned/', $type_string ) ) {
-			$this->_unsigned = true;
+			$this->unsigned = true;
 		}
 
 		$varchar_pattern = '/^((?:var)?char)\((\d+)\)/';
