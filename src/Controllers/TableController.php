@@ -20,9 +20,10 @@ class TableController extends ControllerBase {
 		$table = $this->get_table( $args[ 'table' ] );
 
 		// Pagination.
-		$page_num = (isset( $args[ 'p' ] )) ? $args[ 'p' ] : 1;
+		$page_num = (isset( $args[ 'p' ] ) ) ? $args[ 'p' ] : 1;
+		$page_size = (isset( $args[ 'psize' ] ) ) ? $args[ 'psize' ] : 20;
 		$table->set_current_page_num( $page_num );
-		$table->set_records_per_page( 20 );
+		$table->set_records_per_page( $page_size );
 
 		// Filters.
 		$filter_param = (isset( $args[ 'filter' ] )) ? $args[ 'filter' ] : array();
