@@ -76,21 +76,21 @@ class Text {
 	}
 
 	/**
-	 * Format a GMT date according to WP's preference.
+	 * Format a MySQL-format date according to WP's preference.
 	 * @param string $date
-	 * @return string|int|bool
+	 * @return string|int|bool Formatted date string or Unix timestamp. False if $date is empty.
 	 */
 	public static function wp_date_format( $date ) {
-		return mysql2date( get_option( 'date_format' ), get_date_from_gmt( $date ) );
+		return mysql2date( get_option( 'date_format' ), $date );
 	}
 
 	/**
-	 * Format a GMT time according to WP's preference.
+	 * Format a MySQL-format time according to WP's preference.
 	 * @param string $time
-	 * @return string|int|bool
+	 * @return string|int|bool Formatted date string or Unix timestamp. False if $date is empty.
 	 */
 	public static function wp_time_format( $time ) {
-		return mysql2date( get_option( 'time_format' ), get_date_from_gmt( $time ) );
+		return mysql2date( get_option( 'time_format' ), $time );
 	}
 
 }

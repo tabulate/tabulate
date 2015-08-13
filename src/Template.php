@@ -104,6 +104,7 @@ class Template {
 		$twig->addFilter( $date_filter );
 		$time_filter = new \Twig_SimpleFilter( 'wp_time_format', '\\WordPress\\Tabulate\\Text::wp_time_format' );
 		$twig->addFilter( $time_filter );
+		$twig->addFilter( new \Twig_SimpleFilter( 'get_date_from_gmt', 'get_date_from_gmt' ) );
 
 		// Add strtolower filter.
 		$strtolower_filter = new \Twig_SimpleFilter( 'strtolower', function( $str ){

@@ -22,7 +22,7 @@ form.tabulate-record .foreign-key input.form-control { width:83% }
 form.tabulate-record .foreign-key span.input-group-addon { color:#555 }
 form.tabulate-record .point-column .map { width:450px; height:200px; border:1px solid #ddd }
 
-.tabulate-change-tracker .value { font-family:monospace; background-color:white; color:black }
+.tabulate-change-tracker .value { font-family:monospace; background-color:#f1f1f1; color:black }
 
 .tabulate.wrap .import .stages { width:100%; height:2em; margin-left:0 }
 .tabulate.wrap .import .stages dt,

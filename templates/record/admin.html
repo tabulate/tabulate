@@ -70,55 +70,74 @@
 	</table>
 </form>
 
-{% if table.has_changes_recorded %}
-<h3>History</h3>
-<table class="tabulate-change-tracker">
-	<caption>Recent changes made to this record.</caption>
-	<thead>
-		<tr>
-			<th>Date and Time</th>
-			<th>Field</th>
-			<th>Old Value</th>
-			<th></th>
-			<th>New Value</th>
-			<th>User</th>
-			<th>Comment</th>
-		</tr>
-	</thead>
-	<tbody>
-		{% for change in record.get_changes %}
-		<tr>
-			<td>
-				<a href="admin.php?page=tabulate&controller=table&action=index&table={{wpdb_prefix}}tabulate_changesets&filter[0][column]=date_and_time&filter[0][operator]=%3D&filter[0][value]={{change.date_and_time}}">
-				{{change.date_and_time|wp_date_format}}
-				{{change.date_and_time|wp_time_format}}
-				</a>
-			</td>
-			<td>{{change.column_name|titlecase}}</td>
-			<td class="value">{{change.old_value}}</td>
-			<td>&rArr;</td>
-			<td class="value">{{change.new_value}}</td>
-			<td>{{change.user_nicename}}</td>
-			<td><em>{{change.comment}}</em></td>
-		</tr>
-		{% endfor %}
-	</tbody>
-</table>
-{% endif %}
+<div class="metabox-holder columns-1"><div class="postbox-container">
 
-{% if table.get_referencing_tables %}
-<h3>Related tables</h3>
-<p>Tables that refer to this table:</p>
-<ul class="referencing-tables">
+	{% if table.has_changes_recorded %}
+	<div class="postbox">
+		<div class="handlediv" title="Click to toggle"><br /></div>
+		<h3 class="hndle"><span>History</span></h3>
+		<div class="inside">
+			<table class="tabulate-change-tracker">
+				<caption>Recent changes made to this record.</caption>
+				<thead>
+					<tr>
+						<th>Date and Time</th>
+						<th>Field</th>
+						<th>Old Value</th>
+						<th></th>
+						<th>New Value</th>
+						<th>User</th>
+						<th>Comment</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for change in record.get_changes %}
+					<tr>
+						<td>
+							<a href="admin.php?page=tabulate&controller=table&action=index&table={{wpdb_prefix}}tabulate_changesets&filter[0][column]=date_and_time&filter[0][operator]=%3D&filter[0][value]={{change.date_and_time}}">
+							{{change.date_and_time|get_date_from_gmt|wp_date_format}}
+							{{change.date_and_time|get_date_from_gmt|wp_time_format}}
+							</a>
+						</td>
+						<td>{{change.column_name|titlecase}}</td>
+						<td class="value">{{change.old_value}}</td>
+						<td>&rArr;</td>
+						<td class="value">{{change.new_value}}</td>
+						<td>{{change.user_nicename}}</td>
+						<td><em>{{change.comment}}</em></td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	{% endif %}
 
-	{% for refcol,reftab in table.get_referencing_tables %}
-	<li>
-		<a href="{{reftab.get_url}}">{{reftab.get_title}}</a>
-		(as <em>{{refcol|titlecase}}</em>)
-	</li>
-	{% endfor %}
+	{% if table.get_referencing_tables %}
+	<div class="postbox">
+		<div class="handlediv" title="Click to toggle"><br /></div>
+		<h3 class="hndle"><span>Relations</span></h3>
+		<div class="inside">
+			<ul class="referencing-tables">
 
-</ul><!-- .referencing-tables -->
-{% endif %}
+				{% for refcol,reftab in table.get_referencing_tables %}
+				<li>
+					<h4>
+						<a href="{{reftab.get_url}}">{{reftab.get_title}}</a>
+						(as <em>{{refcol|titlecase}}</em>)
+						<ol>
+
+						</ol>
+					</h4>
+				</li>
+				{% endfor %}
+
+			</ul><!-- .referencing-tables -->
+		</div>
+	</div>
+	{% endif %}
+
+</div></div><!-- .postbox-container -->
+<div class="clear"></div>
 
 {% endblock %}
