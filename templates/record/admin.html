@@ -72,13 +72,31 @@
 
 <div class="metabox-holder columns-1"><div class="postbox-container">
 
+	{% for refinfo in table.get_referencing_tables %}
+	<div class="postbox related-records">
+		<div class="handlediv" title="Click to toggle"><br /></div>
+		<h3 class="hndle">
+			<span>
+				{{refinfo.table.get_title}} &mdash; related records
+				(as <em>{{refinfo.column|titlecase}}</em>)
+				<a href="{{refinfo.table.get_url('index', {'filter[0][column]':refinfo.column,'filter[0][operator]':'=','filter[0][value]':record.get_title()})}}">
+					View all&hellip;
+				</a>
+			</span>
+		</h3>
+		<div class="inside">
+		{% include 'data_table.html' with { links:true, table:refinfo.table, records:record.get_referencing_records(refinfo.table,refinfo.column) } %}
+		</div>
+	</div>
+	{% endfor %}
+
 	{% if table.has_changes_recorded %}
-	<div class="postbox">
+	<div class="postbox closed">
 		<div class="handlediv" title="Click to toggle"><br /></div>
 		<h3 class="hndle"><span>History</span></h3>
 		<div class="inside">
+			<p>Recent changes made to this record.</p>
 			<table class="tabulate-change-tracker">
-				<caption>Recent changes made to this record.</caption>
 				<thead>
 					<tr>
 						<th>Date and Time</th>
@@ -113,31 +131,6 @@
 	</div>
 	{% endif %}
 
-	{% if table.get_referencing_tables %}
-	<div class="postbox">
-		<div class="handlediv" title="Click to toggle"><br /></div>
-		<h3 class="hndle"><span>Relations</span></h3>
-		<div class="inside">
-			<ul class="referencing-tables">
-
-				{% for refcol,reftab in table.get_referencing_tables %}
-				<li>
-					<h4>
-						<a href="{{reftab.get_url}}">{{reftab.get_title}}</a>
-						(as <em>{{refcol|titlecase}}</em>)
-						<ol>
-
-						</ol>
-					</h4>
-				</li>
-				{% endfor %}
-
-			</ul><!-- .referencing-tables -->
-		</div>
-	</div>
-	{% endif %}
-
 </div></div><!-- .postbox-container -->
-<div class="clear"></div>
 
 {% endblock %}

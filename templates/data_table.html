@@ -1,3 +1,7 @@
+{% if not records %}
+<p>No records found.</p>
+
+{% else %}
 <table class='wp-list-table widefat table tabulate'>
 	<thead>
 		<tr>
@@ -16,7 +20,7 @@
 				{% endif %}
 			</td>
 			{% for column in table.get_columns %}
-			<td class="type-{{ column.type }} {% if column.is_foreign_key %}is-foreign-key{% endif %}">
+			<td class="type-{{column.get_type()}} {% if column.is_foreign_key %}is-foreign-key{% endif %}">
 				{% include 'field/view.html' %}
 			</td>
 			{% endfor %}
@@ -24,3 +28,4 @@
 		{% endfor %}
 	</tbody>
 </table>
+{% endif %}

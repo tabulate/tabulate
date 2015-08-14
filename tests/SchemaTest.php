@@ -51,7 +51,54 @@ class SchemaTest extends TestBase {
 		$type_table = $this->db->get_table( 'test_types' );
 		$referencing_tables = $type_table->get_referencing_tables();
 		$referencing_table = array_pop( $referencing_tables );
-		$this->assertEquals( 'test_table', $referencing_table->get_name() );
+		$this->assertEquals( 'test_table', $referencing_table['table']->get_name() );
+	}
+
+	/**
+	 * @testdox More than one table can reference a table, and even a single table can reference a table more than once.
+	 * @test
+	 */
+	public function multiple_references() {
+		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_widgets`' );
+		$this->wpdb->query( 'CREATE TABLE `test_widgets` ('
+			. ' id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY,'
+			. ' title VARCHAR(100) NOT NULL UNIQUE,'
+			. ' type_1_a INT(10) UNSIGNED,'
+			. ' type_1_b INT(10) UNSIGNED,'
+			. ' type_2 INT(10) UNSIGNED'
+			. ');'
+		);
+		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_widget_types_1`' );
+		$this->wpdb->query( 'CREATE TABLE `test_widget_types_1` ('
+			. ' id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY,'
+			. ' title VARCHAR(100) NOT NULL'
+			. ');'
+		);
+		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_widget_types_2`' );
+		$this->wpdb->query( 'CREATE TABLE `test_widget_types_2` ('
+			. ' id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY,'
+			. ' title VARCHAR(100) NOT NULL'
+			. ');'
+		);
+		$this->wpdb->query( 'ALTER TABLE `test_widgets` '
+			. ' ADD FOREIGN KEY ( `type_1_a` ) REFERENCES `test_widget_types_1` (`id`),'
+			. ' ADD FOREIGN KEY ( `type_1_b` ) REFERENCES `test_widget_types_1` (`id`),'
+			. ' ADD FOREIGN KEY ( `type_2` ) REFERENCES `test_widget_types_2` (`id`);'
+		);
+		$db = new WordPress\Tabulate\DB\Database( $this->wpdb );
+		$table = $db->get_table( 'test_widgets' );
+
+		// Check references from Widgets to Types.
+		$referencedTables = $table->get_referenced_tables();
+		$this->assertCount( 3, $referencedTables );
+		$this->assertArrayHasKey( 'type_1_a', $referencedTables );
+		$this->assertArrayHasKey( 'type_1_b', $referencedTables );
+		$this->assertArrayHasKey( 'type_2', $referencedTables );
+
+		// Check references from Types to Widgets.
+		$type1 = $db->get_table( 'test_widget_types_1' );
+		$referencingTables = $type1->get_referencing_tables();
+		$this->assertCount( 2, $referencingTables);
 	}
 
 	/**

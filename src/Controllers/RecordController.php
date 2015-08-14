@@ -42,6 +42,9 @@ class RecordController extends ControllerBase {
 			$template->add_notice( 'error', "This table can not be updated." );
 		}
 
+		// Enable postboxes (for the history and related tables' boxen).
+		wp_enqueue_script( 'dashboard' );
+
 		return $template->render();
 	}
 

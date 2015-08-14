@@ -100,14 +100,14 @@ class Table {
 
 	/**
 	 * Add a filter.
-	 * @param string $column
+	 * @param string|\WordPress\Tabulate\DB\Column $column Column name or object.
 	 * @param string $operator
 	 * @param string $value
 	 * @param boolean $force Whether to transform the value, for FKs.
 	 */
-	public function add_filter($column, $operator, $value, $force = false) {
+	public function add_filter( $column, $operator, $value, $force = false ) {
 		// Allow Columns to be passed in.
-		if ($column instanceof Column) {
+		if ( $column instanceof Column ) {
 			$column = $column->get_name();
 		}
 		// Validate the parts of the filter.
@@ -297,15 +297,12 @@ class Table {
 	}
 
 	/**
-	 * Get rows, with pagination.
-	 *
-	 * Note that rows are returned as arrays and not objects, because MySQL
-	 * allows column names to begin with a number, but PHP does not variables to
-	 * do so.
-	 *
-	 * @return Record[] The row data
+	 * Get rows, optionally with pagination.
+	 * @param boolean $with_pagination Whether to only return the top N results.
+	 * @param boolean $save_sql Whether to store the SQL for later use.
+	 * @return \WordPress\Tabulate\DB\Record[]
 	 */
-	public function get_records($with_pagination = true, $save_sql = false) {
+	public function get_records( $with_pagination = true, $save_sql = false ) {
 		// Build basic SELECT statement.
 		$sql = 'SELECT ' . $this->columns_sql_select() . ' FROM `' . $this->get_name() . '`';
 
@@ -391,7 +388,7 @@ class Table {
 	 * @param string $pk_val The value of the PK of the record to get.
 	 * @return Record|false The record object, or false if it wasn't found.
 	 */
-	public function get_record($pk_val) {
+	public function get_record( $pk_val ) {
 		$pk_column = $this->get_pk_column();
 		if ( ! $pk_column ) {
 			return false;
@@ -597,7 +594,7 @@ class Table {
 	/**
 	 * Get one of this table's columns.
 	 *
-	 * @return Column The column.
+	 * @return \WordPress\Tabulate\DB\Column|false The column, or false if it's not found.
 	 */
 	public function get_column($name) {
 		return ( isset( $this->columns[ $name ] ) ) ? $this->columns[ $name ] : false;
@@ -710,7 +707,7 @@ class Table {
 	public function get_referenced_tables($instantiate = false) {
 
 		// Extract the FK info from the CREATE TABLE statement.
-		if ( !is_array( $this->referenced_tables ) ) {
+		if ( ! is_array( $this->referenced_tables ) ) {
 			$this->referenced_table_names = array();
 			$definingSql = $this->get_defining_sql();
 			$foreignKeyPattern = '|FOREIGN KEY \(`(.*?)`\) REFERENCES `(.*?)`|';
@@ -733,20 +730,23 @@ class Table {
 	}
 
 	/**
-	 * Get tables with foreign keys referring here.
+	 * Get a list of tables with foreign keys referring here, and which of their columns are the FKs.
 	 *
-	 * @return Table[]
+	 * @return array With keys 'table' and 'column'.
 	 */
 	public function get_referencing_tables() {
 		$out = array();
 		// For all tables in the Database...
 		foreach ( $this->get_database()->get_tables() as $table ) {
 			// ...get a list of the tables they reference.
-			$foreignTables = $table->get_referenced_tables();
-			foreach ( $foreignTables as $foreign_column => $referenced_table_name ) {
+			$foreign_tables = $table->get_referenced_tables();
+			foreach ( $foreign_tables as $foreign_column => $referenced_table_name ) {
 				// If this table is a referenced table, collect the table from which it's referenced.
-				if ( $referenced_table_name == $this->get_name() ) {
-					$out[$foreign_column] = $table;
+				if ( $referenced_table_name === $this->get_name() ) {
+					$out[ $table->get_name() . '.' . $foreign_column ] = array(
+						'table' => $table,
+						'column' => $foreign_column,
+					);
 				}
 			}
 		}

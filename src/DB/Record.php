@@ -39,8 +39,9 @@ class Record {
 		$useTitle = substr( $name, -strlen( self::FKTITLE ) ) == self::FKTITLE;
 		if ( $useTitle ) {
 			$name = substr( $name, 0, -strlen( self::FKTITLE ) );
-			if ( $this->table->get_column( $name )->is_foreign_key() && !empty( $this->data->$name ) ) {
-				$referencedTable = $this->table->get_column( $name )->get_referenced_table();
+			$col = $this->get_col( $name );
+			if ( $col->is_foreign_key() && !empty( $this->data->$name ) ) {
+				$referencedTable = $col->get_referenced_table();
 				$fkRecord = $referencedTable->get_record( $this->data->$name );
 				$fkTitleCol = $referencedTable->get_title_column();
 				$fkTitleColName = $fkTitleCol->get_name();
@@ -51,9 +52,10 @@ class Record {
 				return $fkRecord->$fkTitleColName();
 			}
 		}
+		$col = $this->get_col( $name );
 
 		// Booleans
-		if ( $this->table->get_column( $name )->is_boolean() ) {
+		if ( $col->is_boolean() ) {
 			// Numbers are fetched from the DB as strings.
 			if ( $this->data->$name === '1' ) {
 				return true;
@@ -68,6 +70,21 @@ class Record {
 		if ( isset( $this->data->$name ) ) {
 			return $this->data->$name;
 		}
+	}
+
+	/**
+	 * Get a column of this record's table, optionally throwing an Exception if
+	 * it doesn't exist.
+	 * @param boolean $required True if this should throw an Exception.
+	 * @return \WordPress\Tabulate\DB\Column The column.
+	 * @throws \Exception If the column named doesn't exist.
+	 */
+	protected function get_col( $name, $required = true ) {
+		$col = $this->table->get_column( $name );
+		if ( $required && $col === false ) {
+			throw new \Exception( "Unable to get column $name on table " . $this->table->get_name() );
+		}
+		return $col;
 	}
 
 	public function __toString() {
@@ -99,8 +116,34 @@ class Record {
 		return $this->data->$title_col_name;
 	}
 
-	public function get_referenced_record($column_name) {
-		return $this->table->get_column( $column_name )->get_referenced_table()->get_record( $this->data->$column_name );
+	/**
+	 * Get the record that is referenced by this one from the column given.
+	 *
+	 * @param string $column_name
+	 * @return boolean|\WordPress\Tabulate\DB\Record
+	 */
+	public function get_referenced_record( $column_name ) {
+		if ( ! isset( $this->data->$column_name ) ) {
+			return false;
+		}
+		return $this->table
+			->get_column( $column_name )
+			->get_referenced_table()
+			->get_record( $this->data->$column_name );
+	}
+
+	/**
+	 * Get a list of records that reference this record in one of their columns.
+	 *
+	 * @param string|\WordPress\Tabulate\DB\Table $foreign_table
+	 * @param string|\WordPress\Tabulate\DB\Column $foreign_column
+	 * @param boolean $with_pagination Whether to only return the top N records.
+	 * @return \WordPress\Tabulate\DB\Record[]
+	 */
+	public function get_referencing_records( $foreign_table, $foreign_column, $with_pagination = true ) {
+		$foreign_table->reset_filters();
+		$foreign_table->add_filter( $foreign_column, '=', $this->get_primary_key(), true );
+		return $foreign_table->get_records( $with_pagination );
 	}
 
 	public function get_url($action = 'index', $include_ident = true ) {

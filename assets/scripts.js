@@ -11,11 +11,6 @@ jQuery(document).ready(function ($) {
 	$("input[data-column-type='time']").timepicker( { dateFormat: 'yy-mm-dd', timeFormat: 'HH:mm:ss' } );
 	$("input[data-column-type='year']").mask("9999");
 
-	$("form :submit").attr("");
-	$("form :input[required]").each(function(){
-		
-	});
-
 	/**
 	 * Set up the bits that use WP_API.
 	 * Make sure the WP-API nonce is always set on AJAX requests.

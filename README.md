@@ -27,9 +27,9 @@ Somewhat akin to phpMyAdmin, but including only data-modification features.
 Features (in no particular order):
 
 1.  Tables can be filtered by any column or columns, and with a range of
-    operators ('contains', 'is', 'empty', 'greater than', 'less than', and the
-    negations of all of these). Multiple filters are conjunctive (i.e. with a
-    logical *and*).
+    operators ('contains', 'is', 'empty', 'one of', 'greater than', 'less than',
+    and the negations of all of these). Multiple filters are conjunctive
+    (i.e. with a logical *and*).
 2.  Access can be granted to *read*, *create*, *update*, *delete*, and *import*
     records in any or all tables. (This can be done by anyone with the
     *promote_users* capability.)
@@ -53,6 +53,8 @@ Features (in no particular order):
 10. Tables with *point* columns can be exported to KML and OpenStreetMap XML.
     Also, data entry for these columns is done with a small slippy map, on which
     a marker can be placed.
+
+Development is managed on GitHub: https://github.com/tabulate/tabulate
 
 ## Installation
 
