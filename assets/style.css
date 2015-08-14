@@ -22,7 +22,7 @@ form.tabulate-record .foreign-key input.form-control { width:83% }
 form.tabulate-record .foreign-key span.input-group-addon { color:#555 }
 form.tabulate-record .point-column .map { width:450px; height:200px; border:1px solid #ddd }
 
-.tabulate .postbox-container { float:none }
+.tabulate .postbox-container.record-meta { float:none }
 .tabulate .postbox-container .related-records .hndle { cursor:pointer }
 .tabulate .postbox-container .related-records .inside { margin:0; padding:0 }
 .tabulate .postbox-container .related-records .inside p { padding:8px 12px }
