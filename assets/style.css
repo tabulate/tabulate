@@ -48,3 +48,5 @@ form.tabulate-record .point-column .map { width:450px; height:200px; border:1px 
 .tabulate.wrap table.calendar td .day { width:2.2em; float:left; font-weight:bolder }
 .tabulate.wrap table.calendar td ul { margin:0 0 0 2.4em }
 .tabulate.wrap table.calendar td ul li { margin:0 }
+
+table.tabulate.widefat td { line-height:1em }

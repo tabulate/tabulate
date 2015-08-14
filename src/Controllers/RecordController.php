@@ -36,6 +36,8 @@ class RecordController extends ControllerBase {
 			if ( ! Grants::current_user_can( Grants::CREATE, $table->get_name() ) ) {
 				$template->add_notice( 'error', 'You do not have permission to create records in this table.' );
 			}
+			// Add query-string values.
+			$template->record->set_multiple( $args['defaults'] );
 		}
 		// Don't save to non-updatable views.
 		if ( ! $table->is_updatable() ) {
@@ -44,6 +46,11 @@ class RecordController extends ControllerBase {
 
 		// Enable postboxes (for the history and related tables' boxen).
 		wp_enqueue_script( 'dashboard' );
+
+		// Return to URL.
+		if ( isset( $args['return_to'] ) ) {
+			$template->return_to = $args['return_to'];
+		}
 
 		return $template->render();
 	}

@@ -27,6 +27,16 @@ class Record {
 	}
 
 	/**
+	 * Set multiple columns' values.
+	 * @param type $data
+	 */
+	public function set_multiple( $data ) {
+		foreach ( $data as $col => $datum ) {
+			$this->$col = $datum;
+		}
+	}
+
+	/**
 	 * Get a column's value. If suffixed with 'FKTITLE', then get the title of
 	 * the foreign record (where applicable).
 	 * @param string $name The column name.

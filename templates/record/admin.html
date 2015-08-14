@@ -59,7 +59,11 @@
 					<input type="text" name="changeset_comment" />
 
 					<input type="submit" value="Save" class="button success" />
-					<!--<a href="{{table.get_url}}" class="button" title="Return to search">Cancel</a>-->
+					{% if return_to %}
+					<input type="hidden" name="return_to" value="{{return_to}}" />
+					<a href="{{return_to}}" class="button">Cancel</a>
+					{% endif %}
+
 					{% if record %}
 					<input type="hidden" name="primary_key_value" value="{{record.get_primary_key}}" />
 					<a href="{{record.get_url('delete')}}" class="button" title="Delete this record">Delete</a>
@@ -70,17 +74,24 @@
 	</table>
 </form>
 
+{% if record.get_primary_key %}
 <div class="metabox-holder columns-1"><div class="postbox-container record-meta">
 
 	{% for refinfo in table.get_referencing_tables %}
 	<div class="postbox related-records">
 		<div class="handlediv" title="Click to toggle"><br /></div>
-		<h3 class="hndle">
+		<h3 class="hndle" id="related-{{refinfo.table.get_name()}}">
 			<span>
 				{{refinfo.table.get_title}} &mdash; related records
 				(as <em>{{refinfo.column|titlecase}}</em>)
-				<a href="{{refinfo.table.get_url('index', {'filter[0][column]':refinfo.column,'filter[0][operator]':'=','filter[0][value]':record.get_title()})}}">
-					View all&hellip;
+				<a href="{{refinfo.table.get_url('index', {'filter[0][column]':refinfo.column,'filter[0][operator]':'=','filter[0][value]':record.get_title()})}}"
+				   class="button button-small">
+					View all
+				</a>
+				{% set defaults_key = 'defaults['~refinfo.column~']' %}
+				<a href="{{refinfo.table.get_url('index', {(defaults_key):record.get_primary_key(), ident:'', return_to:record.get_url()~'#related-'~refinfo.table.get_name()}, 'record')}}"
+				   class="button button-small">
+					Add record
 				</a>
 			</span>
 		</h3>
@@ -132,5 +143,6 @@
 	{% endif %}
 
 </div></div><!-- .postbox-container -->
+{% endif %}
 
 {% endblock %}

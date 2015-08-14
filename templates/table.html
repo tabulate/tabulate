@@ -58,7 +58,7 @@
 	</table>
 </form>
 
-
+{% if records %}
 <div class='tablenav tablenav-top'>
 
 	<!-- Right side -->
@@ -115,6 +115,7 @@
 	</div>
 
 </div>
+{% endif %}
 
 {% include 'data_table.html' with { links:true } %}
 
