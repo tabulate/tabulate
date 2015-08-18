@@ -25,6 +25,14 @@ class TableController extends ControllerBase {
 		$table->set_current_page_num( $page_num );
 		$table->set_records_per_page( $page_size );
 
+		// Ordering.
+		if ( isset( $args['order_by'] ) ) {
+			$table->set_order_by( $args['order_by'] );
+		}
+		if ( isset( $args['order_dir'] ) ) {
+			$table->set_order_dir( $args['order_dir'] );
+		}
+
 		// Filters.
 		$filter_param = (isset( $args[ 'filter' ] )) ? $args[ 'filter' ] : array();
 		$table->add_filters( $filter_param );
@@ -43,6 +51,7 @@ class TableController extends ControllerBase {
 		$template->operators = $table->get_operators();
 		$template->filters = $filters;
 		$template->filter_count = count( $filters );
+		$template->sortable = true;
 		$template->record = $table->get_default_record();
 		$template->records = $table->get_records();
 		$template->record_count = $table->count_records();

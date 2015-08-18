@@ -1,6 +1,3 @@
-.tabulate .about-wrap h2 {  }
-
-.tabulate.wrap .footer {  }
 
 form.tabulate-filters td { vertical-align:top }
 form.tabulate-filters td.label { text-align:right }
@@ -49,4 +46,7 @@ form.tabulate-record .point-column .map { width:450px; height:200px; border:1px 
 .tabulate.wrap table.calendar td ul { margin:0 0 0 2.4em }
 .tabulate.wrap table.calendar td ul li { margin:0 }
 
+table.tabulate.widefat thead th .sort-icons a { visibility:hidden }
+table.tabulate.widefat thead th:hover { background-color:#deedee }
+table.tabulate.widefat thead th:hover .sort-icons a { visibility:visible }
 table.tabulate.widefat td { line-height:1em }

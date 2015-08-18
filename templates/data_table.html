@@ -7,7 +7,30 @@
 		<tr>
 			<th></th>
 			{% for column in table.get_columns %}
-			<th>{{column.get_title}}</th>
+			<th>
+				{{column.get_title}}
+
+				{% if sortable %}
+				<span class="no-break sort-icons">
+
+					{% if table.get_order_by == column.get_name and table.get_order_dir == 'asc' %}
+					<span class="dashicons dashicons-arrow-up" title="Sorted ascending"></span>
+					{% else %}
+					<a href="{{table.get_url('index', {order_by:column.get_name, order_dir:'asc'})}}"
+					   class="dashicons dashicons-arrow-up" title="Sort ascending"></a>
+					{% endif %}
+
+					{% if table.get_order_by == column.get_name and table.get_order_dir == 'desc'%}
+					<span class="dashicons dashicons-arrow-down" title="Sorted descending"></span>
+					{% else %}
+					<a href="{{table.get_url('index', {order_by:column.get_name, order_dir:'desc'})}}"
+					   class="dashicons dashicons-arrow-down" title="Sort descending"></a>
+					{% endif %}
+
+				</span>
+				{% endif %}
+
+			</th>
 			{% endfor %}
 		</tr>
 	</thead>

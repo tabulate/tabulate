@@ -96,7 +96,7 @@
 			</span>
 		</h3>
 		<div class="inside">
-		{% include 'data_table.html' with { links:true, table:refinfo.table, records:record.get_referencing_records(refinfo.table,refinfo.column) } %}
+		{% include 'data_table.html' with { links:true, sortable:false, table:refinfo.table, records:record.get_referencing_records(refinfo.table,refinfo.column) } %}
 		</div>
 	</div>
 	{% endfor %}
