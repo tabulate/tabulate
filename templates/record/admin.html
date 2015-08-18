@@ -88,6 +88,10 @@
 				   class="button button-small">
 					View all
 				</a>
+				<a href="{{refinfo.table.get_url('export', {'filter[0][column]':refinfo.column,'filter[0][operator]':'=','filter[0][value]':record.get_title()})}}"
+				   class="button button-small" title="Export related records to Comma Separated Values format">
+					CSV of all
+				</a>
 				{% set defaults_key = 'defaults['~refinfo.column~']' %}
 				<a href="{{refinfo.table.get_url('index', {(defaults_key):record.get_primary_key(), ident:'', return_to:record.get_url()~'#related-'~refinfo.table.get_name()}, 'record')}}"
 				   class="button button-small">
