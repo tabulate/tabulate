@@ -20,7 +20,7 @@ No
 {{ attribute(record, column.get_name)|wp_date_format }}
 
 {% elseif column.get_type=='time' %}
-{{ attribute(record, column.get_name)|wp_time_format }}
+{{ attribute(record, column.get_name) }}
 
 {% elseif column.get_type=='point' %}
 {{ attribute(record, column.get_name) }}
