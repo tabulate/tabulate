@@ -37,7 +37,9 @@ class RecordController extends ControllerBase {
 				$template->add_notice( 'error', 'You do not have permission to create records in this table.' );
 			}
 			// Add query-string values.
-			$template->record->set_multiple( $args['defaults'] );
+			if ( isset( $args['defaults'] ) ) {
+				$template->record->set_multiple( $args['defaults'] );
+			}
 		}
 		// Don't save to non-updatable views.
 		if ( ! $table->is_updatable() ) {

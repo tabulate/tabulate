@@ -31,6 +31,9 @@ class Record {
 	 * @param type $data
 	 */
 	public function set_multiple( $data ) {
+		if ( ! is_array( $data ) ) {
+			return;
+		}
 		foreach ( $data as $col => $datum ) {
 			$this->$col = $datum;
 		}
