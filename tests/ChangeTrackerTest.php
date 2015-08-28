@@ -102,7 +102,6 @@ class ChangeTrackerTest extends TestBase {
 		$rec = $test_table->save_record( array( 'title' => 'A Record', 'type_id' => $type->id() ) );
 		// Test.
 		$changes = $rec->get_changes();
-		//print_r($changes);
 		$change = $changes[ 3 ];
 		$this->assertEquals( "type_id", $change->column_name );
 		$this->assertEquals( "The Type", $change->new_value );

@@ -17,12 +17,12 @@ class Record {
 	 * @param Table $table The table object.
 	 * @param array $data The data of this record.
 	 */
-	public function __construct($table, $data = array()) {
+	public function __construct( $table, $data = array() ) {
 		$this->table = $table;
-		$this->data = (object) $data;
+		$this->data = ( object ) $data;
 	}
 
-	public function __set($name, $value) {
+	public function __set( $name, $value ) {
 		$this->data->$name = $value;
 	}
 
@@ -46,14 +46,14 @@ class Record {
 	 * @param array $args [Parameter not used]
 	 * @return string|boolean
 	 */
-	public function __call($name, $args) {
+	public function __call( $name, $args ) {
 
 		// Foreign key 'title' values.
 		$useTitle = substr( $name, -strlen( self::FKTITLE ) ) == self::FKTITLE;
 		if ( $useTitle ) {
 			$name = substr( $name, 0, -strlen( self::FKTITLE ) );
 			$col = $this->get_col( $name );
-			if ( $col->is_foreign_key() && !empty( $this->data->$name ) ) {
+			if ( $col->is_foreign_key() && ! empty( $this->data->$name ) ) {
 				$referencedTable = $col->get_referenced_table();
 				$fkRecord = $referencedTable->get_record( $this->data->$name );
 				$fkTitleCol = $referencedTable->get_title_column();
@@ -111,9 +111,9 @@ class Record {
 	 * @return string|false
 	 */
 	public function get_primary_key() {
-		if ($this->table->get_pk_column()) {
+		if ( $this->table->get_pk_column() ) {
 			$pk_col_name = $this->table->get_pk_column()->get_name();
-			if (isset($this->data->$pk_col_name)) {
+			if ( isset( $this->data->$pk_col_name ) ) {
 				return $this->data->$pk_col_name;
 			}
 		}
@@ -125,8 +125,18 @@ class Record {
 	 * @return string
 	 */
 	public function get_title() {
-		$title_col_name = $this->table->get_title_column()->get_name();
-		return $this->data->$title_col_name;
+		$title_col = $this->table->get_title_column();
+		if ( $title_col !== $this->table->get_pk_column() ) {
+			$title_col_name = $title_col->get_name();
+			return $this->data->$title_col_name;
+		} else {
+			$title_parts = array();
+			foreach ($this->table->get_columns() as $col) {
+				$col_name = $col->get_name().self::FKTITLE;
+				$title_parts[] = $this->$col_name();
+			}
+			return '[ ' . join( ' | ', $title_parts ) .' ]';
+		}
 	}
 
 	/**
@@ -159,7 +169,7 @@ class Record {
 		return $foreign_table->get_records( $with_pagination );
 	}
 
-	public function get_url($action = 'index', $include_ident = true ) {
+	public function get_url( $action = 'index', $include_ident = true ) {
 		$params = array(
 			'page' => 'tabulate',
 			'controller' => 'record',

@@ -637,6 +637,20 @@ class Table {
 	}
 
 	/**
+	 * Get a list of all the unique columns in this table.
+	 * @return \WordPress\Tabulate\DB\Column[]
+	 */
+	public function get_unique_columns() {
+		$cols = array();
+		foreach ( $this->get_columns() as $column ) {
+			if ( $column->is_unique() ) {
+				$cols[] = $column;
+			}
+		}
+		return $cols;
+	}
+
+	/**
 	 * Get the first unique-keyed column, or if there is no unique non-ID column
 	 * then use the second column (because this is often a good thing to do).
 	 * Unless there's only one column; then, just use that.
@@ -650,14 +664,8 @@ class Table {
 				return $column;
 			}
 		}
-		// But if that fails, just use the second (or the first) column.
-		$columnIndices = array_keys( $this->columns );
-		if ( isset( $columnIndices[1] ) ) {
-			$titleColName = $columnIndices[1];
-		} else {
-			$titleColName = $columnIndices[0];
-		}
-		return $this->columns[$titleColName];
+		// But if that fails, just use the primary key.
+		return $this->get_pk_column();
 	}
 
 	/**
