@@ -82,10 +82,10 @@
 
 
 {% else %}
-<input type="text" name="{{column.get_name}}" id="{{column.get_name}}" value="{{ attribute(record, column.get_name)}}" 
+<input type="text" name="{{column.get_name}}" id="{{column.get_name}}" value="{{ attribute(record, column.get_name)}}"
 	   aria-describedby="{{column.get_name}}-help" data-column-type="{{column.get_type}}"
 	   {% if column.is_auto_increment %}readonly{% endif %}
 	   {% if column.is_required and not column.is_auto_increment %}required{% endif %}
-	   class="form-control" />
+	   class="form-control column-type-{{column.get_type}}" />
 
 {% endif %}
