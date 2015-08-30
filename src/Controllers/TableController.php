@@ -37,8 +37,10 @@ class TableController extends ControllerBase {
 		$filter_param = (isset( $args[ 'filter' ] )) ? $args[ 'filter' ] : array();
 		$table->add_filters( $filter_param );
 		$filters = $table->get_filters();
+		$title_col = $table->get_title_column();
+		$first_filter = ($title_col) ? $title_col->get_name() : '';
 		$filters[] = array(
-			'column' => $table->get_title_column()->get_name(),
+			'column' => $first_filter,
 			'operator' => 'like',
 			'value' => ''
 		);
