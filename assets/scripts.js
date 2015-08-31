@@ -8,7 +8,7 @@ jQuery(document).ready(function ($) {
 	$("input[data-column-type='date']").datepicker({ dateFormat: 'yy-mm-dd' });
 	$("input[data-column-type='date']").mask("9999-99-99", { placeholder:"yyyy-mm-dd" } );
 	$("input[data-column-type='time']").mask("99:99:99", { placeholder:"hh:mm:ss" } );
-	$("input[data-column-type='time']").timepicker( { dateFormat: 'yy-mm-dd', timeFormat: 'HH:mm:ss' } );
+	$("input[data-column-type='time']").timepicker( { timeFormat: 'HH:mm:ss', timeOnly: true } );
 	$("input[data-column-type='year']").mask("9999");
 
 	/**

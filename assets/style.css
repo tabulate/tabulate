@@ -12,7 +12,8 @@ form.tabulate-grants tr.select-all td { border-width:0 0 1px 0 }
 form.tabulate-grants td.select-all { border-width:0 1px }
 form.tabulate-grants tr.select-all td.label { border-width:0 0 0 1px; vertical-align:middle; text-align:center; font-size:larger }
 
-form.tabulate-record input.column-type-datetime { position:relative; z-index:100; width:15em }
+form.tabulate-record input.column-type-datetime,
+form.tabulate-record input.column-type-time { position:relative; z-index:100; width:15em }
 form.tabulate-record th.column-title { vertical-align:top; text-align:left }
 form.tabulate-record .foreign-key label { text-align:left }
 form.tabulate-record .foreign-key input.form-control { width:83% }

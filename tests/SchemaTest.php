@@ -212,4 +212,21 @@ class SchemaTest extends TestBase {
 		$this->assertEquals( 'TEST123', $rec->get_primary_key() );
 	}
 
+	/**
+	 * @testdox A table can have a multi-column primary key.
+	 * @test
+	 */
+	/*public function multicol_primary_key() {
+		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_multicol_primary_key`' );
+		$this->wpdb->query( 'CREATE TABLE `test_multicol_primary_key` ('
+			. ' ident_a VARCHAR(10),'
+			. ' ident_b VARCHAR(10),'
+			. ' PRIMARY KEY (ident_a, ident_b)'
+			. ');'
+		);
+		$db = new WordPress\Tabulate\DB\Database( $this->wpdb );
+		$tbl = $db->get_table( 'test_multicol_primary_key' );
+		var_dump($tbl->get_pk_column()->get_name());
+	}*/
+
 }
