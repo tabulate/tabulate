@@ -68,11 +68,8 @@ class Table {
 	 */
 	protected $order_by = false;
 
-	/**
-	 * @var integer|false The number of currently-filtered rows, or false if no
-	 * query has been made yet or the filters have been reset.
-	 */
-	protected $record_count = false;
+	/** @var RecordCounter */
+	protected $record_counter;
 
 	/** @var integer The current page number. */
 	protected $current_page_num = 1;
@@ -89,13 +86,13 @@ class Table {
 	public function __construct( $database, $name ) {
 		$this->database = $database;
 		$this->name = $name;
-
 		$this->columns = array();
 		$columns = $this->database->get_wpdb()->get_results( "SHOW FULL COLUMNS FROM `$name`" );
 		foreach ( $columns as $column_info ) {
 			$column = new Column( $this->database, $this, $column_info );
-			$this->columns[$column->get_name()] = $column;
+			$this->columns[ $column->get_name() ] = $column;
 		}
+		$this->record_counter = new RecordCounter( $this );
 	}
 
 	/**
@@ -510,21 +507,7 @@ class Table {
 	 * @return integer
 	 */
 	public function count_records() {
-		if ( ! $this->record_count ) {
-			if ($this->get_pk_column()) {
-				$count_col = '`' . $this->get_name() . '`.`'.$this->get_pk_column()->get_name().'`';
-			} else {
-				$count_col = '*';
-			}
-			$sql = 'SELECT COUNT(' . $count_col . ') as `count` FROM `' . $this->get_name() . '`';
-			$params = $this->apply_filters( $sql );
-			if ( $params ) {
-				$sql = $this->database->get_wpdb()->prepare( $sql, $params );
-			}
-			$count = $this->database->get_wpdb()->get_var( $sql, 0, 0 );
-			$this->record_count = $count;
-		}
-		return $this->record_count;
+		return $this->record_counter->get_count();
 	}
 
 	/**
@@ -694,7 +677,7 @@ class Table {
 	/**
 	 * Get this table's Primary Key column.
 	 *
-	 * @return Column The PK column.
+	 * @return \WordPress\Tabulate\DB\Column|false The PK column or false if there isn't one.
 	 */
 	public function get_pk_column() {
 		foreach ( $this->get_columns() as $column ) {
@@ -864,7 +847,7 @@ class Table {
 			$where_2 = array( 'id' => $change->changeset_id );
 			$wpdb->delete( ChangeTracker::changesets_name(), $where_2 );
 		}
-		$this->record_count = false;
+		$this->record_counter->clear();
 	}
 
 	/**
@@ -997,7 +980,7 @@ class Table {
 		// Show errors again, reset the record count,
 		// and return the new or updated record.
 		$this->database->get_wpdb()->show_errors();
-		$this->record_count = false;
+		$this->record_counter->clear();
 		return $new_record;
 	}
 
