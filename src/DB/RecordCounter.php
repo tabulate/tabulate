@@ -49,7 +49,7 @@ class RecordCounter {
 		}
 		$sql = 'SELECT COUNT(' . $count_col . ') as `count` FROM `' . $this->table->get_name() . '`';
 		$params = $this->table->apply_filters( $sql );
-		if ( $params ) {
+		if ( ! empty( $params ) ) {
 			$sql = $this->table->get_database()->get_wpdb()->prepare( $sql, $params );
 		} elseif ( $this->table->is_table() ) {
 			// If no filters, and this is a base table, use cached count.
