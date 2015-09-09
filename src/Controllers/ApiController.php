@@ -31,25 +31,19 @@ class ApiController extends ControllerBase {
 	}
 
 	/**
-	 * Get a list of table names, filtered by `$_GET['term']`, for use in the
-	 * quick-jump menu.
+	 * Get a list of table names for use in the quick-jump menu.
 	 *
 	 * @return array
 	 */
 	public function table_names() {
-		if ( ! isset( $this->get['term'] ) ) {
-			return array();
-		}
 		$db = new Database( $this->wpdb );
 		$tables = $db->get_tables( false );
 		$out = array();
 		foreach ( $tables as $table ) {
-			if ( false !== stripos( $table->get_title(), $this->get['term'] ) ) {
-				$out[] = array(
-					'value' => $table->get_name(),
-					'label' => $table->get_title(),
-				);
-			}
+			$out[] = array(
+				'value' => $table->get_name(),
+				'label' => $table->get_title(),
+			);
 		}
 		return $out;
 	}

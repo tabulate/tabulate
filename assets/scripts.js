@@ -11,6 +11,7 @@ jQuery(document).ready(function ($) {
 	$("input[data-column-type='time']").timepicker( { timeFormat: 'HH:mm:ss', timeOnly: true } );
 	$("input[data-column-type='year']").mask("9999");
 
+
 	/**
 	 * Set up the bits that use WP_API.
 	 * Make sure the WP-API nonce is always set on AJAX requests.
@@ -20,19 +21,52 @@ jQuery(document).ready(function ($) {
 			headers: { 'X-WP-Nonce': WP_API_Settings.nonce }
 		});
 
+
 		/**
 		 * Jump between tables.
 		 */
-		$(".tabulate .quick-jump input").autocomplete({
-			source: WP_API_Settings.root + "/tabulate/tables",
-			select: function( event, ui ) {
-				event.preventDefault();
-				$(this).prop( "disabled", true );
-				$(".tabulate .quick-jump input").val( ui.item.label );
-				var url = tabulate.admin_url + "&controller=table&table=" + ui.item.value;
-				$(location).attr( 'href', url );
+		// Get the table list.
+		$.getJSON(WP_API_Settings.root + "/tabulate/tables", function( tableNames ) {
+			for ( var t in tableNames ) {
+				var table = tableNames[t];
+				var url = tabulate.admin_url + "&controller=table&table=" + table.value;
+				var $li = $("<li><a href='" + url + "'>" + table.label + "</a></li>");
+				$li.hide();
+				$(".tabulate .quick-jump").append($li);
 			}
 		});
+		// Show the table list.
+		$(".tabulate .quick-jump label").click(function(event) {
+			event.preventDefault();
+			//event.stopPropagation();
+			var $quickJump = $(this).parents(".quick-jump");
+			$quickJump.toggleClass('expanded');
+			if ($quickJump.hasClass('expanded')) {
+				$quickJump.find("li[class!='filter']").show();
+				$quickJump.find("input").focus().keyup();
+			} else {
+				$quickJump.find("li[class!='filter']").hide();
+			}
+		});
+		// Close the table list by clicking anywhere else.
+		$(document).click(function(e) {
+			if ($(e.target).parents('.tabulate .quick-jump').length == 0) {
+				$('.tabulate .quick-jump.expanded label').click();
+			}
+		});
+		// Filter the table list.
+		$(".tabulate .quick-jump input").keyup(function() {
+			var s = $(this).val().toLowerCase();
+			$(this).parents(".quick-jump").find("li[class!='filter']").each(function(){
+				var t = $(this).text().toLowerCase();
+				if (t.indexOf(s) == -1) {
+					$(this).hide();
+				} else {
+					$(this).show();
+				}
+			});
+		});
+
 
 		/**
 		 * Handle foreign-key select lists (autocomplete when greater than N options).
