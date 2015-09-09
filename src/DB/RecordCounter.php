@@ -55,7 +55,7 @@ class RecordCounter {
 			// If no filters, and this is a base table, use cached count.
 			$count = get_transient( $this->transient_name() );
 		}
-		if ( ! $count ) {
+		if ( ! isset( $count ) ) {
 			$count = $this->table->get_database()->get_wpdb()->get_var( $sql, 0, 0 );
 			set_transient( $this->transient_name(), $count, $this->transient_expiration );
 		}
