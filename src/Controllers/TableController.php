@@ -21,9 +21,10 @@ class TableController extends ControllerBase {
 
 		// Pagination.
 		$page_num = (isset( $args[ 'p' ] ) ) ? $args[ 'p' ] : 1;
-		$page_size = (isset( $args[ 'psize' ] ) ) ? $args[ 'psize' ] : 20;
 		$table->set_current_page_num( $page_num );
-		$table->set_records_per_page( $page_size );
+		if ( isset( $args['psize'] ) ) {
+			$table->set_records_per_page( $args[ 'psize' ] );
+		}
 
 		// Ordering.
 		if ( isset( $args['order_by'] ) ) {

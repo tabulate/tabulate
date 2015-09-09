@@ -58,6 +58,8 @@ form.tabulate-record .point-column .map { width:450px; height:200px; border:1px 
 .tabulate.wrap table.calendar td ul { margin:0 0 0 2.4em }
 .tabulate.wrap table.calendar td ul li { margin:0 }
 
+table.tabulate.widefat th,
+table.tabulate.widefat td { padding:0.25em }
 table.tabulate.widefat thead th .sort-icons a { visibility:hidden }
 table.tabulate.widefat thead th:hover { background-color:#deedee }
 table.tabulate.widefat thead th:hover .sort-icons a { visibility:visible }

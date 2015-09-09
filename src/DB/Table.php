@@ -75,7 +75,7 @@ class Table {
 	protected $current_page_num = 1;
 
 	/** @var integer The number of records to show on each page. */
-	protected $records_per_page = 10;
+	protected $records_per_page = 30;
 
 	/**
 	 * Create a new database table object.
