@@ -39,7 +39,7 @@ Features (in no particular order):
 4.  Data can be exported to CSV, including after filters have been applied. 
 5.  A quick-jump navigation box (located top right of every page) can be
     activated by installing the [WP REST API](https://wordpress.org/plugins/json-rest-api/)
-    plugin.
+    plugin. The quick-jump box is also added as a Dashboard widget.
 6.  Records in tables with *date* columns can be viewed in a calendar.
 7.  Entity Relationship Diagrams (drawn with [GraphViz](http://graphviz.org/))
     can be automatically generated, with any specified subset of tables. Foreign

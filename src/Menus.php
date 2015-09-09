@@ -43,7 +43,8 @@ class Menus {
 
 		// Home page (also change the first submenu item's title).
 		add_menu_page( 'Tabulate', 'Tabulate', 'read', TABULATE_SLUG, $dispatch_callback );
-		add_submenu_page( TABULATE_SLUG, 'Tabulate Overview', 'Overview', 'read', TABULATE_SLUG, $dispatch_callback );
+		$page_title = ( isset( $_GET['table'] ) ) ? Text::titlecase( $_GET['table'] ) : 'Tabulate';
+		add_submenu_page( TABULATE_SLUG, $page_title, 'Overview', 'read', TABULATE_SLUG, $dispatch_callback );
 
 		// Add submenu pages.
 		if ( is_plugin_active( 'tfo-graphviz/tfo-graphviz.php' ) ) {
@@ -103,6 +104,7 @@ class Menus {
 	public function enqueue( $page ) {
 		// Make sure we only enqueue on Tabulate pages.
 		$allowed_pages = array(
+			'index.php', // For the Dashboard widget.
 			'tabulate_shortcode', // Not really a page! :-(
 			'toplevel_page_tabulate',
 			'tabulate_page_tabulate_erd',

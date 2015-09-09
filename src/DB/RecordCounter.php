@@ -16,7 +16,7 @@ class RecordCounter {
 
 	/**
 	 * The table.
-	 * @var WordPress\Tabulate\DB\Table
+	 * @var \WordPress\Tabulate\DB\Table
 	 */
 	protected $table;
 

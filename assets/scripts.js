@@ -32,14 +32,14 @@ jQuery(document).ready(function ($) {
 				var url = tabulate.admin_url + "&controller=table&table=" + table.value;
 				var $li = $("<li><a href='" + url + "'>" + table.label + "</a></li>");
 				$li.hide();
-				$(".tabulate .quick-jump").append($li);
+				$("#tabulate-quick-jump").append($li);
 			}
 		});
 		// Show the table list.
-		$(".tabulate .quick-jump label").click(function(event) {
+		$("#tabulate-quick-jump label").click(function(event) {
 			event.preventDefault();
 			//event.stopPropagation();
-			var $quickJump = $(this).parents(".quick-jump");
+			var $quickJump = $(this).parents("#tabulate-quick-jump");
 			$quickJump.toggleClass('expanded');
 			if ($quickJump.hasClass('expanded')) {
 				$quickJump.find("li[class!='filter']").show();
@@ -50,14 +50,14 @@ jQuery(document).ready(function ($) {
 		});
 		// Close the table list by clicking anywhere else.
 		$(document).click(function(e) {
-			if ($(e.target).parents('.tabulate .quick-jump').length == 0) {
-				$('.tabulate .quick-jump.expanded label').click();
+			if ($(e.target).parents('#tabulate-quick-jump').length == 0) {
+				$('#tabulate-quick-jump.expanded label').click();
 			}
 		});
 		// Filter the table list.
-		$(".tabulate .quick-jump input").keyup(function() {
+		$("#tabulate-quick-jump input").keyup(function() {
 			var s = $(this).val().toLowerCase();
-			$(this).parents(".quick-jump").find("li[class!='filter']").each(function(){
+			$(this).parents("#tabulate-quick-jump").find("li[class!='filter']").each(function(){
 				var t = $(this).text().toLowerCase();
 				if (t.indexOf(s) == -1) {
 					$(this).hide();

@@ -40,17 +40,17 @@ form.tabulate-record .point-column .map { width:450px; height:200px; border:1px 
 .tabulate.wrap .import .stages dd.selected { border-bottom:2px solid #CCC; background-color:#CCC }
 .tabulate.wrap .import .required { color:#a94442 }
 
-.tabulate.wrap .quick-jump { position:absolute; right:2em; list-style-type:none; border:1px outset black;
-	background-color:white; padding:0.35em; width:20em; z-index:100 }
-.tabulate.wrap .quick-jump li { margin:0 }
-.tabulate.wrap .quick-jump input { display:none; width:100% }
-.tabulate.wrap .quick-jump li.filter { float:none; display:list-item; margin:0 }
-.tabulate.wrap .quick-jump li.filter label { display:block; text-align:right }
-.tabulate.wrap .quick-jump li.filter .text { float:left }
-.tabulate.wrap .quick-jump.expanded li { display:list-item }
-.tabulate.wrap .quick-jump.expanded input { display:block }
-.tabulate.wrap .quick-jump a { text-decoration:none; display:block }
-.tabulate.wrap .quick-jump a:hover { background-color:highlight; color:highlighttext }
+#tabulate-quick-jump { list-style-type:none; border:1px outset black; background-color:white; padding:0.35em; width:20em; z-index:100 }
+.tabulate.wrap #tabulate-quick-jump { position:absolute; right:2em }
+#tabulate-quick-jump li { margin:0 }
+#tabulate-quick-jump input { display:none; width:100% }
+#tabulate-quick-jump li.filter { float:none; display:list-item; margin:0 }
+#tabulate-quick-jump li.filter label { display:block; text-align:right }
+#tabulate-quick-jump li.filter .text { float:left }
+#tabulate-quick-jump.expanded li { display:list-item }
+#tabulate-quick-jump.expanded input { display:block }
+#tabulate-quick-jump a { text-decoration:none; display:block }
+#tabulate-quick-jump a:hover { background-color:highlight; color:highlighttext }
 
 .tabulate.wrap table.calendar th { width:14% }
 .tabulate.wrap table.calendar td { border:1px solid #e1e1e1 }

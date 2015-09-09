@@ -6,9 +6,9 @@
  * Author URI: http://samwilson.id.au/
  * License: GPL-2.0+
  * Text Domain: tabulate
- * Version: 1.4.3
+ * Version: 1.5.0
  */
-define( 'TABULATE_VERSION', '1.4.3' );
+define( 'TABULATE_VERSION', '1.5.0' );
 define( 'TABULATE_SLUG', 'tabulate' );
 
 // Make sure Composer has been set up (for installation from Git, mostly).
@@ -44,3 +44,11 @@ add_action( 'wp_json_server_before_serve', function() {
 // Shortcode.
 $shortcode = new \WordPress\Tabulate\Controllers\ShortcodeController( $wpdb );
 add_shortcode( TABULATE_SLUG, array( $shortcode, 'run' ) );
+
+// Dashboard widget.
+add_action( 'wp_dashboard_setup', function() {
+	wp_add_dashboard_widget( TABULATE_SLUG . 'dashboard_widget', 'Tabulate', function(){
+		$template = new \WordPress\Tabulate\Template( 'quick_jump.html' );
+		echo $template->render();
+	} );
+} );
