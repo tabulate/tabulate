@@ -24,7 +24,7 @@ class RecordCounter {
 	 * The time-to-live of the cached record count, in seconds.
 	 * @var integer
 	 */
-	protected $transient_expiration = 5 * 60;
+	protected $transient_expiration;
 
 	/**
 	 * Create a new RecordCounter.
@@ -32,6 +32,7 @@ class RecordCounter {
 	 */
 	public function __construct( \WordPress\Tabulate\DB\Table $table ) {
 		$this->table = $table;
+		$this->transient_expiration = 5 * 60;
 	}
 
 	/**
