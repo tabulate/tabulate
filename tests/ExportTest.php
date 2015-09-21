@@ -32,7 +32,7 @@ class ExportTest extends TestBase {
 		$this->wpdb->query( 'CREATE TABLE `point_export_test` ('
 			. ' id INT(10) AUTO_INCREMENT PRIMARY KEY,'
 			. ' title VARCHAR(100) NOT NULL,'
-			. ' geo_loc POINT NOT NULL'
+			. ' geo_loc POINT NULL DEFAULT NULL'
 			. ');'
 		);
 		$db = new WordPress\Tabulate\DB\Database( $this->wpdb );
@@ -43,6 +43,15 @@ class ExportTest extends TestBase {
 		$csv = '"ID","Title","Geo Loc"' . "\r\n"
 			. '"1","Test","POINT(10.1 20.2)"' . "\r\n";
 		$this->assertEquals( $csv, file_get_contents( $filename ) );
+
+		// Check nullable.
+		$test_table->save_record( array( 'title' => 'Test 2', 'geo_loc' => null ) );
+		$filename2 = $test_table->export();
+		$this->assertFileExists( $filename2 );
+		$csv2 = '"ID","Title","Geo Loc"' . "\r\n"
+			. '"1","Test","POINT(10.1 20.2)"' . "\r\n"
+			. '"2","Test 2",""' . "\r\n";
+		$this->assertEquals( $csv2, file_get_contents( $filename2 ) );
 	}
 
 }

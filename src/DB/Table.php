@@ -524,7 +524,7 @@ class Table {
 				$column_name = $col_join['column_alias'];
 				$join_clause .= $col_join['join_clause'];
 			} elseif ( $col->get_type() === 'point' ) {
-				$columns[] = "AsText(`$this->name`.`$col_name`) AS `$col_name`";
+				$columns[] = "IF(`$this->name`.`$col_name` IS NOT NULL, AsText(`$this->name`.`$col_name`), '') AS `$col_name`";
 			} else {
 				$column_name = "`$this->name`.`$col_name`";
 			}

@@ -51,7 +51,7 @@ class SchemaTest extends TestBase {
 		$type_table = $this->db->get_table( 'test_types' );
 		$referencing_tables = $type_table->get_referencing_tables();
 		$referencing_table = array_pop( $referencing_tables );
-		$this->assertEquals( 'test_table', $referencing_table['table']->get_name() );
+		$this->assertEquals( 'test_table', $referencing_table[ 'table' ]->get_name() );
 	}
 
 	/**
@@ -98,7 +98,7 @@ class SchemaTest extends TestBase {
 		// Check references from Types to Widgets.
 		$type1 = $db->get_table( 'test_widget_types_1' );
 		$referencingTables = $type1->get_referencing_tables();
-		$this->assertCount( 2, $referencingTables);
+		$this->assertCount( 2, $referencingTables );
 	}
 
 	/**
@@ -171,8 +171,8 @@ class SchemaTest extends TestBase {
 
 		// Check with some data.
 		$data = array(
-			'title' => '', 
-			'description' => '', 
+			'title' => '',
+			'description' => '',
 		);
 		$record = $test_table->save_record( $data );
 		$this->assertSame( '', $record->title() );
@@ -189,7 +189,7 @@ class SchemaTest extends TestBase {
 			'title' => 'Test',
 			'a_date' => '1980-01-01',
 			'a_year' => '1980',
-		) );
+			) );
 		$this->assertEquals( '1980-01-01', $rec->a_date() );
 		$this->assertEquals( '1980', $rec->a_year() );
 	}
@@ -213,20 +213,73 @@ class SchemaTest extends TestBase {
 	}
 
 	/**
+	 * @testdox Numeric and Decimal columns.
+	 * @test
+	 */
+	public function decimal() {
+		$test_table = $this->db->get_table( 'test_table' );
+		$rec = $test_table->save_record( array(
+			'title' => 'Decimal Test',
+			'a_numeric' => '123.4',
+			) );
+		$this->assertEquals( '123.40', $rec->a_numeric() );
+		$comment = $test_table->get_column( 'a_numeric' )->get_comment();
+		$this->assertEquals( 'NUMERIC is the same as DECIMAL.', $comment );
+	}
+
+	/**
 	 * @testdox A table can have a multi-column primary key.
 	 * @test
 	 */
-	/*public function multicol_primary_key() {
-		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_multicol_primary_key`' );
-		$this->wpdb->query( 'CREATE TABLE `test_multicol_primary_key` ('
-			. ' ident_a VARCHAR(10),'
-			. ' ident_b VARCHAR(10),'
-			. ' PRIMARY KEY (ident_a, ident_b)'
-			. ');'
-		);
+	/* public function multicol_primary_key() {
+	  $this->wpdb->query( 'DROP TABLE IF EXISTS `test_multicol_primary_key`' );
+	  $this->wpdb->query( 'CREATE TABLE `test_multicol_primary_key` ('
+	  . ' ident_a VARCHAR(10),'
+	  . ' ident_b VARCHAR(10),'
+	  . ' PRIMARY KEY (ident_a, ident_b)'
+	  . ');'
+	  );
+	  $db = new WordPress\Tabulate\DB\Database( $this->wpdb );
+	  $tbl = $db->get_table( 'test_multicol_primary_key' );
+	  var_dump($tbl->get_pk_column()->get_name());
+	  } */
+
+	/**
+	 * @link https://github.com/tabulate/tabulate/issues/21
+	 * @test
+	 */
+	public function github_21() {
+		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_pb_servicio`' );
+		$sql = "CREATE TABLE IF NOT EXISTS test_pb_servicio (
+			s_id VARCHAR(4) NOT NULL COMMENT 'código identificador del servicio',
+			s_nom VARCHAR(80) NOT NULL COMMENT 'nombre del servicio',
+			s_des TEXT COMMENT 'texto con información/condiciones/descripción del servicio',
+			s_pre NUMERIC (10,2) NOT NULL DEFAULT '0' COMMENT 'precio por persona del servicio',
+			s_iva NUMERIC (3,2) NOT NULL DEFAULT '0.21' COMMENT 'IVA del artículo -por defecto el 21%-',
+			s_dto NUMERIC (3,2) NOT NULL DEFAULT '0' COMMENT 'si es 0.5, tiene un descuento del 50%',
+			s_tsini TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'timestamp con la fecha de creación del servicio',
+			s_tsfin TIMESTAMP COMMENT 'timestamp con la fecha de la desactivación del servicio',
+			s_img VARCHAR(160) COMMENT 'url o dirección del fichero de imagen asociado al servicio',
+			s_bitblo ENUM('0','1') NOT NULL DEFAULT '0' COMMENT 'activación(0)/bloqueo(1) del servicio',
+			CONSTRAINT servicio_pk PRIMARY KEY(s_id)
+			)
+			ENGINE InnoDB
+			COMMENT 'producto concertado con un proveedor o proveedores';";
+		$this->wpdb->query( $sql );
 		$db = new WordPress\Tabulate\DB\Database( $this->wpdb );
-		$tbl = $db->get_table( 'test_multicol_primary_key' );
-		var_dump($tbl->get_pk_column()->get_name());
-	}*/
+		$tbl = $db->get_table( 'test_pb_servicio' );
+		$this->assertTrue( $tbl->get_column( 's_pre' )->is_numeric() );
+		$rec = $tbl->save_record( array(
+			's_id' => 'TEST',
+			's_nom' => 'A name',
+			's_pre' => 123.45,
+			's_bitblo' => '1',
+		) );
+		$this->assertEquals( 123.45, $rec->s_pre() );
+		$this->assertEquals( 0.21, $rec->s_iva() );
+		$s_pre = $tbl->get_column( 's_pre' );
+		$this->assertTrue( $s_pre->is_numeric() );
+		$this->assertEquals( 1, $rec->s_bitblo() );
+	}
 
 }

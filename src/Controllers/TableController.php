@@ -11,13 +11,20 @@ class TableController extends ControllerBase {
 		$db = new Database( $this->wpdb );
 		$table = $db->get_table( $table_name );
 		if ( ! $table ) {
-			throw new \Exception( "Table '$table' not found." );
+			add_action( 'admin_notices', function($table_name) use ($table_name) {
+				echo "<div class='error'><p>Table '" . $table_name . "' not found.</p></div>";
+			} );
+			$home = new HomeController( $this->wpdb );
+			return $home->index();
 		}
 		return $table;
 	}
 
 	public function index( $args ) {
-		$table = $this->get_table( $args[ 'table' ] );
+		$table = $this->get_table( $args['table'] );
+		if ( ! $table instanceof \WordPress\Tabulate\DB\Table ) {
+			return $table;
+		}
 
 		// Pagination.
 		$page_num = (isset( $args[ 'p' ] ) ) ? $args[ 'p' ] : 1;
@@ -234,6 +241,34 @@ class TableController extends ControllerBase {
 		echo "\xEF\xBB\xBF";
 		readfile($filename);
 		exit( 0 );
+	}
+
+	public function timeline( $args ) {
+		$table = $this->get_table( $args['table'] );
+		$template = new \WordPress\Tabulate\Template( 'timeline.html' );
+		$template->action = 'timeline';
+		$template->table = $table;
+		$start_date_arg = (isset( $args['start_date'] )) ? $args['start_date'] : date( 'Y-m-d' );
+		$end_date_arg = (isset( $args['end_date'] )) ? $args['end_date'] : date( 'Y-m-d' );
+		$start_date = new \DateTime( $start_date_arg );
+		$end_date = new \DateTime( $end_date_arg );
+		if ($start_date->diff($end_date, true)->d < 7) {
+			// Add two weeks to the end date.
+			$end_date->add(new \DateInterval('P14D'));
+		}
+		$date_period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date);
+		$template->start_date = $start_date->format('Y-m-d');
+		$template->end_date = $end_date->format('Y-m-d');
+		$template->date_period = $date_period;
+		$data = array();
+		foreach ($table->get_records(false) as $record) {
+			if ( ! isset( $data[ $record->get_title() ] )) {
+				$data[ $record->get_title() ] = array();
+			}
+			$data[ $record->get_title() ][] = $record;
+		}
+		$template->data = $data;
+		return $template->render();
 	}
 
 }

@@ -42,7 +42,8 @@ class TestBase extends WP_UnitTestCase {
 			. ' a_year YEAR NULL,'
 			. ' type_id INT(10) NULL DEFAULT NULL,'
 			. ' widget_size DECIMAL(10,2) NOT NULL DEFAULT 5.6,'
-			. ' ranking INT(3) NULL DEFAULT NULL'
+			. ' ranking INT(3) NULL DEFAULT NULL,'
+			. ' a_numeric NUMERIC(7,2) NULL DEFAULT NULL COMMENT "NUMERIC is the same as DECIMAL."'
 			. ');'
 		);
 		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_types`' );

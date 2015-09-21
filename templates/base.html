@@ -1,6 +1,6 @@
 <div class="tabulate wrap">
 	{% include 'quick_jump.html' %}
-	<h1>Tabulate</h1>
+	<h1>{{title}}</h1>
 	{% include 'notices.html' %}
 
 	{% if table %}
@@ -22,6 +22,9 @@
 		<a href="{{table.get_url('calendar')}}" class="nav-tab {% if action=='calendar' %}nav-tab-active{% endif %}">
 			Calendar
 		</a>
+		<!--<a href="{{table.get_url('timeline')}}" class="nav-tab {% if action=='timeline' %}nav-tab-active{% endif %}">
+			Timeline
+		</a>-->
 	</h3>
 	{% endif %}
 

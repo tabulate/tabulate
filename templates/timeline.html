@@ -1,0 +1,25 @@
+{%extends "base.html"%}
+
+{% block content %}
+
+<table>
+	<thead>
+		<th></th>
+		{% for date in date_period %}
+		<th>
+			{{date.format('D j')}}
+		</th>
+		{% endfor %}
+	</thead>
+	{% for title,records in data %}
+	<tr>
+		{% for date in date_period %}
+		<td>
+			x
+		</td>
+		{% endfor %}
+	</tr>
+	{% endfor %}
+</table>
+
+{% endblock %}
