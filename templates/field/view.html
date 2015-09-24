@@ -16,7 +16,7 @@ No
 <!-- Null -->
 {% endif %}
 
- {% elseif column.get_type=='date' %}
+{% elseif column.get_type=='date' and attribute(record, column.get_name) != '0000-00-00' %}
 {{ attribute(record, column.get_name)|wp_date_format }}
 
 {% elseif column.get_type=='time' %}

@@ -71,28 +71,29 @@ class Menus {
 	 * @return string The HTML to display.
 	 */
 	public function dispatch() {
+		$request = $_REQUEST;
 
 		// Only dispatch when it's our page.
 		$slugLenth = strlen( TABULATE_SLUG );
-		if ( ! isset( $_GET['page'] ) || substr( $_GET['page'], 0, $slugLenth ) != TABULATE_SLUG ) {
+		if ( ! isset( $request['page'] ) || substr( $request['page'], 0, $slugLenth ) != TABULATE_SLUG ) {
 			return;
 		}
 
-		// Discern the controller name, based on an explicit GET parameter, or
+		// Discern the controller name, based on an explicit request parameter, or
 		// the trailing part of the page slug (i.e. after 'tabulate_').
 		$controllerName = 'home';
-		if ( isset( $_GET['controller'] ) ) {
-			$controllerName = $_GET['controller'];
-		} elseif ( isset( $_GET['page'] ) && strlen( $_GET['page'] ) > $slugLenth ) {
-			$controllerName = substr( $_GET['page'], $slugLenth + 1 );
+		if ( isset( $request['controller'] ) ) {
+			$controllerName = $request['controller'];
+		} elseif ( isset( $request['page'] ) && strlen( $request['page'] ) > $slugLenth ) {
+			$controllerName = substr( $request['page'], $slugLenth + 1 );
 		}
 
 		// Create the controller and run the action.
 		$controllerClassName = 'WordPress\\Tabulate\\Controllers\\' . ucfirst( $controllerName ) . 'Controller';
 		$controller = new $controllerClassName( $this->wpdb );
-		$action = ! empty( $_GET[ 'action' ] ) ? $_GET[ 'action' ] : 'index';
-		unset( $_GET[ 'page' ], $_GET[ 'controller' ], $_GET[ 'action' ] );
-		$this->output = $controller->$action( $_GET );
+		$action = ! empty( $request[ 'action' ] ) ? $request[ 'action' ] : 'index';
+		unset( $request[ 'page' ], $request[ 'controller' ], $request[ 'action' ] );
+		$this->output = $controller->$action( $request );
 	}
 
 	/**

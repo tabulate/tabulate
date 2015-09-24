@@ -27,7 +27,7 @@ class TableController extends ControllerBase {
 		}
 
 		// Pagination.
-		$page_num = (isset( $args[ 'p' ] ) ) ? $args[ 'p' ] : 1;
+		$page_num = (isset( $args['p'] ) && is_numeric( $args['p'] ) ) ? abs( $args['p'] ) : 1;
 		$table->set_current_page_num( $page_num );
 		if ( isset( $args['psize'] ) ) {
 			$table->set_records_per_page( $args[ 'psize' ] );
@@ -219,7 +219,7 @@ class TableController extends ControllerBase {
 
 	/**
 	 * Export the current table with the current filters applied.
-	 * Filters are passed as $_GET parameters, just as for the index action.
+	 * Filters are passed as request parameters, just as for the index action.
 	 *
 	 * @return void
 	 */

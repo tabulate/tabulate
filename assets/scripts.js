@@ -11,6 +11,10 @@ jQuery(document).ready(function ($) {
 	$("input[data-column-type='time']").timepicker( { timeFormat: 'HH:mm:ss', timeOnly: true } );
 	$("input[data-column-type='year']").mask("9999");
 
+	/**
+	 * Make sure .disabled buttons are properly disabled.
+	 */
+	$("button.disabled").prop("disabled", true);
 
 	/**
 	 * Set up the bits that use WP_API.
@@ -117,8 +121,10 @@ jQuery(document).ready(function ($) {
 		$lastrow.after($newrow);
 	});
 
+
 	/**
-	 * Change 'is one of' filters to multi-line text input box.
+	 * Change 'is one of' filters to multi-line text input box,
+	 * and if over a certain length submit as a POST request.
 	 */
 	$(".tabulate-filters").on("change", "select[name*='operator']", function(){
 		var $oldFilter = $(this).parents("tr").find("[name*='value']");
@@ -126,19 +132,37 @@ jQuery(document).ready(function ($) {
 		var requiresMulti = ($(this).val() === 'in' || $(this).val() === 'not in');
 		var $newFilter = $("<"+newType+" name='"+$oldFilter.attr("name")+"'/>");
 		$newFilter.val($oldFilter.val());
-
 		if ($oldFilter.is("input") && requiresMulti) {
 			// If changing TO a multi-line value.
 			$newFilter.attr("rows", 2);
 			$oldFilter.replaceWith($newFilter);
-
 		} else if ($oldFilter.is("textarea") && !requiresMulti) {
 			// If changing AWAY FROM a multi-line value.
 			$newFilter.attr("type", "text");
 			$oldFilter.replaceWith($newFilter);
-
 		}
 	});
+	// Fire change manually.
+	$(".tabulate-filters select[name*='operator']").change();
+	// Change the form method depending on the filter size.
+	$(".tabulate-filters").on("keyup", "textarea", function(){
+		if ($(this).val().split(/\r*\n/).length > 50) {
+			// Switch to a POST request for long "is one of" filters.
+			$(this).parents("form").attr("method", "post");
+		} else {
+			// Switch back to get for smaller counts.
+			$(this).parents("form").attr("method", "get");
+		}
+	});
+	// Fire keyup manually.
+	$(".tabulate-filters textarea").keyup();
+	// Change the controller, action, and page num of the form depending on which button was clicked.
+	$(".tabulate-filters button").click(function(e){
+		$(this).parents("form").find("input[name='controller']").val($(this).data("controller"));
+		$(this).parents("form").find("input[name='action']").val($(this).data("action"));
+		$(this).parents("form").find("input[name='p']").val($(this).data("p"));
+	});
+
 
 	/**
 	 * Add 'select all' checkboxen to the grants' table.
