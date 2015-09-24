@@ -9,7 +9,7 @@ class Template {
 	protected $data;
 
 	/** @var string[] Paths at which to find templates. */
-	protected $paths;
+	protected static $paths = array();
 
 	/** @var string The name of the transient used to store notices. */
 	protected $transient_notices;
@@ -29,15 +29,37 @@ class Template {
 			'tfo_graphviz' => is_plugin_active( 'tfo-graphviz/tfo-graphviz.php' ),
 			'wpdb_prefix' => $wpdb->prefix,
 		);
-		$this->paths = array( realpath( __DIR__ . '/../templates' ) );
+		self::add_path( __DIR__ . '/../templates' );
 	}
 
 	/**
 	 * Add a filesystem path under which to look for template files.
 	 * @param string $new_path
 	 */
-	public function add_path( $new_path ) {
-		$this->paths[] = realpath( $new_path );
+	public static function add_path( $new_path ) {
+		$path = realpath( $new_path );
+		if ( ! in_array( $path, self::$paths ) ) {
+			self::$paths[] = $path;
+		}
+	}
+
+	public static function get_paths() {
+		return self::$paths;
+	}
+
+	/**
+	 * Get a list of templates in a given directory, across all registered template paths.
+	 * @param string $directory
+	 */
+	public function get_templates( $directory ) {
+		$templates = array();
+		foreach (self::$paths as $path) {
+			$dir = $path . '/' . ltrim( $directory, '/' );
+			foreach ( preg_grep( '/^[^\.].*\.(twig|html)$/', scandir( $dir ) ) as $file ) {
+				$templates[] = $directory.'/'.$file;
+			}
+		}
+		return $templates;
 	}
 
 	public function __set( $name, $value ) {
@@ -89,7 +111,7 @@ class Template {
 
 	public function render() {
 		delete_transient( $this->transient_notices );
-		$loader = new \Twig_Loader_Filesystem( $this->paths );
+		$loader = new \Twig_Loader_Filesystem( self::$paths );
 		$twig = new \Twig_Environment( $loader );
 
 		// Add the admin_url() function.
