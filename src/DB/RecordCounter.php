@@ -43,7 +43,7 @@ class RecordCounter {
 	public function get_count() {
 
 		// If this is a base table and there are no filters, try to use cached count.
-		if ( $this->table->is_table() && empty( $this->table->get_filters() ) ) {
+		if ( $this->table->is_table() && count( $this->table->get_filters() ) === 0 ) {
 			$count = get_transient( $this->transient_name() );
 			if ( $count !== false ) {
 				return $count;
