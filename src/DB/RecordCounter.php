@@ -41,6 +41,16 @@ class RecordCounter {
 	 * @return integer The record count.
 	 */
 	public function get_count() {
+
+		// If this is a base table and there are no filters, try to use cached count.
+		if ( $this->table->is_table() && empty( $this->table->get_filters() ) ) {
+			$count = get_transient( $this->transient_name() );
+			if ( $count !== false ) {
+				return $count;
+			}
+		}
+
+		// Otherwise, run the COUNT() query.
 		$pk_col = $this->table->get_pk_column();
 		if ( $pk_col instanceof Column ) {
 			$count_col = '`' . $this->table->get_name() . '`.`' . $pk_col->get_name() . '`';
@@ -51,14 +61,9 @@ class RecordCounter {
 		$params = $this->table->apply_filters( $sql );
 		if ( ! empty( $params ) ) {
 			$sql = $this->table->get_database()->get_wpdb()->prepare( $sql, $params );
-		} elseif ( $this->table->is_table() ) {
-			// If no filters, and this is a base table, use cached count.
-			$count = get_transient( $this->transient_name() );
 		}
-		if ( empty( $count ) ) {
-			$count = $this->table->get_database()->get_wpdb()->get_var( $sql, 0, 0 );
-			set_transient( $this->transient_name(), $count, $this->transient_expiration );
-		}
+		$count = $this->table->get_database()->get_wpdb()->get_var( $sql, 0, 0 );
+		set_transient( $this->transient_name(), $count, $this->transient_expiration );
 		return $count;
 	}
 

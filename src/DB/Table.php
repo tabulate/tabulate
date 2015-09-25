@@ -206,7 +206,7 @@ class Table {
 		} // end foreach filter
 
 		// Add clauses into SQL
-		if ( !empty( $where_clause ) ) {
+		if ( ! empty( $where_clause ) ) {
 			$where_clause_pattern = '/^(.* FROM .*?)((?:GROUP|HAVING|ORDER|LIMIT|$).*)$/m';
 			$where_clause = substr( $where_clause, 5 ); // Strip leading ' AND'.
 			$where_clause = "$1 $join_clause WHERE $where_clause $2";

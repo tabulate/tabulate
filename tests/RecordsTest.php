@@ -36,4 +36,48 @@ class RecordsTest extends TestBase {
 		$this->assertEquals( '[ 1 | Rec 1 | Lorem ipsum. | 1 |  |  |  | 5.60 |  |  ]', $rec->get_title() );
 	}
 
+	/**
+	 * @testdox
+	 * @test
+	 */
+	public function record_counts() {
+		$test_table = $this->db->get_table( 'test_table' );
+
+		// Initially empty.
+		$this->assertEquals( 0, $test_table->count_records() );
+
+		// Add one.
+		$rec1 = $test_table->save_record( array( 'title' => 'Rec 1', 'description' => 'Testing.' ) );
+		$this->assertEquals( 1, $test_table->count_records() );
+
+		// Add 2.
+		$test_table->save_record( array( 'title' => 'Rec 2' ) );
+		$test_table->save_record( array( 'title' => 'Rec 3' ) );
+		$this->assertEquals( 3, $test_table->count_records() );
+
+		// Add 50.
+		for ( $i = 0; $i < 50; $i ++ ) {
+			$test_table->save_record( array( 'title' => "Record $i" ) );
+		}
+		$this->assertEquals( 53, $test_table->count_records() );
+
+		// Make sure it still works with filters applied.
+		$test_table->add_filter( 'title', 'like', 'Record' );
+		$this->assertEquals( 50, $test_table->count_records() );
+		$test_table->reset_filters();
+		$test_table->add_filter( 'description', 'like', 'Testing' );
+		$this->assertEquals( 1, $test_table->count_records() );
+		$test_table->reset_filters();
+		$test_table->add_filter( 'description', 'not empty', '' );
+		$this->assertEquals( 1, $test_table->count_records() );
+		$test_table->reset_filters();
+		$test_table->add_filter( 'description', 'empty', '' );
+		$this->assertEquals( 52, $test_table->count_records() );
+		$test_table->reset_filters();
+
+		// Delete a record.
+		$test_table->delete_record( $rec1->id() );
+		$this->assertEquals( 52, $test_table->count_records() );
+	}
+
 }
