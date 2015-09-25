@@ -121,7 +121,7 @@ class TableController extends ControllerBase {
 		$template->form_action = $table->get_url( 'import' );
 		try {
 			$hash = isset( $_GET[ 'hash' ] ) ? $_GET[ 'hash' ] : false;
-			$uploaded = isset( $_FILES['file'] ) ? wp_handle_upload( $_FILES['file'] ) : false;
+			$uploaded = isset( $_FILES['file'] ) ? wp_handle_upload( $_FILES['file'], array( 'action' => $template->action ) ) : false;
 			$csv_file = new \WordPress\Tabulate\CSV( $hash, $uploaded );
 		} catch ( \Exception $e ) {
 			$template->add_notice( 'error', $e->getMessage() );
