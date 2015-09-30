@@ -567,7 +567,7 @@ class Table {
 		// Make sure it exported.
 		if ( ! file_exists( $filename ) ) {
 			$msg = "Unable to create temporary export file:<br /><code>$filename</code>";
-			Exception::wp_die($msg, "Export failed", $wpdb->last_error, $sql);
+			Exception::wp_die( $msg, 'Export failed', $wpdb->last_error, $sql ); // WPCS: XSS OK.
 		}
 		$wpdb->show_errors();
 		// Give the filename back to the controller, to send to the client.
@@ -576,10 +576,10 @@ class Table {
 
 	/**
 	 * Get one of this table's columns.
-	 *
+	 * @param string $name The column name.
 	 * @return \WordPress\Tabulate\DB\Column|false The column, or false if it's not found.
 	 */
-	public function get_column($name) {
+	public function get_column( $name ) {
 		return ( isset( $this->columns[ $name ] ) ) ? $this->columns[ $name ] : false;
 	}
 
@@ -589,14 +589,14 @@ class Table {
 	 * @param string $type Only return columns of this type.
 	 * @return Column[] This table's columns.
 	 */
-	public function get_columns($type = null) {
+	public function get_columns( $type = null ) {
 		if ( is_null( $type ) ) {
 			return $this->columns;
 		} else {
 			$out = array();
 			foreach ( $this->get_columns() as $col ) {
-				if ( $col->get_type() == $type ) {
-					$out[$col->get_name()] = $col;
+				if ( $col->get_type() === $type ) {
+					$out[ $col->get_name() ] = $col;
 				}
 			}
 			return $out;
@@ -604,17 +604,19 @@ class Table {
 	}
 
 	/**
-	 * Get the table comment text.
-	 *
+	 * Get the table comment text; for views, this returns '(View)'.
 	 * @return string
 	 */
 	public function get_comment() {
-		if ( !$this->comment ) {
+		if ( ! $this->comment ) {
 			$sql = $this->get_defining_sql();
 			$comment_pattern = '/.*\)(?:.*COMMENT[\w=]*\'(.*)\')?/si';
 			preg_match( $comment_pattern, $sql, $matches );
-			$this->comment = (isset( $matches[1] )) ? $matches[1] : '';
+			$this->comment = ( isset( $matches[1] ) ) ? $matches[1] : '';
 			$this->comment = str_replace( "''", "'", $this->comment );
+		}
+		if ( empty( $this->comment ) && $this->is_view() ) {
+			$this->comment = '(View)';
 		}
 		return $this->comment;
 	}
@@ -634,16 +636,15 @@ class Table {
 	}
 
 	/**
-	 * Get the first unique-keyed column, or if there is no unique non-ID column
-	 * then use the second column (because this is often a good thing to do).
-	 * Unless there's only one column; then, just use that.
+	 * Get the first unique-keyed column.
+	 * If there is no unique non-PK column then just use the PK.
 	 *
-	 * @return Column
+	 * @return \WordPress\Tabulate\DB\Column
 	 */
 	public function get_title_column() {
-		// Try to get the first non-PK unique key
+		// Try to get the first non-PK unique key.
 		foreach ( $this->get_columns() as $column ) {
-			if ( $column->is_unique() && !$column->is_primary_key() ) {
+			if ( $column->is_unique() && ! $column->is_primary_key() ) {
 				return $column;
 			}
 		}
@@ -656,9 +657,10 @@ class Table {
 	 * CREATE TABLE' command.
 	 *
 	 * @return string The SQL statement used to create this table.
+	 * @throws Exception If the table or view is not found.
 	 */
 	public function get_defining_sql() {
-		if ( !isset( $this->defining_sql ) ) {
+		if ( ! isset( $this->defining_sql ) ) {
 			$defining_sql = $this->database->get_wpdb()->get_row( "SHOW CREATE TABLE `$this->name`" );
 			if ( isset( $defining_sql->{'Create Table'} ) ) {
 				$defining_sql = $defining_sql->{'Create Table'};
@@ -667,7 +669,7 @@ class Table {
 				$defining_sql = $defining_sql->{'Create View'};
 				$this->type = self::TYPE_VIEW;
 			} else {
-				throw new \Exception( 'Table or view not found: ' . $this->name );
+				throw new Exception( 'Table or view not found: ' . $this->name );
 			}
 			$this->defining_sql = $defining_sql;
 		}
@@ -692,10 +694,10 @@ class Table {
 	 * Get a list of this table's foreign keys and the tables to which they refer.
 	 * This does <em>not</em> take into account a user's permissions (i.e. the
 	 * name of a table which the user is not allowed to read may be returned).
-	 *
+	 * @param boolean $instantiate Whether to instantiate the Table objects (or just return their names).
 	 * @return string[] The list of <code>column_name => table_name</code> pairs.
 	 */
-	public function get_referenced_tables($instantiate = false) {
+	public function get_referenced_tables( $instantiate = false ) {
 
 		// Extract the FK info from the CREATE TABLE statement.
 		if ( ! is_array( $this->referenced_tables ) ) {
@@ -705,7 +707,7 @@ class Table {
 			preg_match_all( $foreignKeyPattern, $definingSql, $matches );
 			if ( isset( $matches[1] ) && count( $matches[1] ) > 0 ) {
 				foreach ( array_combine( $matches[1], $matches[2] ) as $colName => $tabName ) {
-					$this->referenced_table_names[$colName] = $tabName;
+					$this->referenced_table_names[ $colName ] = $tabName;
 				}
 			}
 		}
@@ -713,7 +715,7 @@ class Table {
 		if ( $instantiate ) {
 			$this->referenced_tables = array();
 			foreach ( $this->referenced_table_names as $refCol => $ref_tab ) {
-				$this->referenced_tables[$refCol] = $this->get_database()->get_table( $ref_tab );
+				$this->referenced_tables[ $refCol ] = $this->get_database()->get_table( $ref_tab );
 			}
 		}
 
@@ -770,13 +772,14 @@ class Table {
 	 */
 	public function __toString() {
 		$col_count = count( $this->get_columns() );
-		$out = "\n+-----------------------------------------+\n";
-		$out .= "| " . $this->get_name() . " ($col_count columns)\n";
-		$out .= "+-----------------------------------------+\n";
+		$out = "\n";
+		$out .= '+-----------------------------------------+' . "\n";
+		$out .= '| ' . $this->get_name() . ' (' . $col_count . ' columns)' . "\n";
+		$out .= '+-----------------------------------------+' . "\n";
 		foreach ( $this->get_columns() as $column ) {
 			$out .= "| $column \n";
 		}
-		$out .= "+-----------------------------------------+\n\n";
+		$out .= '+-----------------------------------------+'."\n\n";
 		return $out;
 	}
 
@@ -808,7 +811,7 @@ class Table {
 		$metadata = array();
 		foreach ( $this->getColumns() as $column ) {
 			$metadata[] = array(
-				'name' => $column->getName()
+				'name' => $column->getName(),
 			);
 		}
 		return $json->encode( $metadata );
@@ -826,8 +829,9 @@ class Table {
 
 	/**
 	 * Delete a record and its associated change-tracker records.
-	 * @param string $pk_value
-	 * @return int|false Number of rows affected/selected or false on error
+	 * @param string $pk_value The value of the primary key of the record to delete.
+	 * @return void
+	 * @throws Exception When the user doesn't have permission, or any error occurs deleting the record.
 	 */
 	public function delete_record( $pk_value ) {
 		// Check permission.
@@ -839,7 +843,7 @@ class Table {
 		$wpdb->hide_errors();
 		$del = $wpdb->delete( $this->get_name(), array( $this->get_pk_column()->get_name() => $pk_value ) );
 		if ( ! $del ) {
-			throw new \Exception( $wpdb->last_error );
+			throw new Exception( $wpdb->last_error );
 		}
 		foreach ( $rec->get_changes() as $change ) {
 			$where_1 = array( 'table_name' => $this->get_name(), 'record_ident' => $pk_value );
@@ -851,15 +855,15 @@ class Table {
 	}
 
 	/**
-	 * Save data to this table.  If the 'id' key of the data array is numeric,
-	 * the row with that ID will be updated; otherwise, a new row will be
-	 * inserted.
+	 * Save data to this table. If a primary key value is given, that row will be
+	 * updated; otherwise, a new row will be inserted.
 	 *
-	 * @param array $data The data to insert.
+	 * @param array  $data The data to insert.
 	 * @param string $pk_value The value of the record's PK.
-	 * @return Record The updated or inserted record.
+	 * @return \WordPress\Tabulate\DB\Record The updated or inserted record.
+	 * @throws Exception If the user doesn't have permission, or something else has gone wrong.
 	 */
-	public function save_record($data, $pk_value = null) {
+	public function save_record( $data, $pk_value = null ) {
 		// Changeset only created here if not already in progress.
 		$changeset_comment = isset( $data['changeset_comment'] ) ? $data['changeset_comment'] : null;
 		$change_tracker = new ChangeTracker( $this->get_database()->get_wpdb(), $changeset_comment );
@@ -872,21 +876,20 @@ class Table {
 		$sql_values = array();
 		foreach ( $data as $field => $value ) {
 			// Make sure this column exists in the DB.
-			if ( !isset( $columns[$field] ) ) {
-				unset( $data[$field] );
+			if ( ! isset( $columns[ $field ] ) ) {
+				unset( $data[ $field ] );
 				continue;
 			}
-			$column = $this->get_column($field);
+			$column = $this->get_column( $field );
 
-			// Auto-incrementing columns.
 			if ( $column->is_auto_increment() ) {
-				// Don't set $sql_values item.
-			}
+				// Auto-incrementing columns.
+				; // Do nothing (don't set $sql_values item).
 
-			// Boolean values.
-			elseif ( $column->is_boolean() ) {
+			} elseif ( $column->is_boolean() ) {
+				// Boolean values.
 				$zeroValues = array( 0, '0', false, 'false', 'FALSE', 'off', 'OFF', 'no', 'NO' );
-				if ( ( $value === null || $value === '') && $column->nullable() ) {
+				if ( ( null === $value || '' === $value ) && $column->nullable() ) {
 					$data[ $field ] = null;
 					$sql_values[ $field ] = 'NULL';
 				} elseif ( in_array( $value, $zeroValues, true ) ) {
@@ -896,33 +899,28 @@ class Table {
 					$data[ $field ] = true;
 					$sql_values[ $field ] = '1';
 				}
-			}
-
-			// Empty strings.
-			elseif ( ! $column->allows_empty_string() && '' === $value && $column->nullable() ) {
+			} elseif ( ! $column->allows_empty_string() && '' === $value && $column->nullable() ) {
+				// Empty strings.
 				$data[ $field ] = null;
 				$sql_values[ $field ] = 'NULL';
-			}
 
-			// Nulls
-			elseif ( is_null( $value ) && $column->nullable() ) {
+			} elseif ( is_null( $value ) && $column->nullable() ) {
+				// Nulls.
 				$data[ $field ] = null;
 				$sql_values[ $field ] = 'NULL';
-			}
 
-			// POINT columns.
-			elseif ( $column->get_type() == 'point' ) {
+			} elseif ( $column->get_type() === 'point' ) {
+				// POINT columns.
 				$sql_values[ $field ] = "GeomFromText('" . esc_sql( $value ) ."')";
-			}
 
-			// Numeric values.
-			elseif ( $column->is_numeric() ) {
+			} elseif ( $column->is_numeric() ) {
+				// Numeric values.
 				$sql_values[ $field ] = $value;
-			}
 
-			// Everything else.
-			else {
+			} else {
+				// Everything else.
 				$sql_values[ $field ] = "'" . esc_sql( $value ) ."'";
+
 			}
 		}
 
@@ -949,7 +947,7 @@ class Table {
 		if ( $pk_value ) { // Update?
 			// Check permission.
 			if ( ! Grants::current_user_can( Grants::UPDATE, $this->get_name() ) ) {
-				throw new \Exception( 'You do not have permission to update data in this table.' );
+				throw new Exception( 'You do not have permission to update data in this table.' );
 			}
 			$where_clause = $this->database->get_wpdb()->prepare( "WHERE `$pk_name` = %s", $pk_value );
 			$this->database->get_wpdb()->query( 'UPDATE ' . $this->get_name()." $set_clause $where_clause;" );
@@ -958,19 +956,18 @@ class Table {
 		} else { // Or insert?
 			// Check permission.
 			if ( ! Grants::current_user_can( Grants::CREATE, $this->get_name() ) ) {
-				throw new \Exception( 'You do not have permission to insert records into this table.' );
+				throw new Exception( 'You do not have permission to insert records into this table.' );
 			}
 			$sql = 'INSERT INTO ' . $this->get_name() . ' ' . $set_clause . ';';
 			$this->database->get_wpdb()->query( $sql );
 			if ( ! empty( $this->database->get_wpdb()->last_error ) ) {
-				Exception::wp_die( 'The record was not created.', 'Unable to create record', $this->database->get_wpdb()->last_error, $sql );
+				Exception::wp_die( 'The record was not created.', 'Unable to create record', $this->database->get_wpdb()->last_error, $sql ); // WPCS: XSS OK.
 			}
 			if ( $this->get_pk_column()->is_auto_increment() ) {
 				$new_pk_value = $this->database->get_wpdb()->insert_id;
 			} elseif ( isset( $data[ $pk_name ] ) ) {
 				$new_pk_value = $data[ $pk_name ];
 			}
-
 		}
 		$new_record = $this->get_record( $new_pk_value );
 
@@ -984,6 +981,13 @@ class Table {
 		return $new_record;
 	}
 
+	/**
+	 * Get a fully-qualified URL to a Back End page for this table.
+	 * @param string   $action Which action to use ('index', 'import', etc.).
+	 * @param string[] $extra_params Other query string parameters to add.
+	 * @param string   $controller Which controller to use ('table', 'record', etc.).
+	 * @return string  The full URL.
+	 */
 	public function get_url( $action = 'index', $extra_params = false, $controller = 'table' ) {
 		$params = array(
 			'page' => 'tabulate',
@@ -991,10 +995,9 @@ class Table {
 			'action' => $action,
 			'table' => $this->get_name(),
 		);
-		if ( $extra_params !== false ) {
+		if ( false !== $extra_params ) {
 			$params = array_merge( $_GET, $params, $extra_params );
 		}
 		return admin_url( 'admin.php?' . http_build_query( $params ) );
 	}
-
 }

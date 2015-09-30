@@ -118,6 +118,7 @@ jQuery(document).ready(function ($) {
 			$(this).attr("name", newName);
 		});
 		$newrow.find("td:first").html("&hellip;and");
+		$newrow.find("input[name*='value']").val("");
 		$lastrow.after($newrow);
 	});
 

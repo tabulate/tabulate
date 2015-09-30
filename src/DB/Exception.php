@@ -9,7 +9,7 @@ class Exception extends \Exception {
 		if ( WP_DEBUG ) {
 			$msg .= '<h2>Debug info:</h2>'
 				. '<p>Error was: ' . $error . '</p>'
-				. '<p>Query was:</p><pre>' . $sql . '</pre>';
+				. '<p>Query was:</p><pre>' . esc_html( $sql ) . '</pre>';
 		}
 		wp_die( $msg, $title, array( 'back_link' => true ) );
 	}
