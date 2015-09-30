@@ -64,8 +64,8 @@
 					<a href="{{return_to}}" class="button">Cancel</a>
 					{% endif %}
 
-					{% if record %}
-					<input type="hidden" name="primary_key_value" value="{{record.get_primary_key}}" />
+					{% if record.get_primary_key() %}
+					<input type="hidden" name="primary_key_value" value="{{record.get_primary_key()}}" />
 					<a href="{{record.get_url('delete')}}" class="button" title="Delete this record">Delete</a>
 					{% endif %}
 				</p>

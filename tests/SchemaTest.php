@@ -282,4 +282,20 @@ class SchemaTest extends TestBase {
 		$this->assertEquals( 1, $rec->s_bitblo() );
 	}
 
+	/**
+	 * @testdox It should be possible to provide a value for a (non-autoincrementing) PK.
+	 * @test
+	 */
+	public function timestamp_pk() {
+		$this->wpdb->query( 'DROP TABLE IF EXISTS `provided_pk`' );
+		$sql = "CREATE TABLE `provided_pk` ( "
+			. "  `code` VARCHAR(10) NOT NULL PRIMARY KEY, "
+			. "  `title` VARCHAR(100) "
+			. ");";
+		$this->wpdb->query( $sql );
+		$db = new WordPress\Tabulate\DB\Database( $this->wpdb );
+		$tbl = $db->get_table( 'provided_pk' );
+		$rec = $tbl->save_record( array( 'code' => 'TEST') );
+		$this->assertEquals( 'TEST', $rec->get_primary_key() );
+	}
 }

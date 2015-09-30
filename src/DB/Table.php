@@ -10,7 +10,7 @@ class Table {
 	/** @static A database view, possibly of multiple base tables. */
 	const TYPE_VIEW = 'view';
 
-	/** @var Database The database to which this table belongs. */
+	/** @var \WordPress\Tabulate\DB\Database The database to which this table belongs. */
 	protected $database;
 
 	/** @var string The name of this table. */
@@ -19,26 +19,29 @@ class Table {
 	/** @var string This table's comment. False until initialised. */
 	protected $comment = false;
 
+	/** @var string Either self::TYPE_TABLE or self::TYPE_VIEW. */
+	protected $type;
+
 	/** @var string The SQL statement used to create this table. */
 	protected $defining_sql;
 
-	/** @var string The SQL statement most recently saved by $this->getRows() */
+	/** @var string The SQL statement most recently saved by $this->get_records() */
 	protected $saved_sql;
 
-	/** @var string The statement parameters most recently saved by $this->getRows() */
+	/** @var string[] The statement parameters most recently saved by $this->get_records() */
 	protected $saved_parameters;
 
-	/** @var array|Table Array of tables referred to by columns in this one. */
+	/** @var \WordPress\Tabulate\DB\Table[] Array of tables referred to by columns in this one. */
 	protected $referenced_tables;
 
-	/** @var array|string The names (only) of tables referenced by columns in this one. */
+	/** @var string[] The names (only) of tables referenced by columns in this one. */
 	protected $referenced_table_names;
 
-	/** @var array Each joined table gets a unique alias, based on this. */
+	/** @var int Each joined table gets a unique alias, based on this. */
 	protected $alias_count = 1;
 
 	/**
-	 * @var array|Column Array of column names and objects for all of the
+	 * @var \WordPress\Tabulate\DB\Column[] Array of column names and objects for all of the
 	 * columns in this table.
 	 */
 	protected $columns;
@@ -67,6 +70,9 @@ class Table {
 	 * no column has been set.
 	 */
 	protected $order_by = false;
+
+	/** @var string The direction in which results should be ordered. */
+	protected $order_dir = 'ASC';
 
 	/** @var RecordCounter */
 	protected $record_counter;
@@ -233,28 +239,26 @@ class Table {
 	 * Change the column by which this table is ordered.
 	 * @param string $order_by The name of the column to order by.
 	 */
-	public function set_order_by($order_by) {
+	public function set_order_by( $order_by ) {
 		if ( in_array( $order_by, array_keys( $this->columns ) ) ) {
 			$this->order_by = $order_by;
-		} else {
-			throw new Exception("Unable to order by '$order_by'; not a column on ".$this->get_name());
 		}
 	}
 
 	public function get_order_dir() {
-		if ( empty( $this->orderdir ) ) {
-			$this->orderdir = 'ASC';
+		if ( empty( $this->order_dir ) ) {
+			$this->order_dir = 'ASC';
 		}
-		return $this->orderdir;
+		return $this->order_dir;
 	}
 
 	/**
 	 * Set the direction of ordering.
-	 * @param string $orderdir Either 'ASC' or 'DESC' (case insensitive).
+	 * @param string $order_dir Either 'ASC' or 'DESC' (case insensitive).
 	 */
-	public function set_order_dir($orderdir) {
-		if ( in_array( strtoupper( $orderdir ), array( 'ASC', 'DESC' ) ) ) {
-			$this->orderdir = $orderdir;
+	public function set_order_dir( $order_dir ) {
+		if ( in_array( strtoupper( $order_dir ), array( 'ASC', 'DESC' ) ) ) {
+			$this->order_dir = $order_dir;
 		}
 	}
 
@@ -267,7 +271,7 @@ class Table {
 	 * @param Column $column The FK column
 	 * @return array Array with 'join_clause' and 'column_alias' keys
 	 */
-	public function join_on($column) {
+	public function join_on( $column ) {
 		$join_clause = '';
 		$column_alias = '`' . $this->get_name() . '`.`' . $column->get_name() . '`';
 		if ( $column->is_foreign_key() ) {
@@ -277,7 +281,6 @@ class Table {
 					. ' ON (`' . $this->get_name() . '`.`' . $column->get_name() . '` '
 					. ' = `f' . $this->alias_count . '`.`' . $fk1_table->get_pk_column()->get_name() . '`)';
 			$column_alias = "`f$this->alias_count`.`" . $fk1_title_column->get_name() . "`";
-			$this->joined_tables[] = $column_alias;
 			// FK is also an FK?
 			if ( $fk1_title_column->is_foreign_key() ) {
 				$fk2_table = $fk1_title_column->get_referenced_table();
@@ -286,7 +289,6 @@ class Table {
 						. ' ON (f' . $this->alias_count . '.`' . $fk1_title_column->get_name() . '` '
 						. ' = ff' . $this->alias_count . '.`' . $fk1_table->get_pk_column()->get_name() . '`)';
 				$column_alias = "`ff$this->alias_count`.`" . $fk2_title_column->get_name() . "`";
-				$this->joined_tables[] = $column_alias;
 			}
 			$this->alias_count++;
 		}
@@ -304,9 +306,12 @@ class Table {
 		$sql = 'SELECT ' . $this->columns_sql_select() . ' FROM `' . $this->get_name() . '`';
 
 		// Ordering.
-		if ($this->get_order_by()) {
-			$order_by_join = $this->join_on( $this->get_column( $this->get_order_by() ) );
-			$sql .= $order_by_join['join_clause'] . ' ORDER BY ' . $order_by_join['column_alias'] . ' ' . $this->get_order_dir();
+		if ( false !== $this->get_order_by() ) {
+			$order_by = $this->get_column( $this->get_order_by() );
+			if ( $order_by ) {
+				$order_by_join = $this->join_on( $order_by );
+				$sql .= $order_by_join['join_clause'] . ' ORDER BY ' . $order_by_join['column_alias'] . ' ' . $this->get_order_dir();
+			}
 		}
 
 		$params = $this->apply_filters( $sql );
@@ -321,7 +326,7 @@ class Table {
 		}
 
 		// Run query and save SQL
-		if ( $params ) {
+		if ( ! empty( $params ) ) {
 			$sql = $this->database->get_wpdb()->prepare( $sql, $params );
 		}
 		$rows = $this->database->get_wpdb()->get_results( $sql );
@@ -528,7 +533,7 @@ class Table {
 			} else {
 				$column_name = "`$this->name`.`$col_name`";
 			}
-			if ( $col->get_type() !== 'point' ) {
+			if ( $col->get_type() !== 'point' && isset( $column_name ) ) {
 				$columns[] = "REPLACE(IFNULL($column_name, ''),CONCAT(CHAR(13),CHAR(10)),CHAR(10))"; // 13 = \r and 10 = \n
 			}
 			$column_headers[] = $col->get_title();
@@ -559,7 +564,7 @@ class Table {
 			. ' LINES TERMINATED BY "\r\n"';
 		// Execute the SQL (hiding errors for now).
 		$wpdb = $this->database->get_wpdb();
-		if ( $params ) {
+		if ( ! empty( $params ) ) {
 			$sql = $wpdb->prepare( $sql, $params );
 		}
 		$wpdb->hide_errors();
@@ -587,7 +592,7 @@ class Table {
 	 * Get a list of this table's columns, optionally constrained by their type.
 	 *
 	 * @param string $type Only return columns of this type.
-	 * @return Column[] This table's columns.
+	 * @return \WordPress\Tabulate\DB\Column[] This table's columns.
 	 */
 	public function get_columns( $type = null ) {
 		if ( is_null( $type ) ) {
@@ -809,9 +814,9 @@ class Table {
 	public function to_json() {
 		$json = new Services_JSON();
 		$metadata = array();
-		foreach ( $this->getColumns() as $column ) {
+		foreach ( $this->get_columns() as $column ) {
 			$metadata[] = array(
-				'name' => $column->getName(),
+				'name' => $column->get_name(),
 			);
 		}
 		return $json->encode( $metadata );
@@ -824,7 +829,6 @@ class Table {
 	 */
 	public function reset_filters() {
 		$this->filters = array();
-		$this->recordCount = false;
 	}
 
 	/**
@@ -859,7 +863,7 @@ class Table {
 	 * updated; otherwise, a new row will be inserted.
 	 *
 	 * @param array  $data The data to insert.
-	 * @param string $pk_value The value of the record's PK.
+	 * @param string $pk_value The value of the record's PK. Null if the record doesn't exist.
 	 * @return \WordPress\Tabulate\DB\Record The updated or inserted record.
 	 * @throws Exception If the user doesn't have permission, or something else has gone wrong.
 	 */
@@ -943,8 +947,7 @@ class Table {
 		}
 
 		$change_tracker->before_save( $this, $data, $pk_value );
-
-		if ( $pk_value ) { // Update?
+		if ( ! empty( $pk_value ) ) { // Update?
 			// Check permission.
 			if ( ! Grants::current_user_can( Grants::UPDATE, $this->get_name() ) ) {
 				throw new Exception( 'You do not have permission to update data in this table.' );
@@ -964,12 +967,20 @@ class Table {
 				Exception::wp_die( 'The record was not created.', 'Unable to create record', $this->database->get_wpdb()->last_error, $sql ); // WPCS: XSS OK.
 			}
 			if ( $this->get_pk_column()->is_auto_increment() ) {
+				// Use the last insert ID.
 				$new_pk_value = $this->database->get_wpdb()->insert_id;
 			} elseif ( isset( $data[ $pk_name ] ) ) {
+				// Or the PK value provided in the data.
 				$new_pk_value = $data[ $pk_name ];
+			} else {
+				// If neither of those work, how can we find out the new PK value?
+				throw new Exception( "Unable to determine the value of the new record's prmary key." );
 			}
 		}
 		$new_record = $this->get_record( $new_pk_value );
+		if ( ! $new_record instanceof Record ) {
+			throw new Exception( "Unable to fetch record with PK of: <code>" . var_export( $new_pk_value, true ) . '</code>' );
+		}
 
 		// Save the changes.
 		$change_tracker->after_save( $this, $new_record );
