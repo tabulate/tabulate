@@ -32,7 +32,7 @@ Features (in no particular order):
     (i.e. with a logical *and*).
 2.  Access can be granted to *read*, *create*, *update*, *delete*, and *import*
     records in any or all tables. (This can be done by anyone with the
-    *promote_users* capability.)
+    *promote_users* capability.) Access can also be granted to *anonymous users*.
 3.  CSV data can be imported, with the UI supporting column mapping, data
     validation, and previewing prior to final import. If an imported row has a
     value for the Primary Key, the existing row will be overwritten.

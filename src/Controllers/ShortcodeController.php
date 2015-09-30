@@ -37,9 +37,9 @@ class ShortcodeController extends ControllerBase {
 		}
 		$table = $this->db->get_table( $attrs['table'] );
 		if ( ! $table ) {
-			if ( ! is_user_logged_in() ) {
-				return $this->error( "You are not logged in. " . wp_loginout( get_the_permalink(), false ) );
-			}
+//			if ( ! is_user_logged_in() ) {
+//				return $this->error( "You are not logged in. " . wp_loginout( get_the_permalink(), false ) );
+//			}
 			return $this->error();
 		}
 		$format_method = $attrs['format'].'_format';

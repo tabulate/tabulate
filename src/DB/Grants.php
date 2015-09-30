@@ -14,6 +14,9 @@ class Grants {
 	const DELETE = 'delete';
 	const IMPORT = 'import';
 
+	/** @const The name of the "anonymous user" role. */
+	const ANON_ROLE = 'anon';
+
 	private $option_name;
 
 	public function __construct() {
@@ -32,7 +35,7 @@ class Grants {
 	}
 
 	public function get_roles() {
-		$roles = array();
+		$roles = array( self::ANON_ROLE => 'Anonymous User' );
 		foreach ( get_editable_roles() as $role_name => $role ) {
 			$roles[ $role_name ] = $role[ 'name' ];
 		}
@@ -82,7 +85,7 @@ class Grants {
 		$cap = substr( $cap_full_name, strlen( TABULATE_SLUG ) + 1 );
 
 		// Set up basic data.
-		$table_name = ($args[2]) ? $args[2] : false;
+		$table_name = ( $args[2] ) ? $args[2] : false;
 		$grants = new self();
 
 		// Users with 'promote_users' capability can do everything.
@@ -92,14 +95,15 @@ class Grants {
 
 		// Table has no grants, or doesn't have this one.
 		$table_grants = $grants->get( $table_name );
-		if ( !$table_grants || !isset( $table_grants[$cap] ) ) {
+		if ( ! $table_grants || ! isset( $table_grants[$cap] ) ) {
 			return $all_capabilities;
 		}
 
 		// Table has grants of this capability; check whether the user has one
-		// of the roles with this capability.
+		// of the roles with this capability. Everyone is also an 'anonymous user'.
 		$user = wp_get_current_user();
-		$intersect = array_intersect( $table_grants[$cap], $user->roles );
+		$roles = array_merge( $user->roles, array( self::ANON_ROLE ) );
+		$intersect = array_intersect( $table_grants[$cap], $roles );
 		if ( count( $intersect ) > 0 ) {
 			$all_capabilities[ $cap_full_name ] = true;
 		}
