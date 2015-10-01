@@ -1,0 +1,13 @@
+
+<table class="tabulate record view">
+
+	{% for column in table.get_columns %}
+	<tr class="column-{{column.get_name()}}">
+		<th>{{column.get_title()}}:</th>
+		<td class="type-{{column.get_type()}} {% if column.is_foreign_key %}is-foreign-key{% endif %}">
+			{% include 'field/view.html' %}
+		</td>
+	</tr>
+	{% endfor %}
+
+</table>

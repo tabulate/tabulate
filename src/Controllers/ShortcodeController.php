@@ -37,15 +37,15 @@ class ShortcodeController extends ControllerBase {
 		}
 		$table = $this->db->get_table( $attrs['table'] );
 		if ( ! $table ) {
-//			if ( ! is_user_logged_in() ) {
-//				return $this->error( "You are not logged in. " . wp_loginout( get_the_permalink(), false ) );
-//			}
+			if ( ! is_user_logged_in() ) {
+				return $this->error( "You are not logged in. " . wp_loginout( get_the_permalink(), false ) );
+			}
 			return $this->error();
 		}
 		$format_method = $attrs['format'].'_format';
 		if ( is_callable( array( $this, $format_method ) ) ) {
 			wp_enqueue_script( 'tabulate-scripts' );
-			return $this->$format_method( $table, $attrs );
+			return $this->$format_method( $table, $attrs, $_GET );
 		} else {
 			return $this->error( "Format '{$attrs['format']}' not available." );
 		}
@@ -60,6 +60,20 @@ class ShortcodeController extends ControllerBase {
 		return "<div class='tabulate shortcode-error'>$message</div>";
 	}
 
+	protected function record_format( Table $table, $attrs, $query = null ) {
+		if ( ! isset( $query[ $table->get_name() ] ) || ! is_scalar( $query[ $table->get_name() ] ) ) {
+			return '';
+		}
+		$record = $table->get_record( $query[ $table->get_name() ] );
+		if ( $record === false ) {
+			return $this->error("No record found.");
+		}
+		$template = new Template( 'record/view.html' );
+		$template->table = $table;
+		$template->record = $record;
+		return $template->render();
+	}
+
 	protected function form_format( Table $table, $attrs ) {
 		if ( ! Grants::current_user_can( Grants::CREATE, $table ) ) {
 			return 'You do not have permission to create ' . $table->get_title() . ' records.';
@@ -67,7 +81,7 @@ class ShortcodeController extends ControllerBase {
 		$template = new Template( 'record/shortcode.html' );
 		$template->table = $table;
 		$template->record = $table->get_default_record();
-		$template->return_to = get_the_permalink();
+		$template->return_to = ( $attrs['return_to'] ) ? $attrs['return_to'] : get_the_permalink();
 		return $template->render();
 	}
 

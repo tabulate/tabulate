@@ -86,12 +86,15 @@ which can be used to add tables, lists, data-entry forms, and record-counts to
 your content. Its parameters (which can appear in any order) are as follows:
 
 1. `table` — The name of the table in question. Required. No default.
-2. `format` — One of `table`, `list`, `form`, or `count`. Optional. Defaults to `table`.
+2. `format` — One of `table`, `list`, `form`, `count`, or `record`. Optional. Defaults to `table`.
 
 Do note that if a table is not accessible to the browsing user then nothing will
-be displayed. (This currently means that anonymous users can not view any
-Tabulate data, because there is no way to grant them access; this will be fixed
-soon.)
+be displayed.
+
+When using the `record` format, the primary key of the record to display will be
+taken from the URL parameter that is the table's name
+(e.g. `[tabulate table=widgets format=record]` will look for `?widgets=45`
+and display the record with a primary key value of `45`).
 
 ### Where should issues be reported?
 
