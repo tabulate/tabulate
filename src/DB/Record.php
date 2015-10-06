@@ -169,7 +169,7 @@ class Record {
 		return $foreign_table->get_records( $with_pagination );
 	}
 
-	public function get_url( $action = 'index', $include_ident = true ) {
+	public function get_url( $action = 'index', $include_ident = true, $extra_params = false ) {
 		$params = array(
 			'page' => 'tabulate',
 			'controller' => 'record',
@@ -178,6 +178,9 @@ class Record {
 		);
 		if ( $include_ident && $this->get_primary_key() !== false ) {
 			$params['ident'] = $this->get_primary_key();
+		}
+		if ( is_array( $extra_params ) ) {
+			$params = array_merge( $params, $extra_params );
 		}
 		return admin_url( 'admin.php?' . http_build_query( $params ) );
 	}

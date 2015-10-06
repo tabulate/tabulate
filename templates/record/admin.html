@@ -79,6 +79,7 @@
 
 	{% for refinfo in table.get_referencing_tables %}
 	<div class="postbox related-records">
+		{% set return_to = record.get_url()~'#related-'~refinfo.table.get_name() %}
 		<div class="handlediv" title="Click to toggle"><br /></div>
 		<h3 class="hndle" id="related-{{refinfo.table.get_name()}}">
 			<span>
@@ -93,14 +94,14 @@
 					CSV of all
 				</a>
 				{% set defaults_key = 'defaults['~refinfo.column~']' %}
-				<a href="{{refinfo.table.get_url('index', {(defaults_key):record.get_primary_key(), ident:'', return_to:record.get_url()~'#related-'~refinfo.table.get_name()}, 'record')}}"
+				<a href="{{refinfo.table.get_url('index', {(defaults_key):record.get_primary_key(), ident:'', return_to:return_to}, 'record')}}"
 				   class="button button-small">
 					Add record
 				</a>
 			</span>
 		</h3>
 		<div class="inside">
-		{% include 'data_table.html' with { links:true, sortable:false, table:refinfo.table, records:record.get_referencing_records(refinfo.table,refinfo.column) } %}
+		{% include 'data_table.html' with { links:true, sortable:false, table:refinfo.table, records:record.get_referencing_records(refinfo.table,refinfo.column), return_to:return_to } %}
 		</div>
 	</div>
 	{% endfor %}
