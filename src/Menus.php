@@ -32,6 +32,8 @@ class Menus {
 		add_action( 'admin_menu', array( $this, 'add_menu_pages' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue' ) );
+		// @TODO Only enable this once it can be scrolled when it's long.
+		// add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ) );
 	}
 
 	/**
@@ -52,7 +54,28 @@ class Menus {
 		}
 		//add_submenu_page( TABULATE_SLUG, 'Tabulate Reports', 'Reports', 'promote_users', TABULATE_SLUG.'_reports', $dispatch_callback );
 		add_submenu_page( TABULATE_SLUG, 'Tabulate Grants', 'Grants', 'promote_users', TABULATE_SLUG.'_grants', $dispatch_callback );
+	}
 
+	/**
+	 * Add all tables in which the user is allowed to create records to the
+	 * Admin Bar new-content menu.
+	 * @global \WP_Admin_Bar $wp_admin_bar
+	 * @global \wpdb $wpdb
+	 */
+	public function admin_bar_menu() {
+		global $wp_admin_bar, $wpdb;
+		$db = new DB\Database( $wpdb );
+		foreach ( $db->get_tables() as $table ) {
+			if ( ! DB\Grants::current_user_can( DB\Grants::CREATE, $table->get_name() ) ) {
+				continue;
+			}
+			$wp_admin_bar->add_menu( array(
+				'parent' => 'new-content',
+				'id'     => TABULATE_SLUG . '-' . $table->get_name(),
+				'title'  => $table->get_title(),
+				'href'   => $table->get_url( 'index', null, 'record' ),
+			) );
+		}
 	}
 
 	/**
@@ -130,7 +153,7 @@ class Menus {
 		// Enqueue Tabulate's scripts.
 		$script_url = plugins_url( TABULATE_SLUG ) . '/assets/scripts.js';
 		$deps = array( 'jquery-ui-autocomplete', 'tabulate-leaflet', 'tabulate-maskedinput', 'tabulate-timepicker' );
-		if ( function_exists( 'is_plugin_active' ) && is_plugin_active( 'json-rest-api/plugin.php' ) ) {
+		if ( function_exists( 'is_plugin_active' ) && is_plugin_active( 'rest-api/plugin.php' ) ) {
 			$deps[] = 'wp-api';
 		}
 		wp_enqueue_script( 'tabulate-scripts', $script_url, $deps, TABULATE_VERSION, true );

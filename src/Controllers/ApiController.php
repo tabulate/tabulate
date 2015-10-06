@@ -13,21 +13,22 @@ class ApiController extends ControllerBase {
 
 	/**
 	 * Register the API routes for Tabulate.
-	 * @link http://wp-api.org/guides/extending.html#registering-your-endpoints
-	 * @param array $routes The existing routes.
-	 * @return array
+	 * @link http://v2.wp-api.org/extending/adding/
+	 * @return void
 	 */
-	public function register_routes($routes) {
-		$routes[ '/' . TABULATE_SLUG . '/tables' ] = array(
-			array( array( $this, 'table_names' ), \WP_JSON_Server::READABLE ),
-		);
-		$routes[ '/' . TABULATE_SLUG . '/app/schema' ] = array(
-			array( array( $this, 'app_schema' ), \WP_JSON_Server::READABLE ),
-		);
-		$routes[ '/' . TABULATE_SLUG . '/fk/(?P<table_name>.*)' ] = array(
-			array( array( $this, 'foreign_key_values' ), \WP_JSON_Server::READABLE ),
-		);
-		return $routes;
+	public function register_routes() {
+		register_rest_route( TABULATE_SLUG, '/tables', array(
+			'methods' => 'GET',
+			'callback' => array( $this, 'table_names' ),
+		) );
+		register_rest_route( TABULATE_SLUG, '/app/schema', array(
+			'methods' => 'GET',
+			'callback' => array( $this, 'app_schema' ),
+		) );
+		register_rest_route( TABULATE_SLUG, '/fk/(?P<table_name>.*)', array(
+			'methods' => 'GET',
+			'callback' => array( $this, 'foreign_key_values' ),
+		) );
 	}
 
 	/**
@@ -69,22 +70,22 @@ class ApiController extends ControllerBase {
 	 * `$_GET['term']`, for foreign-key fields. Only used when there are more
 	 * than N records in a foreign table (otherwise the options are presented in
 	 * a select list).
-	 * @param string $table_name The name of the table to query.
+	 * @param \WP_REST_Request $request The request, with a 'table_name' parameter.
 	 * @return array
 	 */
-	public function foreign_key_values( $table_name ) {
-		if ( ! isset( $this->get['term'] ) ) {
+	public function foreign_key_values( \WP_REST_Request $request ) {
+		if ( ! isset( $this->get[ 'term' ] ) ) {
 			return array();
 		}
 		$db = new Database( $this->wpdb );
-		$table = $db->get_table( $table_name );
+		$table = $db->get_table( $request->get_param( 'table_name' ) );
 		if ( ! $table instanceof \WordPress\Tabulate\DB\Table ) {
 			return array();
 		}
 		// First get any exact matches.
-		$out = $this->foreign_key_values_build( $table, '=', $this->get['term'] );
+		$out = $this->foreign_key_values_build( $table, '=', $this->get[ 'term' ] );
 		// Then get any 'contains' matches.
-		$out += $this->foreign_key_values_build( $table, 'like', '%' . $this->get['term'] . '%' );
+		$out += $this->foreign_key_values_build( $table, 'like', '%' . $this->get[ 'term' ] . '%' );
 		return $out;
 	}
 

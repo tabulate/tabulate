@@ -25,7 +25,7 @@ class Template {
 		$this->data = array(
 			'tabulate_version' => TABULATE_VERSION,
 			'notices' => $notices,
-			'wp_api' => is_plugin_active( 'json-rest-api/plugin.php' ),
+			'wp_api' => is_plugin_active( 'rest-api/plugin.php' ),
 			'tfo_graphviz' => is_plugin_active( 'tfo-graphviz/tfo-graphviz.php' ),
 			'wpdb_prefix' => $wpdb->prefix,
 		);

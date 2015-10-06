@@ -30,7 +30,7 @@ jQuery(document).ready(function ($) {
 		 * Jump between tables.
 		 */
 		// Get the table list.
-		$.getJSON(WP_API_Settings.root + "/tabulate/tables", function( tableNames ) {
+		$.getJSON(WP_API_Settings.root + "tabulate/tables", function( tableNames ) {
 			for ( var t in tableNames ) {
 				var table = tableNames[t];
 				var url = tabulate.admin_url + "&controller=table&table=" + table.value;
@@ -78,7 +78,7 @@ jQuery(document).ready(function ($) {
 		$(".tabulate .foreign-key .form-control:input").each(function() {
 			// Autocomplete.
 			$(this).autocomplete({
-				source: WP_API_Settings.root + "/tabulate/fk/" + $(this).data('fk-table'),
+				source: WP_API_Settings.root + "tabulate/fk/" + $(this).data('fk-table'),
 				select: function( event, ui ) {
 					event.preventDefault();
 					$(this).val(ui.item.label);

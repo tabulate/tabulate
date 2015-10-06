@@ -1006,7 +1006,7 @@ class Table {
 			'action' => $action,
 			'table' => $this->get_name(),
 		);
-		if ( false !== $extra_params ) {
+		if ( is_array( $extra_params ) ) {
 			$params = array_merge( $_GET, $params, $extra_params );
 		}
 		return admin_url( 'admin.php?' . http_build_query( $params ) );
