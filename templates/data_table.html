@@ -39,7 +39,7 @@
 		<tr>
 			<td>
 				{% if links and table.is_updatable %}
-				<a href="{{ record.get_url('index',true,{'return_to':return_to}) }}" class="">Edit</a>
+				<a href="{{ record.get_url('index',true,{return_to:return_to}) }}" class="">Edit</a>
 				{% endif %}
 			</td>
 			{% for column in table.get_columns %}
