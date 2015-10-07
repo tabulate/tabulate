@@ -700,7 +700,7 @@ class Table {
 	 * This does <em>not</em> take into account a user's permissions (i.e. the
 	 * name of a table which the user is not allowed to read may be returned).
 	 * @param boolean $instantiate Whether to instantiate the Table objects (or just return their names).
-	 * @return string[] The list of <code>column_name => table_name</code> pairs.
+	 * @return string[]|Table[] The list of <code>column_name => table_name|Table</code> pairs.
 	 */
 	public function get_referenced_tables( $instantiate = false ) {
 
@@ -720,7 +720,7 @@ class Table {
 		if ( $instantiate ) {
 			$this->referenced_tables = array();
 			foreach ( $this->referenced_table_names as $refCol => $ref_tab ) {
-				$this->referenced_tables[ $refCol ] = $this->get_database()->get_table( $ref_tab );
+				$this->referenced_tables[ $refCol ] = new Table( $this->get_database(), $ref_tab ); // $this->get_database()->get_table( $ref_tab );
 			}
 		}
 

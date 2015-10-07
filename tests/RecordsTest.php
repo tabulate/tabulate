@@ -80,4 +80,39 @@ class RecordsTest extends TestBase {
 		$this->assertEquals( 52, $test_table->count_records() );
 	}
 
+	/**
+	 * Bug description: when editing a record, and a filter has been applied to
+	 * a referenced table, the count is the *filtered* count (and thus
+	 * incorrect).
+	 * @test
+	 */
+	public function count_related() {
+		// Create 50 types.
+		$types_normal = $this->db->get_table( 'test_types' );
+		for ( $i = 0; $i < 50; $i ++ ) {
+			$types_normal->save_record( array( 'title' => "Type $i" ) );
+		}
+		$this->assertEquals( 50, $types_normal->count_records() );
+
+		// The test_table should know there are 50.
+		$test_table = $this->db->get_table( 'test_table' );
+		$type_col = $test_table->get_column( 'type_id' );
+		$referenced_tables = $test_table->get_referenced_tables( true );
+		$types_referenced = $referenced_tables['type_id'];
+		$this->assertNotSame( $types_normal, $types_referenced );
+		$this->assertCount( 0, $types_normal->get_filters() );
+		$this->assertCount( 0, $types_referenced->get_filters() );
+		$this->assertEquals( 50, $types_normal->count_records() );
+		$this->assertEquals( 50, $types_referenced->count_records() );
+		$this->assertEquals( 50, $type_col->get_referenced_table()->count_records() );
+
+		// Now apply a filter to the test_types table.
+		$types_normal->add_filter( 'title', 'like', '20' );
+		$this->assertCount( 1, $types_normal->get_filters() );
+		$this->assertCount( 0, $types_referenced->get_filters() );
+		$this->assertEquals( 1, $types_normal->count_records() );
+		$this->assertEquals( 50, $types_referenced->count_records() );
+		$this->assertEquals( 1, $type_col->get_referenced_table()->count_records() );
+	}
+
 }

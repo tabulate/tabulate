@@ -6,9 +6,9 @@
  * Author URI: http://samwilson.id.au/
  * License: GPL-2.0+
  * Text Domain: tabulate
- * Version: 2.0.1
+ * Version: 2.1.0
  */
-define( 'TABULATE_VERSION', '2.0.1' );
+define( 'TABULATE_VERSION', '2.1.0' );
 define( 'TABULATE_SLUG', 'tabulate' );
 
 // Make sure Composer has been set up (for installation from Git, mostly).

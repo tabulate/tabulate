@@ -4,7 +4,7 @@ namespace WordPress\Tabulate;
 
 class Template {
 
-	protected $templateName;
+	protected $template_name;
 
 	protected $data;
 
@@ -14,9 +14,9 @@ class Template {
 	/** @var string The name of the transient used to store notices. */
 	protected $transient_notices;
 
-	public function __construct( $templateName ) {
+	public function __construct( $template_name = false ) {
 		global $wpdb;
-		$this->templateName = $templateName;
+		$this->template_name = $template_name;
 		$this->transient_notices = TABULATE_SLUG . '_notices';
 		$notices = get_transient( $this->transient_notices );
 		if ( ! is_array( $notices ) ) {
@@ -109,7 +109,12 @@ class Template {
 		echo $this->render();
 	}
 
-	public function render() {
+	/**
+	 * 
+	 * @param string $template_string
+	 * @return string
+	 */
+	public function render( $template_string = false ) {
 		delete_transient( $this->transient_notices );
 		$loader = new \Twig_Loader_Filesystem( self::$paths );
 		$twig = new \Twig_Environment( $loader );
@@ -145,7 +150,7 @@ class Template {
 		}
 
 		// Render the template.
-		$template = $twig->loadTemplate( $this->templateName );
+		$template = ($template_string) ? $twig->createTemplate( $template_string ) : $twig->loadTemplate( $this->template_name );
 		return $template->render( $this->data );
 	}
 
