@@ -15,4 +15,13 @@ abstract class ControllerBase {
 		$this->get = $get;
 	}
 
+	protected function send_file( $ext, $mime, $content, $download_name = false ) {
+		$download_name = ($download_name ?: date( 'Y-m-d' ) ) . '.' . $ext;
+		header( 'Content-Encoding: UTF-8' );
+		header( 'Content-type: ' . $mime . '; charset=UTF-8' );
+		header( 'Content-Disposition: attachment; filename="' . $download_name . '"' );
+		echo $content;
+		exit;
+	}
+
 }

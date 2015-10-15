@@ -63,8 +63,8 @@ class TestBase extends WP_UnitTestCase {
 	public function tearDown() {
 		// Remove test tables.
 		$this->wpdb->query( 'SET FOREIGN_KEY_CHECKS = 0' );
-		$this->wpdb->query( 'DROP TABLE `test_types`' );
-		$this->wpdb->query( 'DROP TABLE `test_table`' );
+		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_types`' );
+		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_table`' );
 		$this->wpdb->query( 'SET FOREIGN_KEY_CHECKS = 1' );
 
 		// Uninstall

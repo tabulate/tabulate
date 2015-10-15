@@ -4,8 +4,13 @@ namespace WordPress\Tabulate;
 
 class Template {
 
+	/** @var string */
 	protected $template_name;
 
+	/** @var string */
+	protected $template_string;
+
+	/** @var string[] */
 	protected $data;
 
 	/** @var string[] Paths at which to find templates. */
@@ -14,9 +19,10 @@ class Template {
 	/** @var string The name of the transient used to store notices. */
 	protected $transient_notices;
 
-	public function __construct( $template_name = false ) {
+	public function __construct( $template_name = false, $template_string = false ) {
 		global $wpdb;
 		$this->template_name = $template_name;
+		$this->template_string = $template_string;
 		$this->transient_notices = TABULATE_SLUG . '_notices';
 		$notices = get_transient( $this->transient_notices );
 		if ( ! is_array( $notices ) ) {
@@ -53,10 +59,10 @@ class Template {
 	 */
 	public function get_templates( $directory ) {
 		$templates = array();
-		foreach (self::$paths as $path) {
+		foreach ( self::$paths as $path ) {
 			$dir = $path . '/' . ltrim( $directory, '/' );
 			foreach ( preg_grep( '/^[^\.].*\.(twig|html)$/', scandir( $dir ) ) as $file ) {
-				$templates[] = $directory.'/'.$file;
+				$templates[] = $directory . '/' . $file;
 			}
 		}
 		return $templates;
@@ -110,11 +116,10 @@ class Template {
 	}
 
 	/**
-	 * 
-	 * @param string $template_string
+	 * Render the template and return the output.
 	 * @return string
 	 */
-	public function render( $template_string = false ) {
+	public function render() {
 		delete_transient( $this->transient_notices );
 		$loader = new \Twig_Loader_Filesystem( self::$paths );
 		$twig = new \Twig_Environment( $loader );
@@ -134,7 +139,7 @@ class Template {
 		$twig->addFilter( new \Twig_SimpleFilter( 'get_date_from_gmt', 'get_date_from_gmt' ) );
 
 		// Add strtolower filter.
-		$strtolower_filter = new \Twig_SimpleFilter( 'strtolower', function( $str ){
+		$strtolower_filter = new \Twig_SimpleFilter( 'strtolower', function( $str ) {
 			if ( is_array( $str ) ) {
 				return array_map( 'strtolower', $str );
 			} else {
@@ -150,7 +155,11 @@ class Template {
 		}
 
 		// Render the template.
-		$template = ($template_string) ? $twig->createTemplate( $template_string ) : $twig->loadTemplate( $this->template_name );
+		if ( ! is_null( $this->template_string ) ) {
+			$template = $twig->createTemplate( $this->template_string );
+		} else {
+			$template = $twig->loadTemplate( $this->template_name );
+		}
 		return $template->render( $this->data );
 	}
 

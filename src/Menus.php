@@ -52,7 +52,7 @@ class Menus {
 		if ( is_plugin_active( 'tfo-graphviz/tfo-graphviz.php' ) ) {
 			add_submenu_page( TABULATE_SLUG, 'Tabulate ERD', 'ERD', 'read', TABULATE_SLUG.'_erd', $dispatch_callback );
 		}
-		//add_submenu_page( TABULATE_SLUG, 'Tabulate Reports', 'Reports', 'promote_users', TABULATE_SLUG.'_reports', $dispatch_callback );
+		add_submenu_page( TABULATE_SLUG, 'Tabulate Reports', 'Reports', 'promote_users', TABULATE_SLUG.'_reports', $dispatch_callback );
 		add_submenu_page( TABULATE_SLUG, 'Tabulate Grants', 'Grants', 'promote_users', TABULATE_SLUG.'_grants', $dispatch_callback );
 	}
 
@@ -133,7 +133,7 @@ class Menus {
 			'tabulate_shortcode', // Not really a page! :-(
 			'toplevel_page_tabulate',
 			'tabulate_page_tabulate_erd',
-			//'tabulate_page_tabulate_reports',
+			'tabulate_page_tabulate_reports',
 			'tabulate_page_tabulate_grants',
 		);
 		if ( ! ( empty( $page ) || in_array( $page, $allowed_pages ) ) ) {

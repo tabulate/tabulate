@@ -123,13 +123,9 @@ class MapController extends ControllerBase {
 		$this->send_file( 'gpx', 'application/gpx+xml', $gpx->asXML() );
 	}
 
-	protected function send_file($ext, $mime, $content) {
-		$download_name = date( 'Y-m-d' ) . '_' . $this->table->get_name() . '.'.$ext;
-		header( 'Content-Encoding: UTF-8' );
-		header( 'Content-type: ' . $mime . '; charset=UTF-8' );
-		header( 'Content-Disposition: attachment; filename="' . $download_name . '"' );
-		echo $content;
-		exit;
+	protected function send_file( $ext, $mime, $content, $download_name = false ) {
+		$download_name = date( 'Y-m-d' ) . '_' . $this->table->get_name();
+		parent::send_file( $ext, $mime, $content, $download_name );
 	}
 
 }

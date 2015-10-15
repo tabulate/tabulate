@@ -31,8 +31,9 @@ $menus->init();
 // Add grants-checking callback.
 add_filter( 'user_has_cap', '\\WordPress\\Tabulate\\DB\\Grants::check', 0, 3 );
 
-// Activation for the ChangeTracker. (Uninstall is handled by uninstall.php.)
+// Activation hooks. (Uninstall is handled by uninstall.php.)
 register_activation_hook( __FILE__, '\\WordPress\\Tabulate\\DB\\ChangeTracker::activate' );
+register_activation_hook( __FILE__, '\\WordPress\\Tabulate\\DB\\Reports::activate' );
 
 // Register JSON API.
 add_action( 'rest_api_init', function() {
