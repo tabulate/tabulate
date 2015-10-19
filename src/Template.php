@@ -19,6 +19,12 @@ class Template {
 	/** @var string The name of the transient used to store notices. */
 	protected $transient_notices;
 
+	/**
+	 * Create a new template either with a file-based Twig template, or a Twig string.
+	 * @global type $wpdb
+	 * @param string|false $template_name
+	 * @param string|false $template_string
+	 */
 	public function __construct( $template_name = false, $template_string = false ) {
 		global $wpdb;
 		$this->template_name = $template_name;
