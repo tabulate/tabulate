@@ -6,13 +6,13 @@
 	<div class="postbox-container" id="postbox-container-1">
 		<div class="postbox">
 			<div class="handlediv" title="Click to toggle"><br /></div>
-			<h3 class="hndle"><span>Tables</span></h3>
+			<h3><span>Tables</span></h3>
 			<div class="inside">
 				<ol>
 					{% for table in tables %}
 					<li>
-						<a href="{{table.get_url}}">{{table.get_title}}</a>
-						({{table.count_records|number_format}})
+						<a href="{{table.url}}">{{table.title}}</a>
+						({{table.count|number_format}})
 					</li>
 					{% endfor %}
 				</ol>
@@ -22,13 +22,26 @@
 
 	<div class="postbox-container" id="postbox-container-2">
 		<div class="postbox">
-			<h3 class="hndle">Views</h3>
+			<h3>Views</h3>
 			<div class="inside">
 				<ol>
-					{% for table in views %}
+					{% for view in views %}
+					<li><a href="{{view.get_url}}">{{view.get_title}}</a></li>
+					{% endfor %}
+				</ol>
+			</div>
+		</div>
+	</div>
+
+	<div class="postbox-container" id="postbox-container-3">
+		<div class="postbox">
+			<h3>Reports</h3>
+			<div class="inside">
+				<ol>
+					{% for report in reports %}
 					<li>
-						<a href="{{table.get_url}}">{{table.get_title}}</a>
-						({{table.count_records|number_format}})
+						<a href="{{admin_url('admin.php?page=tabulate&controller=reports&id='~report.id)}}">{{report.title()}}</a>
+						&mdash; {{report.description()}}
 					</li>
 					{% endfor %}
 				</ol>

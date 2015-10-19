@@ -155,7 +155,7 @@ class Template {
 		}
 
 		// Render the template.
-		if ( ! is_null( $this->template_string ) ) {
+		if ( ! empty( $this->template_string ) ) {
 			$template = $twig->createTemplate( $this->template_string );
 		} else {
 			$template = $twig->loadTemplate( $this->template_name );

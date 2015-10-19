@@ -81,6 +81,25 @@ class RecordsTest extends TestBase {
 	}
 
 	/**
+	 * @testdox Cache the record counts for base tables which have no filters applied.
+	 * @test
+	 */
+	public function count_store_some() {
+		$test_table = $this->db->get_table( 'test_table' );
+		// Add some records.
+		for ( $i = 0; $i < 50; $i ++ ) {
+			$test_table->save_record( array( 'title' => "Record $i" ) );
+		}
+		$this->assertEquals( 50, $test_table->count_records() );
+		$transient_name = TABULATE_SLUG . '_test_table_count';
+		$this->assertEquals( 50, get_transient( $transient_name ) );
+		// With filters applied, the transient value shouldn't change.
+		$test_table->add_filter( 'title', 'like', 'Record 1' );
+		$this->assertEquals( 11, $test_table->count_records() );
+		$this->assertEquals( 50, get_transient( $transient_name ) );
+	}
+
+	/**
 	 * Bug description: when editing a record, and a filter has been applied to
 	 * a referenced table, the count is the *filtered* count (and thus
 	 * incorrect).
