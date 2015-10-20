@@ -30,7 +30,7 @@ class HomeController extends ControllerBase {
 
 		// Reports.
 		$reports_table = $db->get_table( \WordPress\Tabulate\DB\Reports::reports_table_name() );
-		$template->reports = $reports_table->get_records( false );
+		$template->reports = ($reports_table) ? $reports_table->get_records( false ) : array();
 
 		return $template->render();
 	}
