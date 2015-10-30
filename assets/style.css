@@ -64,3 +64,6 @@ table.tabulate.widefat thead th .sort-icons a { visibility:hidden }
 table.tabulate.widefat thead th:hover { background-color:#deedee }
 table.tabulate.widefat thead th:hover .sort-icons a { visibility:visible }
 table.tabulate.widefat td { line-height:1em }
+
+#tabulate-schema-table-list { float:left; height:500px; overflow-y:scroll; margin-right:1em; background-color:white }
+#tabulate-schema-form { padding-left:1em }

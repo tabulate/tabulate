@@ -67,8 +67,11 @@ class TestBase extends WP_UnitTestCase {
 		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_table`' );
 		$this->wpdb->query( 'SET FOREIGN_KEY_CHECKS = 1' );
 
+		$ct = new \WordPress\Tabulate\DB\ChangeTracker($this->wpdb);
+		$ct->close_changeset();
+
 		// Uninstall
-		if (!  defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+		if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 			define( 'WP_UNINSTALL_PLUGIN', 'tabulate/tabulate.php' );
 		}
 		require __DIR__ . '/../uninstall.php';

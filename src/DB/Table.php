@@ -1011,4 +1011,26 @@ class Table {
 		}
 		return admin_url( 'admin.php?' . http_build_query( $params ) );
 	}
+
+	/**
+	 * Rename this table and all of its change-tracker entries.
+	 * @param string $new_name
+	 */
+	public function rename( $new_name ) {
+		if ( $this->get_database()->get_table( $new_name ) ) {
+			throw new Exception("Table '$new_name' already exists");
+		}
+		$wpdb = $this->get_database()->get_wpdb();
+		$old_name = $this->get_name();
+		$wpdb->query( "RENAME TABLE `$old_name` TO `$new_name`;" );
+		$this->get_database()->reset();
+		$new = $this->get_database()->get_table( $new_name, false );
+		if ( ! $new ) {
+			throw new Exception("Table '$old_name' was not renamed to '$new_name'");
+		}
+		$this->name = $new->get_name();
+		$wpdb->query( "UPDATE `".ChangeTracker::changes_name() . "`"
+			. " SET `table_name` = '$new_name' "
+			. " WHERE `table_name` = '$old_name';" );
+	}
 }

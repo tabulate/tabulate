@@ -27,6 +27,16 @@ class ChangeTracker {
 	}
 
 	/**
+	 * When destroying a ChangeTracker object, close the current changeset
+	 * unless it has specifically been requested to be kept open.
+	 */
+	public function __destruct() {
+		if ( ! self::$keep_changeset_open ) {
+			$this->close_changeset();
+		}
+	}
+
+	/**
 	 * Open a new changeset. If one is already open, this does nothing.
 	 * @global \WP_User $current_user
 	 * @param string $comment
@@ -43,7 +53,10 @@ class ChangeTracker {
 				'user_id' => $current_user->ID,
 				'comment' => $comment,
 			);
-			$this->wpdb->insert( $this->changesets_name(), $data );
+			$ret = $this->wpdb->insert( self::changesets_name(), $data );
+			if ( $ret === false ) {
+				throw new Exception( $this->wpdb->last_error . ' -- Unable to open changeset' );
+			}
 			self::$current_changeset_id = $this->wpdb->insert_id;
 		}
 	}

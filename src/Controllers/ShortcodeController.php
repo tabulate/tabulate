@@ -81,7 +81,7 @@ class ShortcodeController extends ControllerBase {
 		$template = new Template( 'record/shortcode.html' );
 		$template->table = $table;
 		$template->record = $table->get_default_record();
-		$template->return_to = ( $attrs['return_to'] ) ? $attrs['return_to'] : get_the_permalink();
+		$template->return_to = ( isset( $attrs['return_to'] ) ) ? $attrs['return_to'] : get_the_permalink();
 		return $template->render();
 	}
 

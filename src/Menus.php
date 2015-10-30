@@ -54,6 +54,7 @@ class Menus {
 		}
 		add_submenu_page( TABULATE_SLUG, 'Tabulate Reports', 'Reports', 'promote_users', TABULATE_SLUG.'_reports', $dispatch_callback );
 		add_submenu_page( TABULATE_SLUG, 'Tabulate Grants', 'Grants', 'promote_users', TABULATE_SLUG.'_grants', $dispatch_callback );
+		add_submenu_page( TABULATE_SLUG, 'Tabulate Schema', 'Schema', 'promote_users', TABULATE_SLUG.'_schema', $dispatch_callback );
 	}
 
 	/**
@@ -135,6 +136,7 @@ class Menus {
 			'tabulate_page_tabulate_erd',
 			'tabulate_page_tabulate_reports',
 			'tabulate_page_tabulate_grants',
+			'tabulate_page_tabulate_schema',
 		);
 		if ( ! ( empty( $page ) || in_array( $page, $allowed_pages ) ) ) {
 			return;

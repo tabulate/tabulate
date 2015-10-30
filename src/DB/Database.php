@@ -24,6 +24,10 @@ class Database {
 		return $this->wpdb;
 	}
 
+	/**
+	 * Get a list of tables that the current user can read.
+	 * @return string[] The table names.
+	 */
 	public function get_table_names() {
 		if ( ! $this->table_names ) {
 			$this->table_names = array();
@@ -40,7 +44,7 @@ class Database {
 	 * Get a table from the database.
 	 *
 	 * @param string $name
-	 * @return Table|false The table, or false if it's not available.
+	 * @return \WordPress\Tabulate\DB\Table|false The table, or false if it's not available.
 	 */
 	public function get_table( $name ) {
 		if ( ! in_array( $name, $this->get_table_names() ) ) {
@@ -50,6 +54,15 @@ class Database {
 			$this->tables[ $name ] = new Table( $this, $name );
 		}
 		return $this->tables[ $name ];
+	}
+
+	/**
+	 * Forget all table information, forcing it to be re-read from the database
+	 * when next required. Used after schema changes.
+	 */
+	public function reset() {
+		$this->table_names = false;
+		$this->tables = false;
 	}
 
 	/**

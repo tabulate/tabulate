@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Tabulate Schema Editor</h1>
+
+<div id="tabulate-schema-table-list">
+	<ol>
+	{% for table in tables %}
+		<li><a href="{{admin_url('admin.php?page=tabulate_schema&schema='~table.get_name)}}">{{table.get_title}}</a></li>
+	{% endfor %}
+	</ol>
+</div>
+
+<div id="tabulate-schema-form">
+	<h2> Editing <a href="{{schema.get_url()}}">{{schema.get_title}}</a></h2>
+	<form action="{{admin_url('admin.php?page=tabulate_schema&schema='~schema.get_name~'&action=save')}}" method="post">
+		<label for="new_name">New name:</label>
+		<input type="text" id="new_name" name="new_name" value="{{schema.get_name}}" class="schema-identifier" required />
+		<table class="">
+			<thead>
+				<tr>
+					<th>Order</th>
+					<th>Name</th>
+					<th>Type</th>
+					<th>Size</th>
+					<th>Options</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% set pos = 1 %}
+				{% for col in schema.get_columns %}
+				<tr>
+					<td><input type="text" name="columns[{{col.get_name}}][pos]" value="{{pos}}" /></td>
+					<td><input type="text" name="columns[{{col.get_name}}][name]" value="{{col.get_name}}" /></td>
+					<td>
+						<select name="columns[{{col.get_name}}][type]">
+							{% for type in types %}
+							<option {% if col.get_type == type %}selected{% endif %} value="{{type}}">
+								{{type}}
+							</option>
+							{% endfor %}
+						</select>
+					</td>
+					<td>
+						<input type="text" name="columns[{{col.get_name}}][size]" value="{{col.get_size}}" />
+					</td>
+					<td></td>
+				</tr>
+				{% set pos = pos + 1 %}
+				{% endfor %}
+			</tbody>
+		</table>
+		<p>
+			<input type="submit" value="Save changes" class="btn btn-default" />
+		</p>
+	</form>
+</div>
+
+<div class="clear"></div>
+{% endblock %}
