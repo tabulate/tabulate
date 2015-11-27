@@ -2,6 +2,8 @@
 
 namespace WordPress\Tabulate;
 
+use WordPress\Tabulate\Tabulate;
+
 class Template {
 
 	/** @var string */
@@ -37,8 +39,8 @@ class Template {
 		$this->data = array(
 			'tabulate_version' => TABULATE_VERSION,
 			'notices' => $notices,
-			'wp_api' => is_plugin_active( 'rest-api/plugin.php' ),
-			'tfo_graphviz' => is_plugin_active( 'tfo-graphviz/tfo-graphviz.php' ),
+			'wp_api' => Util::is_plugin_active( 'rest-api/plugin.php' ),
+			'tfo_graphviz' => Util::is_plugin_active( 'tfo-graphviz/tfo-graphviz.php' ),
 			'wpdb_prefix' => $wpdb->prefix,
 		);
 		self::add_path( __DIR__ . '/../templates' );

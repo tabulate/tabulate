@@ -49,7 +49,7 @@ class Menus {
 		add_submenu_page( TABULATE_SLUG, $page_title, 'Overview', 'read', TABULATE_SLUG, $dispatch_callback );
 
 		// Add submenu pages.
-		if ( is_plugin_active( 'tfo-graphviz/tfo-graphviz.php' ) ) {
+		if ( Util::is_plugin_active( 'tfo-graphviz/tfo-graphviz.php' ) ) {
 			add_submenu_page( TABULATE_SLUG, 'Tabulate ERD', 'ERD', 'read', TABULATE_SLUG.'_erd', $dispatch_callback );
 		}
 		add_submenu_page( TABULATE_SLUG, 'Tabulate Reports', 'Reports', 'promote_users', TABULATE_SLUG.'_reports', $dispatch_callback );
@@ -155,7 +155,7 @@ class Menus {
 		// Enqueue Tabulate's scripts.
 		$script_url = plugins_url( TABULATE_SLUG ) . '/assets/scripts.js';
 		$deps = array( 'jquery-ui-autocomplete', 'tabulate-leaflet', 'tabulate-maskedinput', 'tabulate-timepicker' );
-		if ( function_exists( 'is_plugin_active' ) && is_plugin_active( 'rest-api/plugin.php' ) ) {
+		if ( Util::is_plugin_active( 'rest-api/plugin.php' ) ) {
 			$deps[] = 'wp-api';
 		}
 		wp_enqueue_script( 'tabulate-scripts', $script_url, $deps, TABULATE_VERSION, true );
