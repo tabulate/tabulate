@@ -892,14 +892,16 @@ class Table {
 
 			} elseif ( $column->is_boolean() ) {
 				// Boolean values.
-				$zeroValues = array( 0, '0', false, 'false', 'FALSE', 'off', 'OFF', 'no', 'NO' );
-				if ( ( null === $value || '' === $value ) && $column->nullable() ) {
+				if ( $column->nullable() && ( is_null($value) || '' === $value ) ) {
+					// Null.
 					$data[ $field ] = null;
 					$sql_values[ $field ] = 'NULL';
-				} elseif ( in_array( $value, $zeroValues, true ) ) {
+				} elseif ( $value === false || in_array( strtoupper($value), array( '0', 'FALSE', 'OFF', 'NO' ) ) ) {
+					// False.
 					$data[ $field ] = false;
 					$sql_values[ $field ] = '0';
 				} else {
+					// True.
 					$data[ $field ] = true;
 					$sql_values[ $field ] = '1';
 				}

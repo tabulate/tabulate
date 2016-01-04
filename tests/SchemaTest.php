@@ -228,6 +228,47 @@ class SchemaTest extends TestBase {
 	}
 
 	/**
+	 * @testdox Values for boolean columns can be entered in a variety of ways.
+	 * @test
+	 */
+	public function boolean() {
+		// Set up a test record to work with.
+		$test_table = $this->db->get_table( 'test_table' );
+		$rec = $test_table->save_record( array( 'title' => 'Boolean Test' ) );
+
+		// Default is 'true' and the column IS nullable.
+		$this->assertTrue( $rec->active() );
+		$this->assertTrue( $test_table->get_column('active')->is_boolean() );
+		$this->assertTrue( $test_table->get_column('active')->nullable() );
+
+		// One and zero.
+		$rec2 = $test_table->save_record(array('active' => 1), $rec->id());
+		$this->assertTrue( $rec2->active() );
+		$rec3 = $test_table->save_record(array('active' => '1'), $rec->id());
+		$this->assertTrue( $rec3->active() );
+		$rec4 = $test_table->save_record(array('active' => 0), $rec->id());
+		$this->assertFalse( $rec4->active() );
+		$rec5 = $test_table->save_record(array('active' => '0'), $rec->id());
+		$this->assertFalse( $rec5->active() );
+
+		// Yes and No.
+		$rec6 = $test_table->save_record(array('active' => 'Yes'), $rec->id());
+		$this->assertTrue( $rec6->active() );
+		$rec7 = $test_table->save_record(array('active' => 'No'), $rec->id());
+		$this->assertFalse( $rec7->active() );
+
+		// True and false.
+		$rec8 = $test_table->save_record(array('active' => 'TRUE'), $rec->id());
+		$this->assertTrue( $rec8->active() );
+		$rec9 = $test_table->save_record(array('active' => 'false'), $rec->id());
+		$this->assertFalse( $rec9->active() );
+
+		// Empty equals null.
+		$rec10 = $test_table->save_record(array('active' => ''), $rec->id());
+		$this->assertNull( $rec10->active() );
+	}
+
+	/**
 	 * @testdox A table can have a multi-column primary key.
 	 * @test
 	 */
