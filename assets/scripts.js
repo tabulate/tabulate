@@ -10,10 +10,20 @@ jQuery(document).ready(function ($) {
 	$("input[data-column-type='time']").mask("99:99:99", { placeholder:"hh:mm:ss" } );
 	$("input[data-column-type='time']").timepicker( { timeFormat: 'HH:mm:ss', timeOnly: true } );
 	$("input[data-column-type='year']").mask("9999");
+
+	/**
+	 * Schema editing.
+	 */
 	$(document.body).on("keyup blur", "input.schema-identifier", function() {
 		$(this).val($(this).val().replace(/[^a-zA-Z0-9_ ]/g,'')).change();
 		$(this).val($(this).val().replace(/ /g,'_')).change();
 		$(this).val($(this).val().toLowerCase());
+	});
+	$("#tabulate-schema-table-list a#select-all").click(function(){
+		$(this).parents("form").find("input[type='checkbox']").prop("checked", true);
+	});
+	$("#tabulate-schema-table-list a#select-none").click(function(){
+		$(this).parents("form").find("input[type='checkbox']").prop("checked", false);
 	});
 
 

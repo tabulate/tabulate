@@ -11,8 +11,9 @@ class SchemaController extends ControllerBase {
 	public function index( $args ) {
 		$db = new Database( $this->wpdb );
 		$tables = $db->get_tables();
-		$template = new \WordPress\Tabulate\Template( 'schema.html' );
+		$template = new Template( 'schema.html' );
 		$template->tables = $tables;
+		$template->managed_tables = get_option(TABULATE_SLUG . '_managed_tables', array());
 		if ( isset( $args['schema'] ) ) {
 			$template->schema = $db->get_table( $args['schema'] );
 		}
@@ -24,6 +25,18 @@ class SchemaController extends ControllerBase {
 			'fk' => 'Cross reference',
 		);
 		return $template->render();
+	}
+
+	public function tables( $args ) {
+		// Only save table names that we've got access to (which should be all).
+		$db = new Database( $this->wpdb );
+		$tables = array_intersect($db->get_table_names(), $_POST['managed_tables']);
+		update_option(TABULATE_SLUG . '_managed_tables', $tables);
+
+		// Inform the user and redirect.
+		$template = new Template( 'schema.html' );
+		$template->add_notice( 'updated', 'Table list saved.' );
+		wp_redirect( admin_url( 'admin.php?page=tabulate_schema' ) );
 	}
 
 	public function save( $args ) {

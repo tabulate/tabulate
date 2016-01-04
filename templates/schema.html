@@ -6,33 +6,40 @@
 	{#<a href="{{admin_url('admin.php?page=tabulate_schema')}}" class="page-title-action">New table</a>#}
 </h1>
 
-<form action="{{admin_url('admin.php?page=tabulate_schema&schema='~schema.get_name~'&action=save')}}" method="post" class="tabulate-schema">
-
+<form action="{{admin_url('admin.php?page=tabulate_schema&action=tables')}}" method="post" class="tabulate-schema">
 <fieldset id="tabulate-schema-table-list">
-	<legend>Select a table to edit:</legend>
+	<p>
+		In this panel, you can select which tables are available for selection in the quick-jump menu.
+	</p>
 	<ol>
 	{% for table in tables %}
 		<li>
-			{#<input type="checkbox" name="managed_tables[{{table.get_name}}]" id="managed_tables_{{table.get_name}}" disabled />#}
-			<label for="managed_tables_{{table.get_name}}">
-				<a href="{{admin_url('admin.php?page=tabulate_schema&schema='~table.get_name)}}">
-					{{table.get_title}}
-				</a>
-			</label>
+			<input {% if table.get_name in managed_tables %}checked{% endif %}
+				   type="checkbox" name="managed_tables[]" value="{{table.get_name}}" />
+			<a href="{{admin_url('admin.php?page=tabulate_schema&schema='~table.get_name)}}">
+				{{table.get_title}}
+			</a>
 		</li>
 	{% endfor %}
 	</ol>
+	<p>
+		<a class="button button-secondary" id="select-all">Select all</a>
+		<a class="button button-secondary" id="select-none">Select none</a>
+		<input type="submit" value="Save" class="button button-primary" />
+	</p>
 </fieldset>
+</form>
 
 {% if schema %}
+<form action="{{admin_url('admin.php?page=tabulate_schema&schema='~schema.get_name~'&action=save')}}" method="post" class="tabulate-schema">
 <fieldset id="tabulate-schema-form">
-	<legend>
+	<h2>
 		{% if schema %}
 		Editing <a href="{{schema.get_url()}}" title="Jump to this table">{{schema.get_title}}</a>
 		{% else %}
 		New table
 		{% endif%}
-	</legend>
+	</h2>
 	<p>
 		<label for="new_name">New name:</label>
 		<input type="text" id="new_name" name="new_name" value="{{schema.get_name}}" class="schema-identifier" required />
@@ -105,9 +112,8 @@
 		<input type="submit" value="Save changes" class="btn btn-default" />
 	</p>
 </fieldset>
-{% endif%}
-
 </form>
+{% endif%}
 
 <div class="clear"></div>
 
