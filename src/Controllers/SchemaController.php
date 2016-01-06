@@ -2,41 +2,39 @@
 
 namespace WordPress\Tabulate\Controllers;
 
-use WordPress\Tabulate\DB\Database;
-use WordPress\Tabulate\DB\Table;
-use WordPress\Tabulate\Template;
+use \WordPress\Tabulate\DB\Database;
+use \WordPress\Tabulate\DB\Table;
+use \WordPress\Tabulate\DB\Column;
+use \WordPress\Tabulate\Template;
 
 class SchemaController extends ControllerBase {
 
 	public function index( $args ) {
-		$db = new Database( $this->wpdb );
-		$tables = $db->get_tables();
 		$template = new Template( 'schema.html' );
-		$template->tables = $tables;
-		$template->managed_tables = get_option(TABULATE_SLUG . '_managed_tables', array());
-		if ( isset( $args['schema'] ) ) {
-			$template->schema = $db->get_table( $args['schema'] );
+		if ( ! current_user_can( 'promote_users' ) ) {
+			$template->add_notice( 'error', 'Only administrators are allowed to edit table structure.' );
 		}
-		$template->types = array(
-			'varchar' => 'Text (short)',
-			'text' => 'Text (long)',
-			'int' => 'Number',
-			'date' => 'Date',
-			'fk' => 'Cross reference',
-		);
+
+		$db = new Database( $this->wpdb );
+		$template->action = 'structure';
+		$template->tables = $db->get_tables();
+		if ( isset( $args['table'] ) ) {
+			$template->table = $db->get_table( $args['table'] );
+		}
+		$template->xtypes = Column::get_xtypes();
 		return $template->render();
 	}
 
-	public function tables( $args ) {
-		// Only save table names that we've got access to (which should be all).
+	public function newtable( $args ) {
+		// Create table.
 		$db = new Database( $this->wpdb );
-		$tables = array_intersect($db->get_table_names(), $_POST['managed_tables']);
-		update_option(TABULATE_SLUG . '_managed_tables', $tables);
+		$table = $db->create_table( $args['new_table_name'] );
 
-		// Inform the user and redirect.
+		// Redirect user with message.
 		$template = new Template( 'schema.html' );
-		$template->add_notice( 'updated', 'Table list saved.' );
-		wp_redirect( admin_url( 'admin.php?page=tabulate_schema' ) );
+		$template->add_notice( 'updated', 'New table created' );
+		$url = 'admin.php?page=tabulate&controller=schema&table='.$table->get_name();
+		wp_redirect( admin_url( $url ) );
 	}
 
 	public function save( $args ) {
@@ -45,15 +43,28 @@ class SchemaController extends ControllerBase {
 			wp_redirect( $url );
 		}
 		$db = new Database( $this->wpdb );
-		$schema = $db->get_table( $args['schema'] );
+		$table = $db->get_table( $args['schema'] );
+
+		// Rename.
 		$new_name = $args['schema'];
-		if ( $schema instanceof Table && ! empty( $args['new_name'] ) ) {
-			$schema->rename( $args['new_name'] );
-			$new_name = $schema->get_name();
+		if ( $table instanceof Table && ! empty( $args['new_name'] ) ) {
+			$table->rename( $args['new_name'] );
+			$new_name = $table->get_name();
 		}
+
+		// Update columns.
+		foreach ( $args['columns'] as $col_info ) {
+			$col = $table->get_column( $col_info['old_name'] );
+			if ( $col instanceof Column ) {
+				$col->alter( $col_info['new_name'] );
+				$table->add_column( $col_info['new_name'] );
+			}
+		}
+
+		// Finish up.
 		$template = new Template( 'schema.html' );
 		$template->add_notice( 'updated', 'Schema updated.' );
-		$url = admin_url( 'admin.php?page=tabulate_schema&schema=' . $new_name );
+		$url = admin_url( 'admin.php?page=tabulate&controller=schema&table=' . $new_name );
 		wp_redirect( $url );
 	}
 }

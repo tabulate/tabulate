@@ -101,4 +101,21 @@ class Database {
 		return $out;
 	}
 
+	/**
+	 * Create a new table.
+	 * @param string $name
+	 * @param string $comment
+	 */
+	public function create_table( $name, $comment = '' ) {
+		if ( ! current_user_can( 'promote_users' ) ) {
+			throw new Exception( 'Only administrators are allowed to create tables' );
+		}
+		$sql = "CREATE TABLE IF NOT EXISTS `$name` ( "
+			. " `id` INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY "
+			. ") ENGINE=InnoDB, COMMENT='$comment';";
+		$this->get_wpdb()->query( $sql );
+		$this->reset();
+		return $this->get_table( $name );
+	}
+
 }

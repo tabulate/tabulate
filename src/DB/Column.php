@@ -135,6 +135,107 @@ class Column {
 		return $this->type;
 	}
 
+	public static function get_xtypes() {
+		return array(
+			'text_short' => array(
+				'name' => 'text_short',
+				'title' => 'Text (short)',
+				'type' => 'VARCHAR',
+				'sizes' => 1,
+				'options' => array(),
+			),
+			'text_long' => array(
+				'name' => 'text_long',
+				'title' => 'Text (long)',
+				'type' => 'TEXT',
+				'sizes' => 0,
+				'options' => array('autop', 'html', 'md', 'rst', 'plain'),
+			),
+			'integer' => array(
+				'name' => 'integer',
+				'title' => 'Integer',
+				'type' => 'INT',
+				'sizes' => 1,
+				'options' => array(),
+			),
+			'decimal' => array(
+				'name' => 'decimal',
+				'title' => 'Decimal',
+				'type' => 'DECIMAL',
+				'sizes' => 2,
+				'options' => array(),
+			),
+			'date' => array(
+				'name' => 'date',
+				'title' => 'Date',
+				'type' => 'DATE',
+				'sizes' => 0,
+				'options' => array(),
+			),
+			'time' => array(
+				'name' => 'time',
+				'title' => 'Time',
+				'type' => 'TIME',
+				'sizes' => 0,
+				'options' => array(),
+			),
+			'datetime' => array(
+				'name' => 'datetime',
+				'title' => 'Date & Time',
+				'type' => 'DATETIME',
+				'sizes' => 0,
+				'options' => array(),
+			),
+			'fk' => array(
+				'name' => 'fk',
+				'title' => 'Cross Reference',
+				'type' => 'INT',
+				'sizes' => 1,
+				'options' => array(),
+			),
+			'point' => array(
+				'name' => 'point',
+				'title' => 'Geographic location',
+				'type' => 'POINT',
+				'sizes' => 0,
+				'options' => array(),
+			),
+		);
+	}
+
+	/**
+	 * Get the X-Type of this column.
+	 * @return string
+	 */
+	public function get_xtype() {
+		$xtypes = self::get_xtypes();
+		if ( $this->is_foreign_key() ) {
+			return $xtypes['fk'];
+		}
+		foreach ( $xtypes as $xtype ) {
+			if ( strtoupper( $this->get_type() ) == $xtype['type'] ) {
+				return $xtype;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Set the X-Type of this column.
+	 * @param string $type
+	 */
+	public function set_xtype( $type ) {
+		$option_name = TABULATE_SLUG . '_xtypes';
+		$xtypes = update_option( $option_name );
+		$table_name = $this->get_table()->get_name();
+		if ( ! is_array( $xtypes[ $table_name ] ) ) {
+			$xtypes[ $table_name ] = array();
+		}
+		// @TODO Validate type.
+		$xtypes[ $table_name ][ $this->get_name() ] = $type;
+		update_option( $option_name, $xtypes );
+	}
+
 	/**
 	 * Get the column's comment.
 	 *
@@ -262,15 +363,6 @@ class Column {
 	public function get_referenced_table() {
 		return $this->table->get_database()->get_table( $this->references );
 	}
-
-	/**
-	 * @return string|false The name of the referenced table or false if this is
-	 * not a foreign key.
-	 */
-	/* public function get_referenced_table_name()
-	  {
-	  return $this->_references;
-	  } */
 
 	/**
 	 * Get the table that this column belongs to.

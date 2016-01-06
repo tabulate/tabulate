@@ -34,6 +34,10 @@ add_filter( 'user_has_cap', '\\WordPress\\Tabulate\\DB\\Grants::check', 0, 3 );
 // Activation hooks. (Uninstall is handled by uninstall.php.)
 register_activation_hook( __FILE__, '\\WordPress\\Tabulate\\DB\\ChangeTracker::activate' );
 register_activation_hook( __FILE__, '\\WordPress\\Tabulate\\DB\\Reports::activate' );
+register_activation_hook(__FILE__, function() {
+	// Clean up out-of-date option.
+	delete_option( TABULATE_SLUG . '_managed_tables' );
+});
 
 // Register JSON API.
 add_action( 'rest_api_init', function() {

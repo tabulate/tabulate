@@ -19,13 +19,16 @@ jQuery(document).ready(function ($) {
 		$(this).val($(this).val().replace(/ /g,'_')).change();
 		$(this).val($(this).val().toLowerCase());
 	});
-	$("#tabulate-schema-table-list a#select-all").click(function(){
-		$(this).parents("form").find("input[type='checkbox']").prop("checked", true);
+	$("form.tabulate-schema a.add-new-column").click(function() {
+		$tr = $(this).parents("form").find("table.column-definitions tr:last");
+		$newTr = $tr.clone();
+		$newTr.find("input").each(function() {
+			$(this).val("");
+		});
+		$newTr.find("select option").prop("selected", false);
+		$tr.after($newTr);
+		$newTr.find("[name*=name]").focus();
 	});
-	$("#tabulate-schema-table-list a#select-none").click(function(){
-		$(this).parents("form").find("input[type='checkbox']").prop("checked", false);
-	});
-
 
 	/**
 	 * Make sure .disabled buttons are properly disabled.

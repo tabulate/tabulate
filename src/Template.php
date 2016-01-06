@@ -42,6 +42,7 @@ class Template {
 			'wp_api' => Util::is_plugin_active( 'rest-api/plugin.php' ),
 			'tfo_graphviz' => Util::is_plugin_active( 'tfo-graphviz/tfo-graphviz.php' ),
 			'wpdb_prefix' => $wpdb->prefix,
+			'current_user_is_admin' => current_user_can( 'promote_users' ),
 		);
 		self::add_path( __DIR__ . '/../templates' );
 	}

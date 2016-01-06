@@ -592,7 +592,7 @@ class Table {
 	 * Get a list of this table's columns, optionally constrained by their type.
 	 *
 	 * @param string $type Only return columns of this type.
-	 * @return \WordPress\Tabulate\DB\Column[] This table's columns.
+	 * @return \WordPress\Tabulate\DB\Column[] Array of this table's columns, keyed by the column names.
 	 */
 	public function get_columns( $type = null ) {
 		if ( is_null( $type ) ) {
@@ -606,6 +606,35 @@ class Table {
 			}
 			return $out;
 		}
+	}
+
+	/**
+	 * Add a new column to this table.
+	 */
+	public function add_column( $name, $type, $size, $after = null ) {
+		// Can it be done?
+		if ( ! current_user_can( 'promote_users' ) ) {
+			throw new Exception( 'Only administrators are allowed to add columns to tables' );
+		}
+		if ( $this->get_column( $name ) ) {
+			throw new Exception( "Column '$name' already exists on table '" . $this->get_name() . "'" );
+		}
+
+		// Build SQL statement.
+		$sql = "ALTER TABLE `".$this->get_name()."` ADD COLUMN `$name` $type";
+		// data_type [NOT NULL | NULL] [DEFAULT default_value]
+		// [AUTO_INCREMENT] [UNIQUE [KEY] | [PRIMARY] KEY]
+		// [COMMENT 'string']
+		// [reference_definition]
+
+		if ( $after === 'FIRST' ) {
+			$sql .= " FIRST ";
+		} elseif ( $this->get_column( $after ) ) {
+			$sql .= " AFTER `$after` ";
+		}
+
+		// Reset the cache.
+		$this->get_database()->reset();
 	}
 
 	/**
@@ -1019,6 +1048,10 @@ class Table {
 	 * @param string $new_name
 	 */
 	public function rename( $new_name ) {
+		if ( $this->get_name() == $new_name ) {
+			// Do nothing, we're trying to rename to the current name.
+			return;
+		}
 		if ( $this->get_database()->get_table( $new_name ) ) {
 			throw new Exception("Table '$new_name' already exists");
 		}

@@ -8,6 +8,13 @@
 			<div class="handlediv" title="Click to toggle"><br /></div>
 			<h3><span>Tables</span></h3>
 			<div class="inside">
+				{% if current_user_is_admin %}
+				<form action="{{admin_url('admin.php?page=tabulate&controller=schema&action=newtable')}}" method="post">
+					<label for="new-table">Create a new table:</label>
+					<input type="text" name="new_table_name" id="new-table" class="schema-identifier" placeholder="Enter table name" size="15" />
+					<input type="submit" value="Create" class="button button-secondary" />
+				</form>
+				{% endif %}
 				<ol>
 					{% for table in tables %}
 					<li>

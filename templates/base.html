@@ -19,12 +19,11 @@
 		<a href="{{table.get_url('import')}}" class="nav-tab {% if action=='import' %}nav-tab-active{% endif %}">
 			Import
 		</a>
-		<a href="{{table.get_url('calendar')}}" class="nav-tab {% if action=='calendar' %}nav-tab-active{% endif %}">
-			Calendar
+		{% if current_user_is_admin %}
+		<a href="{{table.get_url('index', false, 'schema')}}" class="nav-tab {% if action=='structure' %}nav-tab-active{% endif %}">
+			Structure
 		</a>
-		<!--<a href="{{table.get_url('timeline')}}" class="nav-tab {% if action=='timeline' %}nav-tab-active{% endif %}">
-			Timeline
-		</a>-->
+		{% endif %}
 	</h3>
 	{% endif %}
 

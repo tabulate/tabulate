@@ -66,12 +66,6 @@ table.tabulate.widefat thead th:hover .sort-icons a { visibility:visible }
 table.tabulate.widefat td { line-height:1em }
 
 
-#tabulate-schema-table-list { float:left; width:30em; margin-right:1em; background-color:white; border:1px solid #bbb }
-#tabulate-schema-table-list p { margin:0.5em }
-#tabulate-schema-table-list ol { overflow-y:scroll; height:400px; border:2px solid #efefef; border-width:2px 0;
-	list-style-type:none; padding:0.5em; margin:0 }
-#tabulate-schema-table-list li { margin:0 }
-#tabulate-schema-table-list a { text-decoration:none }
-#tabulate-schema-form { padding-left:1em }
-#tabulate-schema-form table { border-collapse:collapse }
-#tabulate-schema-form tfoot { background-color:#ccc }
+form.tabulate-schema td.reorder,
+form.tabulate-schema td.primary-key,
+form.tabulate-schema td.unique { text-align:center }

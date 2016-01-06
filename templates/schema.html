@@ -1,120 +1,87 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>
-	Tabulate Schema Editor
-	{#<a href="{{admin_url('admin.php?page=tabulate_schema')}}" class="page-title-action">New table</a>#}
-</h1>
-
-<form action="{{admin_url('admin.php?page=tabulate_schema&action=tables')}}" method="post" class="tabulate-schema">
-<fieldset id="tabulate-schema-table-list">
-	<p>
-		In this panel, you can select which tables are available for selection in the quick-jump menu.
-	</p>
-	<ol>
-	{% for table in tables %}
-		<li>
-			<input {% if table.get_name in managed_tables %}checked{% endif %}
-				   type="checkbox" name="managed_tables[]" value="{{table.get_name}}" />
-			<a href="{{admin_url('admin.php?page=tabulate_schema&schema='~table.get_name)}}">
-				{{table.get_title}}
-			</a>
-		</li>
-	{% endfor %}
-	</ol>
-	<p>
-		<a class="button button-secondary" id="select-all">Select all</a>
-		<a class="button button-secondary" id="select-none">Select none</a>
-		<input type="submit" value="Save" class="button button-primary" />
-	</p>
-</fieldset>
-</form>
-
-{% if schema %}
-<form action="{{admin_url('admin.php?page=tabulate_schema&schema='~schema.get_name~'&action=save')}}" method="post" class="tabulate-schema">
-<fieldset id="tabulate-schema-form">
+<form action="{{table.get_url('save', false, 'schema')}}" method="post" class="tabulate-schema">
+	<table>
+		<tr>
+			<td><label for="new_name">Name:</label></td>
+			<td><input type="text" id="new_name" name="new_name" value="{{table.get_name}}" class="schema-identifier" required size="50" /></td>
+		</tr>
+		<tr>
+			<td><label for="new_comment">Comment:</label></td>
+			<td><input type="text" id="new_comment" name="new_comment" value="{{table.get_comment}}" size="120" /></td>
+		</tr>
+	</table>
 	<h2>
-		{% if schema %}
-		Editing <a href="{{schema.get_url()}}" title="Jump to this table">{{schema.get_title}}</a>
-		{% else %}
-		New table
-		{% endif%}
+		Columns
+		<a class="button button-secondary add-new-column" href="javascript:void(0);">Add new column</a>
 	</h2>
-	<p>
-		<label for="new_name">New name:</label>
-		<input type="text" id="new_name" name="new_name" value="{{schema.get_name}}" class="schema-identifier" required />
-	</p>
-	{#
-	<table class="ui-sortable">
+	<table class="widefat column-definitions">
 		<thead>
 			<tr>
-				<th></th>
 				<th>Order</th>
+				<th><abbr title="Primary Key">PK</abbr></th>
 				<th>Name</th>
+				<th>Unique?</th>
 				<th>Type</th>
 				<th>Size</th>
-				<th>Options</th>
+				<th>Target table</th>
+				<th>Comment</th>
 			</tr>
 		</thead>
 		<tbody>
-			{% set pos = 1 %}
-			{% for col in schema.get_columns %}
-			<tr>
-				<td></td>
-				<td>
-					<span class="hndle ui-sortable-handle">Reorder</span>
-					<input type="text" name="columns[{{col.get_name}}][pos]" value="{{pos}}" />
+			{% for col in table.get_columns %}
+			<tr class="column-definition" data-column-name="{{col.get_name}}">
+				<td class="reorder">
+					<a class="move-down">
+						<span class="dashicons dashicons-arrow-down" title="Move this column downwards"></span>
+						Down
+					</a>
 				</td>
-				<td><input type="text" name="columns[{{col.get_name}}][name]" value="{{col.get_name}}" /></td>
+				<td class="primary-key">
+					<input type="radio" name="primary_key" {% if col.get_name == table.get_pk_column.get_name %}checked{% endif %} />
+				</td>
+				<td>
+					<input type="hidden" name="columns[{{col.get_name}}][old_name]" value="{{col.get_name}}" />
+					<input type="text" name="columns[{{col.get_name}}][name]" value="{{col.get_name}}" class="schema-identifier" />
+				</td>
+				<td class="unique">
+					<input type="checkbox" name="columns[{{col.get_name}}][unique]" value="1" {% if col.is_unique %}checked{% endif %} />
+				</td>
 				<td>
 					<select name="columns[{{col.get_name}}][type]">
-						{% for type in types %}
-						<option {% if col.get_type == type %}selected{% endif %} value="{{type}}">
-							{{type}}
+						<option></option>
+						{% for xtype in xtypes %}
+						<option {% if col.get_xtype.name == xtype.name %}selected{% endif %} value="{{xtype.name}}">
+							{{xtype.title}}
 						</option>
 						{% endfor %}
 					</select>
 				</td>
 				<td>
-					<input type="text" name="columns[{{col.get_name}}][size]" value="{{col.get_size}}" />
+					<input type="text" name="columns[{{col.get_name}}][size]" value="{{col.get_size}}" size="6" />
 				</td>
-				<td></td>
+				<td>
+					<select name="columns[{{col.get_name}}][target_table]">
+						<option></option>
+						{% for t in tables %}
+						<option value="{{t.get_name}}" {% if col.get_referenced_table == t %}selected{% endif %}>
+							{{t.get_name}}
+						</option>
+						{% endfor %}
+					</select>
+				</td>
+				<td>
+					<input type="text" name="columns[{{col.get_name}}][comment]" value="{{col.get_comment}}" />
+				</td>
 			</tr>
-			{% set pos = pos + 1 %}
 			{% endfor %}
 		</tbody>
-		<tfoot>
-			<tr class="new">
-				<td>New field:</td>
-				<td>
-					<span class="hndle ui-sortable-handle">Reorder</span>
-					<input type="text" name="columns[][pos]" value="{{pos}}" />
-				</td>
-				<td><input type="text" name="columns[][name]" value="" /></td>
-				<td>
-					<select name="columns[][type]">
-						{% for type in types %}
-						<option value="{{type}}">
-							{{type}}
-						</option>
-						{% endfor %}
-					</select>
-				</td>
-				<td>
-					<input type="text" name="columns[][size]" value="" />
-				</td>
-				<td></td>
-			</tr>
-		</tfoot>
 	</table>
-	#}
-	<p class="save">
-		<input type="submit" value="Save changes" class="btn btn-default" />
-	</p>
-</fieldset>
-</form>
-{% endif%}
 
-<div class="clear"></div>
+	<p class="save">
+		<input type="submit" value="Save changes" class="button button-primary" />
+	</p>
+</form>
 
 {% endblock %}

@@ -38,13 +38,8 @@ class ApiController extends ControllerBase {
 	 */
 	public function table_names() {
 		$db = new Database( $this->wpdb );
-		$tables = $db->get_tables( false );
-		$managed = get_option( TABULATE_SLUG . '_managed_tables' );
 		$out = array();
-		foreach ( $tables as $table ) {
-			if ( ! in_array( $table->get_name(), $managed ) ) {
-				continue;
-			}
+		foreach ( $db->get_tables( false ) as $table ) {
 			$out[] = array(
 				'value' => $table->get_name(),
 				'label' => $table->get_title(),
