@@ -1,4 +1,6 @@
 # Tabulate
+
+[![Join the chat at https://gitter.im/tabulate/tabulate](https://badges.gitter.im/tabulate/tabulate.svg)](https://gitter.im/tabulate/tabulate?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 * Contributors: samwilson
 * Donate link: https://www.bushheritage.org.au/donatenow
 * Tags: MySQL, databases, tables, data, CRUD, import, export, CSV, shortcode, OpenStreetMap, KML
