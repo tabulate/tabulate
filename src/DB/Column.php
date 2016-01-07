@@ -425,4 +425,65 @@ class Column {
 		return $this->name . ' ' . strtoupper( $this->type ) . $size . $pk . $auto . $ref;
 	}
 
+	/**
+	 * 
+	 * @param string $new_name
+	 * @param string $xtype
+	 * @param boolean $nullable
+	 * @param boolean $default
+	 * @param boolean $auto_increment
+	 * @param boolean $unique
+	 * @param boolean $primary
+	 * @param string $comment
+	 * @param string $target_table
+	 */
+	public function alter( $new_name = null, $xtype_name = null, $size = null, $nullable = null, $default = null, $auto_increment = null, $unique = null, $primary = null, $comment = null, $target_table = null ) {
+		// Any that have not been set explicitely should be unchanged.
+		$new_name = !is_null($new_name) ? (string) $new_name : $this->get_name();
+		$xtype_name = !is_null($xtype_name) ? (string) $xtype_name : $this->get_xtype()['name'];
+		$size = !is_null($size) ? $size : (int) $this->get_size();
+		$nullable = !is_null($nullable) ? (boolean) $nullable : $this->nullable();
+		$default = !is_null($default) ? (string) $default : $this->get_default();
+		$auto_increment = !is_null($auto_increment) ? (boolean) $auto_increment : $this->is_auto_increment();
+		$unique = !is_null($unique) ? (boolean) $unique : $this->is_unique();
+		$primary = !is_null($primary) ? (boolean) $primary : $this->is_primary_key();
+		$comment = !is_null($comment) ? (string) $comment : $this->get_comment();
+		if ($this->get_referenced_table() instanceof Table) {
+			$target_table = !is_null($target_table) ? (string) $target_table : $this->get_referenced_table()->get_name();
+		}
+
+		$col_def = self::get_column_definition($new_name, $xtype_name, $size, $nullable, $default, $auto_increment, $unique, $primary, $comment, $target_table);
+		$table = $this->get_table();
+		$sql = "ALTER TABLE `".$table->get_name()."` CHANGE COLUMN `".$this->get_name()."` $col_def";
+		$table->get_database()->get_wpdb()->query( $sql );
+		$table->reset();
+	}
+
+	public static function get_column_definition( $name , $xtype_name = null, $size = null, $nullable = true, $default = null, $auto_increment = null, $unique = null, $primary = null, $comment = null, $tartget_table = null ) {
+		$xtypes = self::get_xtypes();
+		$xtype = ( isset( $xtypes[ $xtype_name ] ) ) ? $xtypes[ $xtype_name ] : $xtypes['text_short'];
+		$size_str = '';
+		if ( $xtype['sizes'] > 0 ) {
+			$size_str = '(' . ( $size ? : 200 ) . ')';
+		}
+		$null_str = $nullable ? 'NULL' : 'NOT NULL';
+		$default_str = ! empty( $default ) ? "DEFAULT '$default'" : ( $nullable ? 'DEFAULT NULL' : '' );
+		$auto_increment_str = '';
+		if ( $auto_increment && $xtype['name'] == 'integer' ) {
+			$auto_increment_str = 'AUTO_INCREMENT';
+		}
+		$unique_str = $unique ? 'UNIQUE' : '';
+		//$primary_str = $primary ? 'PRIMARY KEY' : '';
+		$comment_str = !is_null($comment) ? "COMMENT '$comment'" : '';
+
+		// Put it all together.
+		$col_def = "`$name` {$xtype['type']}$size_str $null_str $default_str $auto_increment_str $unique_str $comment_str";
+		return preg_replace( '/ +/', ' ', trim( $col_def ) );
+
+//		data_type [NOT NULL | NULL] [DEFAULT default_value]
+//      [AUTO_INCREMENT] [UNIQUE [KEY] | [PRIMARY] KEY]
+//      [COMMENT 'string']
+//      [reference_definition]
+
+	}
 }

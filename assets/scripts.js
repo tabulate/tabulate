@@ -22,12 +22,32 @@ jQuery(document).ready(function ($) {
 	$("form.tabulate-schema a.add-new-column").click(function() {
 		$tr = $(this).parents("form").find("table.column-definitions tr:last");
 		$newTr = $tr.clone();
-		$newTr.find("input").each(function() {
-			$(this).val("");
-		});
-		$newTr.find("select option").prop("selected", false);
+		$newTr.find("input").val("").prop("checked", false);
+		$newTr.find("option").prop("selected", false);
 		$tr.after($newTr);
 		$newTr.find("[name*=name]").focus();
+	});
+	$("form.tabulate-schema select[name*='type']").on('change', function() {
+		$type = $(this).val();
+		$size = $(this).parents("tr").find("input[name*='size']");
+		$targetTable = $(this).parents("tr").find("select[name*='target_table']");
+		$autoInc = $(this).parents("tr").find("input[name='auto_increment']");
+		if ($type === 'fk') {
+			$size.prop("disabled", true);
+			$targetTable.prop("disabled", false);
+			$autoInc.prop("disabled", true);
+		} else if ($type === 'integer') {
+			$size.prop("disabled", false);
+			$targetTable.prop("disabled", false);
+			$autoInc.prop("disabled", false);
+		} else {
+			$size.prop("disabled", false);
+			$targetTable.prop("disabled", true);
+			$autoInc.prop("disabled", true);
+		}
+	}).change();
+	$("form.tabulate-schema a.move").click(function() {
+		
 	});
 
 	/**

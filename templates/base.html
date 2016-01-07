@@ -1,10 +1,9 @@
 <div class="tabulate wrap">
 	{% include 'quick_jump.html' %}
-	<h1>{{title}}</h1>
 	{% include 'notices.html' %}
 
 	{% if table %}
-	<h2>{{table.get_title}} <small class='about-text'>{{table.get_comment}}</small></h2>
+	<h1>{{table.get_title}} <small class='about-text'>{{table.get_comment}}</small></h1>
 	<h3 class="nav-tab-wrapper">
 		<a href="{{table.get_url}}" class="nav-tab {% if controller=='table' %}nav-tab-active{% endif %}">
 			Search

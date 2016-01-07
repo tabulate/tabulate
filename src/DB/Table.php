@@ -44,7 +44,7 @@ class Table {
 	 * @var \WordPress\Tabulate\DB\Column[] Array of column names and objects for all of the
 	 * columns in this table.
 	 */
-	protected $columns;
+	protected $columns = array();
 
 	/** @var array */
 	protected $filters = array();
@@ -92,12 +92,6 @@ class Table {
 	public function __construct( $database, $name ) {
 		$this->database = $database;
 		$this->name = $name;
-		$this->columns = array();
-		$columns = $this->database->get_wpdb()->get_results( "SHOW FULL COLUMNS FROM `$name`" );
-		foreach ( $columns as $column_info ) {
-			$column = new Column( $this->database, $this, $column_info );
-			$this->columns[ $column->get_name() ] = $column;
-		}
 		$this->record_counter = new RecordCounter( $this );
 	}
 
@@ -585,7 +579,12 @@ class Table {
 	 * @return \WordPress\Tabulate\DB\Column|false The column, or false if it's not found.
 	 */
 	public function get_column( $name ) {
-		return ( isset( $this->columns[ $name ] ) ) ? $this->columns[ $name ] : false;
+		$columns = $this->get_columns();
+		return ( isset( $columns[ $name ] ) ) ? $columns[ $name ] : false;
+	}
+
+	public function reset() {
+		$this->columns = array();
 	}
 
 	/**
@@ -595,6 +594,15 @@ class Table {
 	 * @return \WordPress\Tabulate\DB\Column[] Array of this table's columns, keyed by the column names.
 	 */
 	public function get_columns( $type = null ) {
+		if ( empty( $this->columns ) ) {
+			$this->columns = array();
+			$sql = "SHOW FULL COLUMNS FROM `" . $this->get_name() . "`";
+			$columns = $this->get_database()->get_wpdb()->get_results( $sql );
+			foreach ( $columns as $column_info ) {
+				$column = new Column( $this->database, $this, $column_info );
+				$this->columns[ $column->get_name() ] = $column;
+			}
+		}
 		if ( is_null( $type ) ) {
 			return $this->columns;
 		} else {

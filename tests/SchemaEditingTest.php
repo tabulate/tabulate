@@ -1,5 +1,7 @@
 <?php
 
+use \WordPress\Tabulate\DB\Column;
+
 class SchemaEditingTest extends TestBase {
 
 	public function setUp() {
@@ -11,6 +13,8 @@ class SchemaEditingTest extends TestBase {
 
 	public function tearDown() {
 		$this->wpdb->query( "DROP TABLE IF EXISTS `testing_table`;" );
+		$this->wpdb->query( 'DROP TABLE IF EXISTS `new_table`;' );
+		$this->wpdb->query( 'DROP TABLE IF EXISTS `new_table_2`;' );
 		parent::tearDown();
 	}
 
@@ -70,10 +74,58 @@ class SchemaEditingTest extends TestBase {
 		$this->assertEquals( 'The comment text', $table2->get_comment() );
 		$this->assertCount( 1, $table2->get_columns() );
 		$this->assertTrue( $table2->get_column( 'id' )->is_primary_key() );
+	}
 
-		// Clean up.
-		$this->wpdb->query( 'DROP TABLE `new_table`' );
-		$this->wpdb->query( 'DROP TABLE `new_table_2`' );
+	/**
+	 * @testdox Build column definition statements.
+	 * @test
+	 * data_type [NOT NULL | NULL] [DEFAULT default_value]
+	 * [AUTO_INCREMENT] [UNIQUE [KEY] | [PRIMARY] KEY]
+	 * [COMMENT 'string']
+	 * [COLUMN_FORMAT {FIXED|DYNAMIC|DEFAULT}]
+	 * [STORAGE {DISK|MEMORY|DEFAULT}]
+	 * [reference_definition]
+	 */
+	public function column_definitions() {
+		$def1 = Column::get_column_definition('test_name', 'text_short');
+		$this->assertEquals('`test_name` VARCHAR(200) NULL DEFAULT NULL', $def1);
+
+		$def2 = Column::get_column_definition('test_name', 'text_short', 40, false);
+		$this->assertEquals('`test_name` VARCHAR(40) NOT NULL', $def2);
+
+		$def3 = Column::get_column_definition('test_name', 'text_long', null, true, 'Test');
+		$this->assertEquals("`test_name` TEXT NULL DEFAULT 'Test'", $def3);
+
+		$def4 = Column::get_column_definition('ident', 'integer', 5, false, '', true, true, true, 'The Ident');
+		$this->assertEquals("`ident` INT(5) NOT NULL AUTO_INCREMENT UNIQUE COMMENT 'The Ident'", $def4);
+	}
+
+	/**
+	 * @testdox Alter a column.
+	 * @test
+	 */
+	public function alter_column() {
+		$table = $this->db->create_table( 'new_table' );
+		// Check the initial state of the table.
+		$this->assertContains( 'id', array_keys( $table->get_columns() ) );
+		$id_col = $table->get_column( 'id' );
+		$this->assertEquals( 'integer', $id_col->get_xtype()['name'] );
+		$this->assertEquals( 10, $id_col->get_size() );
+		$this->assertTrue( $id_col->is_primary_key() );
+		$this->assertTrue( $id_col->is_auto_increment() );
+
+		// Make a change.
+		$table->get_column( 'id' )->alter( 'identifier' );
+
+		// Check the change.
+		$this->assertCount( 1, $table->get_columns() );
+		$this->assertContains( 'identifier', array_keys( $table->get_columns() ) );
+		$this->assertNotContains( 'id', array_keys( $table->get_columns() ) );
+		$identifier_col = $table->get_column( 'identifier' );
+		$this->assertEquals( 'integer', $table->get_column( 'identifier' )->get_xtype()['name'] );
+		$this->assertEquals( 10, $identifier_col->get_size() );
+		$this->assertTrue( $identifier_col->is_primary_key() );
+		$this->assertTrue( $identifier_col->is_auto_increment() );
 	}
 
 }

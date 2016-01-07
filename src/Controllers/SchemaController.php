@@ -38,15 +38,15 @@ class SchemaController extends ControllerBase {
 	}
 
 	public function save( $args ) {
-		if ( ! isset( $args['schema'] ) ) {
-			$url = admin_url( 'admin.php?page=tabulate_schema' );
+		if ( ! isset( $args['table'] ) ) {
+			$url = admin_url( 'admin.php?page=tabulate&controller=schema' );
 			wp_redirect( $url );
 		}
 		$db = new Database( $this->wpdb );
-		$table = $db->get_table( $args['schema'] );
+		$table = $db->get_table( $args['table'] );
 
 		// Rename.
-		$new_name = $args['schema'];
+		$new_name = $args['table'];
 		if ( $table instanceof Table && ! empty( $args['new_name'] ) ) {
 			$table->rename( $args['new_name'] );
 			$new_name = $table->get_name();
@@ -57,7 +57,8 @@ class SchemaController extends ControllerBase {
 			$col = $table->get_column( $col_info['old_name'] );
 			if ( $col instanceof Column ) {
 				$col->alter( $col_info['new_name'] );
-				$table->add_column( $col_info['new_name'] );
+			} else {
+				//$table->add_column( $col_info['new_name'] );
 			}
 		}
 

@@ -21,7 +21,9 @@
 			<tr>
 				<th>Order</th>
 				<th><abbr title="Primary Key">PK</abbr></th>
+				<th>Auto-incrementing?</th>
 				<th>Name</th>
+				<th>Can be empty?</th>
 				<th>Unique?</th>
 				<th>Type</th>
 				<th>Size</th>
@@ -33,17 +35,25 @@
 			{% for col in table.get_columns %}
 			<tr class="column-definition" data-column-name="{{col.get_name}}">
 				<td class="reorder">
-					<a class="move-down">
-						<span class="dashicons dashicons-arrow-down" title="Move this column downwards"></span>
-						Down
+					<a class="move move-up" href="javascript:void(0);" title="Move up">
+						<span class="dashicons dashicons-arrow-up-alt"></span>
+					</a>
+					<a class="move move-down" href="javascript:void(0);" title="Move down">
+						<span class="dashicons dashicons-arrow-down-alt"></span>
 					</a>
 				</td>
 				<td class="primary-key">
 					<input type="radio" name="primary_key" {% if col.get_name == table.get_pk_column.get_name %}checked{% endif %} />
 				</td>
+				<td class="auto-increment">
+					<input type="radio" name="auto_increment" {% if col.is_auto_increment %}checked{% endif %} />
+				</td>
 				<td>
 					<input type="hidden" name="columns[{{col.get_name}}][old_name]" value="{{col.get_name}}" />
-					<input type="text" name="columns[{{col.get_name}}][name]" value="{{col.get_name}}" class="schema-identifier" />
+					<input type="text" name="columns[{{col.get_name}}][new_name]" value="{{col.get_name}}" class="schema-identifier" />
+				</td>
+				<td class="nullable">
+					<input type="checkbox" name="columns[{{col.get_name}}][nullable]" value="1" {% if col.nullable %}checked{% endif %} />
 				</td>
 				<td class="unique">
 					<input type="checkbox" name="columns[{{col.get_name}}][unique]" value="1" {% if col.is_unique %}checked{% endif %} />
