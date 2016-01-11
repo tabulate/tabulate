@@ -599,7 +599,7 @@ class Table {
 			$sql = "SHOW FULL COLUMNS FROM `" . $this->get_name() . "`";
 			$columns = $this->get_database()->get_wpdb()->get_results( $sql );
 			foreach ( $columns as $column_info ) {
-				$column = new Column( $this->database, $this, $column_info );
+				$column = new Column( $this, $column_info );
 				$this->columns[ $column->get_name() ] = $column;
 			}
 		}
@@ -618,8 +618,21 @@ class Table {
 
 	/**
 	 * Add a new column to this table.
+	 * 
+	 * @param string $name
+	 * @param string $xtype_name
+	 * @param integer $size
+	 * @param boolean $nullable
+	 * @param string $default
+	 * @param boolean $auto_increment
+	 * @param boolean $unique
+	 * @param boolean $primary
+	 * @param string $comment
+	 * @param string $target_table
+	 * @param string $after
+	 * @throws Exception
 	 */
-	public function add_column( $name, $type, $size, $after = null ) {
+	public function add_column( $name, $xtype_name, $size = null, $nullable = null, $default = null, $auto_increment = null, $unique = null, $primary = null, $comment = null, $target_table = null, $after = null ) {
 		// Can it be done?
 		if ( ! current_user_can( 'promote_users' ) ) {
 			throw new Exception( 'Only administrators are allowed to add columns to tables' );
@@ -629,11 +642,9 @@ class Table {
 		}
 
 		// Build SQL statement.
-		$sql = "ALTER TABLE `".$this->get_name()."` ADD COLUMN `$name` $type";
-		// data_type [NOT NULL | NULL] [DEFAULT default_value]
-		// [AUTO_INCREMENT] [UNIQUE [KEY] | [PRIMARY] KEY]
-		// [COMMENT 'string']
-		// [reference_definition]
+		$col_def = Column::get_column_definition( $name, $xtype_name, $size, $nullable, $default, $auto_increment, $unique, $primary, $comment );
+
+		$sql = "ALTER TABLE `".$this->get_name()."` ADD COLUMN $col_def";
 
 		if ( $after === 'FIRST' ) {
 			$sql .= " FIRST ";
@@ -641,8 +652,12 @@ class Table {
 			$sql .= " AFTER `$after` ";
 		}
 
-		// Reset the cache.
-		$this->get_database()->reset();
+		// Execute the SQL and reset the cache.
+		$query = $this->get_database()->get_wpdb()->query( $sql );
+		if ( $query === false ) {
+			throw new Exception( "Unable to add column '$name'. SQL was: <code>$sql</code>" );
+		}
+		$this->reset();
 	}
 
 	/**

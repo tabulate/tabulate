@@ -50,7 +50,7 @@
 				</td>
 				<td>
 					<input type="hidden" name="columns[{{col.get_name}}][old_name]" value="{{col.get_name}}" />
-					<input type="text" name="columns[{{col.get_name}}][new_name]" value="{{col.get_name}}" class="schema-identifier" />
+					<input type="text" name="columns[{{col.get_name}}][new_name]" value="{{col.get_name}}" class="schema-identifier" required />
 				</td>
 				<td class="nullable">
 					<input type="checkbox" name="columns[{{col.get_name}}][nullable]" value="1" {% if col.nullable %}checked{% endif %} />
@@ -59,7 +59,7 @@
 					<input type="checkbox" name="columns[{{col.get_name}}][unique]" value="1" {% if col.is_unique %}checked{% endif %} />
 				</td>
 				<td>
-					<select name="columns[{{col.get_name}}][type]">
+					<select name="columns[{{col.get_name}}][xtype]" required>
 						<option></option>
 						{% for xtype in xtypes %}
 						<option {% if col.get_xtype.name == xtype.name %}selected{% endif %} value="{{xtype.name}}">

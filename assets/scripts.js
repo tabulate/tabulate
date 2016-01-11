@@ -20,10 +20,17 @@ jQuery(document).ready(function ($) {
 		$(this).val($(this).val().toLowerCase());
 	});
 	$("form.tabulate-schema a.add-new-column").click(function() {
-		$tr = $(this).parents("form").find("table.column-definitions tr:last");
-		$newTr = $tr.clone();
+		var $tr = $(this).parents("form").find("table.column-definitions tr:last");
+		var $newTr = $tr.clone();
 		$newTr.find("input").val("").prop("checked", false);
 		$newTr.find("option").prop("selected", false);
+		$newTr.find("input, select").each(function(){
+			// Rename all form element names.
+			var colNum = $("form.tabulate-schema table.column-definitions tr").length;
+			var oldName = $(this).attr("name");
+			var newName = oldName.replace(/columns\[.*\]\[(.*)\]/, "columns["+colNum+"][$1]");
+			$(this).attr("name", newName);
+		});
 		$tr.after($newTr);
 		$newTr.find("[name*=name]").focus();
 	});
@@ -40,6 +47,10 @@ jQuery(document).ready(function ($) {
 			$size.prop("disabled", false);
 			$targetTable.prop("disabled", false);
 			$autoInc.prop("disabled", false);
+		} else if ($type === 'text_long') {
+			$size.prop("disabled", true);
+			$targetTable.prop("disabled", true);
+			$autoInc.prop("disabled", true);
 		} else {
 			$size.prop("disabled", false);
 			$targetTable.prop("disabled", true);

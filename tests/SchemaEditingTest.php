@@ -128,4 +128,70 @@ class SchemaEditingTest extends TestBase {
 		$this->assertTrue( $identifier_col->is_auto_increment() );
 	}
 
+	/**
+	 * @testdox Alter a column's comment.
+	 * @test
+	 */
+	public function add_column() {
+		$table = $this->db->create_table( 'new_table' );
+		// Check the initial state of the table.
+		$this->assertEquals( array( 'id' ), array_keys( $table->get_columns() ) );
+
+		// Add a column.
+		$table->add_column( 'title', 'text_short', 80, false, null, false, true, false, 'A comment', false, 'FIRST' );
+
+		// Check the change.
+		$this->assertCount( 2, $table->get_columns() );
+		$this->assertEquals( array( 'title', 'id' ), array_keys( $table->get_columns() ) );
+		$this->assertEquals( 'A comment', $table->get_column( 'title' )->get_comment() );
+		$this->assertTrue( $table->get_column( 'title' )->is_unique() );
+	}
+
+	/**
+	 * @testdox Change a column's type.
+	 * @test
+	 */
+	public function change_column_type() {
+		// Make a table and a column to test with.
+		$table = $this->db->create_table( 'new_table' );
+		$table->add_column( 'count', 'text_short', 80 );
+		// Make sure the column is what we think it is.
+		$count = $table->get_column( 'count' );
+		$this->assertEquals( 'varchar', $count->get_type() );
+		$this->assertEquals( 80, $count->get_size() );
+
+		// Change it to an integer.
+		$count->alter( 'count', 'integer', 8 );
+		$this->assertEquals( 'int', $count->get_type() );
+		$this->assertEquals( 8, $count->get_size() );
+	}
+
+	/**
+	 * @testdox Making a column unique should only add a new index if it's not already unique.
+	 * @test
+	 */
+	public function make_column_unique() {
+		$table = $this->db->create_table( 'new_table' );
+		$wpdb = $table->get_database()->get_wpdb();
+		
+		// Make sure there's only 1 index (the PK).
+		$sql = "SHOW INDEXES FROM `new_table`";
+		$this->assertCount( 1, $wpdb->get_results( $sql ) );
+
+		// Add a new unique column, make sure there's 2 indexes.
+		$table->add_column( 'title', 'text_short', 80, null, null, null, true );
+		$this->assertTrue( $table->get_column( 'title' )->is_unique() );
+		$this->assertCount( 2, $wpdb->get_results( $sql ) );
+
+		// Change it to not unique, and check that the index has been dropped.
+		$title_col = $table->get_column( 'title' );
+		$title_col->alter( null, null, null, null, null, null, false );
+		$this->assertFalse( $title_col->is_unique() );
+		$this->assertCount( 1, $wpdb->get_results( $sql ) );
+
+		// And back to unique, in a different way.
+		$table->get_column( 'title' )->alter( null, null, null, null, null, null, true );
+		$this->assertTrue( $table->get_column( 'title' )->is_unique() );
+		$this->assertCount( 2, $wpdb->get_results( $sql ) );
+	}
 }

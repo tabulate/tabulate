@@ -57,10 +57,16 @@ class Column {
 	 */
 	private $references = false;
 
-	public function __construct(Database $database, Table $table, $info) {
-
-		// Table
+	public function __construct( Table $table, $info = false ) {
 		$this->table = $table;
+		$this->parse_info( $info );
+	}
+
+	/**
+	 * Take the output of SHOW COLUMNS and populate this object's data.
+	 * @param string[] $info
+	 */
+	protected function parse_info( $info ) {
 
 		// Name
 		$this->name = $info->Field;
@@ -80,9 +86,7 @@ class Column {
 		}
 
 		// Unique key
-		if ( strtoupper( $info->Key ) == 'UNI' ) {
-			$this->is_unique = true;
-		}
+		$this->is_unique = ( strtoupper( $info->Key ) === 'UNI' );
 
 		// Comment
 		$this->comment = $info->Comment;
@@ -94,9 +98,9 @@ class Column {
 		$this->nullable = ($info->Null == 'YES');
 
 		// Is this a foreign key?
-		if ( in_array( $this->name, $table->get_foreign_key_names() ) ) {
-			$referencedTables = $table->get_referenced_tables( false );
-			$this->references = $referencedTables[$this->name];
+		if ( in_array( $this->get_name(), $this->get_table()->get_foreign_key_names() ) ) {
+			$referencedTables = $this->get_table()->get_referenced_tables( false );
+			$this->references = $referencedTables[ $this->get_name() ];
 		}
 
 	}
@@ -452,11 +456,24 @@ class Column {
 			$target_table = !is_null($target_table) ? (string) $target_table : $this->get_referenced_table()->get_name();
 		}
 
+		// Alter the column.
 		$col_def = self::get_column_definition($new_name, $xtype_name, $size, $nullable, $default, $auto_increment, $unique, $primary, $comment, $target_table);
 		$table = $this->get_table();
 		$sql = "ALTER TABLE `".$table->get_name()."` CHANGE COLUMN `".$this->get_name()."` $col_def";
 		$table->get_database()->get_wpdb()->query( $sql );
+
+		// Drop the unique key if it exists.
+		if ( $unique === false && $this->is_unique() ) {
+			$sql = "DROP INDEX `".$this->get_name()."` ON `".$table->get_name()."`";
+			$table->get_database()->get_wpdb()->query( $sql );
+		}
+
+		// Reset this object's data.
+		$sql = "SHOW FULL COLUMNS FROM `" . $table->get_name() . "` LIKE '$new_name'";
+		$column_info = $table->get_database()->get_wpdb()->get_row( $sql );
+		$this->parse_info( $column_info );
 		$table->reset();
+
 	}
 
 	public static function get_column_definition( $name , $xtype_name = null, $size = null, $nullable = true, $default = null, $auto_increment = null, $unique = null, $primary = null, $comment = null, $tartget_table = null ) {

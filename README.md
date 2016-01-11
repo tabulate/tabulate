@@ -13,6 +13,8 @@ your MySQL database. CSV import/export; access-control; foreign-keys.
 
 ## Description
 
+[![Documentation Status](https://readthedocs.org/projects/tabulate/badge/?version=latest)](http://tabulate.readthedocs.org/en/latest/?badge=latest)
+[![Gitter](https://badges.gitter.im/tabulate/tabulate.svg)](https://gitter.im/tabulate/tabulate?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Build Status](https://img.shields.io/travis/tabulate/tabulate.svg?style=flat-square)](https://travis-ci.org/tabulate/tabulate)
 [![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/tabulate/tabulate/master.svg?style=flat-square)](https://scrutinizer-ci.com/g/tabulate/tabulate/?branch=master)
 [![Total Downloads](https://img.shields.io/wordpress/plugin/dt/tabulate.svg?style=flat-square)]()
@@ -20,10 +22,11 @@ your MySQL database. CSV import/export; access-control; foreign-keys.
 [![Latest Stable Version](https://img.shields.io/wordpress/plugin/v/tabulate.svg?style=flat-square)](https://wordpress.org/plugins/tabulate)
 [![WordPress version](https://img.shields.io/wordpress/v/tabulate.svg?style=flat-square)]()
 [![License](https://img.shields.io/github/license/tabulate/tabulate.svg?style=flat-square)](https://github.com/tabulate/tabulate/blob/master/LICENSE.txt)
-[![Gitter](https://badges.gitter.im/tabulate/tabulate.svg)](https://gitter.im/tabulate/tabulate?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 This plugin provides a simple user-friendly interface to tables in your database.
-Somewhat akin to phpMyAdmin, but easier to u
+Somewhat akin to phpMyAdmin, but easier to use and more focused on end users.
+
+The documentation can be found at http://tabulate.readthedocs.org/
 
 Features (in no particular order):
 
