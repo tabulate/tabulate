@@ -22,8 +22,8 @@ your MySQL database. CSV import/export; access-control; foreign-keys.
 [![License](https://img.shields.io/github/license/tabulate/tabulate.svg?style=flat-square)](https://github.com/tabulate/tabulate/blob/master/LICENSE.txt)
 [![Gitter](https://badges.gitter.im/tabulate/tabulate.svg)](https://gitter.im/tabulate/tabulate?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-This plugin provides a simple user-friendly interface to tables in the database.
-Somewhat akin to phpMyAdmin, but including only data-modification features.
+This plugin provides a simple user-friendly interface to tables in your database.
+Somewhat akin to phpMyAdmin, but easier to u
 
 Features (in no particular order):
 
@@ -59,26 +59,7 @@ Development is managed on GitHub: https://github.com/tabulate/tabulate
 
 ## Installation
 
-### Installing
-
-1. Follow the [usual plugin installation procedure](http://codex.wordpress.org/Managing_Plugins#Installing_Plugins).
-2. To get a quick-jump navigation box, also install the
-   [WP REST API](https://wordpress.org/plugins/json-rest-api/) plugin.
-3. For Entity Relationship Diagram support, also install the
-   [TFO Graphviz](https://wordpress.org/plugins/tfo-graphviz/) plugin.
-4. Create some new database tables in your WordPress database, using a tool such
-   as [PHPmyAdmin](http://www.phpmyadmin.net) or [MySQL Workbench](http://mysqlworkbench.org/).
-5. Browse to the Tabulate overview page via the main menu in the WordPress admin
-   interface.
-
-### Upgrading
-
-When upgrading, please *deactivate* and then *reactivate* the plugin. This will
-ensure that all required database updates are carried out (but will avoid the
-overhead of checking whether these are required on every Tabulate page load).
-
-After version 2.0.0 you must switch to version 2 of the Rest API plugin (`rest-api`).
-Remove the older one (`json-rest-api`).
+See http://tabulate.readthedocs.org/en/latest/install.html
 
 ## Frequently Asked Questions
 

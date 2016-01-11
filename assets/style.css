@@ -68,5 +68,5 @@ table.tabulate.widefat td { line-height:1em }
 
 form.tabulate-schema td.primary-key,
 form.tabulate-schema td.unique { text-align:center }
-form.tabulate-schema td.reorder { font-size:smaller }
+form.tabulate-schema td.reorder { font-size:smaller; white-space:nowrap }
 form.tabulate-schema td.reorder a.move {  }
