@@ -1,0 +1,11 @@
+<h2>Confirmation required</h2>
+
+<p>You are about to delete the '{{table.get_title}}' table and its {{table.count_records}} records.</p>
+
+<form action="{{table.get_url('delete', null, 'schema')}}" method="post">
+	<p>
+		<input type="hidden" name="confirm_deletion" value="yes" />
+		<input type="submit" value="Yes, I'm sure" class="button button-primary" />
+		<a href="{{table.get_url('index', null, 'schema')}}" class="button button-secondary">No, do not delete this</a>
+	</p>
+</form>

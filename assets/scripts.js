@@ -60,6 +60,9 @@ jQuery(document).ready(function ($) {
 	$("form.tabulate-schema a.move").click(function() {
 		
 	});
+	$("form.tabulate-schema :submit").click(function() {
+		
+	});
 
 	/**
 	 * Make sure .disabled buttons are properly disabled.
@@ -196,7 +199,7 @@ jQuery(document).ready(function ($) {
 	// Fire change manually.
 	$(".tabulate-filters select[name*='operator']").change();
 	// Change the form method depending on the filter size.
-	$(".tabulate-filters").on("keyup", "textarea", function(){
+	$(".tabulate-filters").on("change", "textarea", function(){
 		if ($(this).val().split(/\r*\n/).length > 50) {
 			// Switch to a POST request for long "is one of" filters.
 			$(this).parents("form").attr("method", "post");
@@ -206,7 +209,7 @@ jQuery(document).ready(function ($) {
 		}
 	});
 	// Fire keyup manually.
-	$(".tabulate-filters textarea").keyup();
+	$(".tabulate-filters textarea").change();
 	// Change the controller, action, and page num of the form depending on which button was clicked.
 	$(".tabulate-filters button").click(function(e){
 		$(this).parents("form").find("input[name='controller']").val($(this).data("controller"));

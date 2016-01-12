@@ -162,6 +162,13 @@ class Column {
 				'sizes' => 1,
 				'options' => array(),
 			),
+			'boolean' => array(
+				'name' => 'boolean',
+				'title' => 'Boolean',
+				'type' => 'TINYINT',
+				'sizes' => 0,
+				'options' => array(),
+			),
 			'decimal' => array(
 				'name' => 'decimal',
 				'title' => 'Decimal',
@@ -216,6 +223,10 @@ class Column {
 		if ( $this->is_foreign_key() ) {
 			return $xtypes['fk'];
 		}
+		if ( $this->is_boolean() ) {
+			return $xtypes['boolean'];
+		}
+		// Otherwise fall back on the first xtype with a matching type.
 		foreach ( $xtypes as $xtype ) {
 			if ( strtoupper( $this->get_type() ) == $xtype['type'] ) {
 				return $xtype;

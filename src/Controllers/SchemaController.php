@@ -10,7 +10,7 @@ use \WordPress\Tabulate\Template;
 class SchemaController extends ControllerBase {
 
 	public function index( $args ) {
-		$template = new Template( 'schema.html' );
+		$template = new Template( 'table/schema.html' );
 		if ( ! current_user_can( 'promote_users' ) ) {
 			$template->add_notice( 'error', 'Only administrators are allowed to edit table structure.' );
 		}
@@ -32,7 +32,7 @@ class SchemaController extends ControllerBase {
 		$table = $db->create_table( $args['new_table_name'] );
 
 		// Redirect user with message.
-		$template = new Template( 'schema.html' );
+		$template = new Template( 'table/schema.html' );
 		$template->add_notice( 'updated', 'New table created' );
 		$url = 'admin.php?page=tabulate&controller=schema&table='.$table->get_name();
 		wp_redirect( admin_url( $url ) );
@@ -42,15 +42,25 @@ class SchemaController extends ControllerBase {
 		if ( ! isset( $args['table'] ) ) {
 			$url = admin_url( 'admin.php?page=tabulate&controller=schema' );
 			wp_redirect( $url );
+			exit();
 		}
 		$db = new Database( $this->wpdb );
 		$table = $db->get_table( $args['table'] );
+		if ( isset( $args['delete'] ) ) {
+			wp_redirect( $table->get_url( 'delete', null, 'schema' ) );
+			exit();
+		}
 
 		// Rename.
 		$new_name = $args['table'];
 		if ( $table instanceof Table && ! empty( $args['new_name'] ) ) {
 			$table->rename( $args['new_name'] );
 			$new_name = $table->get_name();
+		}
+
+		// Set comment.
+		if ( isset( $args['new_comment'] ) ) {
+			$table->set_comment( $args['new_comment'] );
 		}
 
 		// Update columns.
@@ -84,9 +94,31 @@ class SchemaController extends ControllerBase {
 		}
 
 		// Finish up.
-		$template = new Template( 'schema.html' );
+		$template = new Template( 'table/schema.html' );
 		$template->add_notice( 'updated', 'Schema updated.' );
 		$url = admin_url( 'admin.php?page=tabulate&controller=schema&table=' . $new_name );
 		wp_redirect( $url );
+	}
+
+	/**
+	 * Delete (drop) a table.
+	 * @param string[] $args
+	 */
+	public function delete( $args ) {
+		$template = new Template( 'table/delete.html' );
+		$db = new Database( $this->wpdb );
+		$table = $db->get_table( $args['table'] );
+
+		// Ask for confirmation.
+		if ( ! isset( $args['confirm_deletion'] ) ) {
+			$template->table = $table;
+			return $template->render();
+		}
+
+		// Carry out deletion.
+		$table->drop();
+		$template->add_notice( 'updated', 'Table dropped.' );
+		wp_redirect( admin_url( 'admin.php?page=tabulate' ) );
+		exit();
 	}
 }

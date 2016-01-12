@@ -1,6 +1,7 @@
 <?php
 
 use \WordPress\Tabulate\DB\Column;
+use \WordPress\Tabulate\DB\ChangeTracker;
 
 class SchemaEditingTest extends TestBase {
 
@@ -193,5 +194,36 @@ class SchemaEditingTest extends TestBase {
 		$table->get_column( 'title' )->alter( null, null, null, null, null, null, true );
 		$this->assertTrue( $table->get_column( 'title' )->is_unique() );
 		$this->assertCount( 2, $wpdb->get_results( $sql ) );
+	}
+
+	/**
+	 * @testdox Tables can be deleted.
+	 * @test
+	 */
+	public function drop_table() {
+		// Create a table and add some data to it.
+		$table = $this->db->create_table( 'new_table' );
+		$table->add_column( 'title', 'text_short' );
+		$table->save_record( array( 'title' => 'Test Record' ) );
+		// Make sure it and the data were added as we expect.
+		$this->assertContains( 'new_table', $this->db->get_table_names() );
+		$this->assertCount( 1, $table->get_records() );
+		// Drop the table.
+		$table->drop();
+		// Make sure the table and its history have gone.
+		$this->assertNotContains( 'new_table', $this->db->get_table_names() );
+		$sql = "SELECT * FROM `" . ChangeTracker::changes_name() . "` WHERE table_name = 'new_table'";
+		$this->assertEmpty( $this->db->get_wpdb()->get_results( $sql ) );
+	}
+
+	/**
+	 * @testdox Table comments can be changed.
+	 * @test
+	 */
+	public function table_comment() {
+		$table = $this->db->create_table( 'new_table' );
+		$this->assertEmpty( $table->get_comment() );
+		$table->set_comment( 'New comment.' );
+		$this->assertEquals( 'New comment.', $table->get_comment() );
 	}
 }

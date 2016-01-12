@@ -585,6 +585,8 @@ class Table {
 
 	public function reset() {
 		$this->columns = array();
+		$this->comment = false;
+		$this->defining_sql = false;
 	}
 
 	/**
@@ -605,15 +607,14 @@ class Table {
 		}
 		if ( is_null( $type ) ) {
 			return $this->columns;
-		} else {
-			$out = array();
-			foreach ( $this->get_columns() as $col ) {
-				if ( $col->get_type() === $type ) {
-					$out[ $col->get_name() ] = $col;
-				}
-			}
-			return $out;
 		}
+		$out = array();
+		foreach ( $this->get_columns() as $col ) {
+			if ( $col->get_type() === $type ) {
+				$out[ $col->get_name() ] = $col;
+			}
+		}
+		return $out;
 	}
 
 	/**
@@ -717,7 +718,7 @@ class Table {
 	 * @throws Exception If the table or view is not found.
 	 */
 	public function get_defining_sql() {
-		if ( ! isset( $this->defining_sql ) ) {
+		if ( empty( $this->defining_sql ) ) {
 			$defining_sql = $this->database->get_wpdb()->get_row( "SHOW CREATE TABLE `$this->name`" );
 			if ( isset( $defining_sql->{'Create Table'} ) ) {
 				$defining_sql = $defining_sql->{'Create Table'};
@@ -1090,5 +1091,31 @@ class Table {
 		$wpdb->query( "UPDATE `".ChangeTracker::changes_name() . "`"
 			. " SET `table_name` = '$new_name' "
 			. " WHERE `table_name` = '$old_name';" );
+	}
+
+	/**
+	 * Set the table's comment.
+	 * @param string $new_comment
+	 */
+	public function set_comment( $new_comment ) {
+		if ( $new_comment === $this->get_comment() ) {
+			// No need to do anything if the comment isn't changing.
+			return;
+		}
+		$sql = "ALTER TABLE `" . $this->get_name() . "` COMMENT = '$new_comment'";
+		$this->get_database()->get_wpdb()->query( $sql );
+		$this->reset();
+	}
+
+	/**
+	 * Drop this table and all its history.
+	 */
+	public function drop() {
+		$dropTable = 'DROP TABLE IF EXISTS `' . $this->get_name() . '`';
+		$this->get_database()->get_wpdb()->query( $dropTable );
+		$deleteHistory = "DELETE FROM `" . ChangeTracker::changes_name() . "` "
+			. "WHERE table_name = '" . $this->get_name() . "'";
+		$this->get_database()->get_wpdb()->query( $deleteHistory );
+		$this->get_database()->reset();
 	}
 }
