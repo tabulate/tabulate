@@ -34,19 +34,27 @@ jQuery(document).ready(function ($) {
 		$tr.after($newTr);
 		$newTr.find("[name*=name]").focus();
 	});
-	$("form.tabulate-schema select[name*='type']").on('change', function() {
+	$(document).on('change', "form.tabulate-schema select[name*='xtype']", function() {
 		$type = $(this).val();
 		$size = $(this).parents("tr").find("input[name*='size']");
 		$targetTable = $(this).parents("tr").find("select[name*='target_table']");
 		$autoInc = $(this).parents("tr").find("input[name='auto_increment']");
 		if ($type === 'fk') {
 			$size.prop("disabled", true);
-			$targetTable.prop("disabled", false);
+			$targetTable.prop("disabled", false).prop("required", true);
 			$autoInc.prop("disabled", true);
 		} else if ($type === 'integer') {
-			$size.prop("disabled", false);
-			$targetTable.prop("disabled", false);
+			$size.prop("disabled", false).prop("required", true);
+			$targetTable.prop("disabled", true);
 			$autoInc.prop("disabled", false);
+		} else if ($type === 'decimal') {
+			$size.prop("disabled", false).prop("required", true);
+			$targetTable.prop("disabled", true);
+			$autoInc.prop("disabled", true);
+		} else if ($type === 'text_short') {
+			$size.prop("disabled", false).prop("required", true);
+			$targetTable.prop("disabled", true);
+			$autoInc.prop("disabled", true);
 		} else if ($type === 'text_long') {
 			$size.prop("disabled", true);
 			$targetTable.prop("disabled", true);
@@ -58,11 +66,17 @@ jQuery(document).ready(function ($) {
 		}
 	}).change();
 	$("form.tabulate-schema a.move").click(function() {
-		
+		var $tr = $(this).parents("tr");
+		$tr.hide();
+		if ($(this).hasClass("move-up")) {
+			$tr.prev("tr").before($tr);
+		}
+		if ($(this).hasClass("move-down")) {
+			$tr.next("tr").after($tr);
+		}
+		$tr.show("slow");
 	});
-	$("form.tabulate-schema :submit").click(function() {
-		
-	});
+
 
 	/**
 	 * Make sure .disabled buttons are properly disabled.

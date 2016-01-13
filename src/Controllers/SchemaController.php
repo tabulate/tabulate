@@ -36,19 +36,20 @@ class SchemaController extends ControllerBase {
 		$template->add_notice( 'updated', 'New table created' );
 		$url = 'admin.php?page=tabulate&controller=schema&table='.$table->get_name();
 		wp_redirect( admin_url( $url ) );
+		exit;
 	}
 
 	public function save( $args ) {
-		if ( ! isset( $args['table'] ) ) {
-			$url = admin_url( 'admin.php?page=tabulate&controller=schema' );
+		if ( ! isset( $args['table'] ) || ! current_user_can( 'promote_users' ) ) {
+			$url = admin_url( 'admin.php?page=tabulate' );
 			wp_redirect( $url );
-			exit();
+			exit;
 		}
 		$db = new Database( $this->wpdb );
 		$table = $db->get_table( $args['table'] );
 		if ( isset( $args['delete'] ) ) {
 			wp_redirect( $table->get_url( 'delete', null, 'schema' ) );
-			exit();
+			exit;
 		}
 
 		// Rename.
@@ -67,17 +68,17 @@ class SchemaController extends ControllerBase {
 		foreach ( $args['columns'] as $col_info ) {
 			// Validate inputs.
 			$old_col_name = isset( $col_info['old_name'] ) ? $col_info['old_name'] : null;
-			$new_col_name = isset( $col_info['new_name'] ) ? $col_info['new_name']: null;
-			$xtype = isset( $col_info['xtype'] ) ? $col_info['xtype']: null;
-			$size = isset( $col_info['size'] ) ? $col_info['size']: null;
-			$nullable = isset( $col_info['nullable'] ) ? $col_info['nullable']: null;
-			$default = isset( $col_info['default'] ) ? $col_info['default']: null;
-			$auto_increment = isset( $col_info['auto_increment'] ) ? $col_info['auto_increment']: null;
-			$unique = isset( $col_info['unique'] ) ? $col_info['unique']: null;
-			$primary = isset( $col_info['primary'] ) ? $col_info['primary']: null;
-			$comment = isset( $col_info['comment'] ) ? $col_info['comment']: null;
-			$target_table = isset( $col_info['target_table'] ) ? $col_info['target_table']: null;
-			$after = isset( $col_info['after'] ) ? $col_info['after']: null;
+			$new_col_name = isset( $col_info['new_name'] ) ? $col_info['new_name'] : null;
+			$xtype = isset( $col_info['xtype'] ) ? $col_info['xtype'] : null;
+			$size = isset( $col_info['size'] ) ? $col_info['size'] : null;
+			$nullable = isset( $col_info['nullable'] ) ? $col_info['nullable'] : null;
+			$default = isset( $col_info['default'] ) ? $col_info['default'] : null;
+			$auto_increment = $args['auto_increment'] === $old_col_name;
+			$unique = isset( $col_info['unique'] ) ? $col_info['unique'] : false;
+			$primary = isset( $col_info['primary'] ) ? $col_info['primary'] : false;
+			$comment = isset( $col_info['comment'] ) ? $col_info['comment'] : null;
+			$target_table = isset( $col_info['target_table'] ) ? $col_info['target_table'] : null;
+			$after = isset( $col_info['after'] ) ? $col_info['after'] : null;
 
 			// Change existing or insert new column.
 			$altered = false;
@@ -98,6 +99,7 @@ class SchemaController extends ControllerBase {
 		$template->add_notice( 'updated', 'Schema updated.' );
 		$url = admin_url( 'admin.php?page=tabulate&controller=schema&table=' . $new_name );
 		wp_redirect( $url );
+		exit;
 	}
 
 	/**
@@ -119,6 +121,6 @@ class SchemaController extends ControllerBase {
 		$table->drop();
 		$template->add_notice( 'updated', 'Table dropped.' );
 		wp_redirect( admin_url( 'admin.php?page=tabulate' ) );
-		exit();
+		exit;
 	}
 }

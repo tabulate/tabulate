@@ -643,15 +643,9 @@ class Table {
 		}
 
 		// Build SQL statement.
-		$col_def = Column::get_column_definition( $name, $xtype_name, $size, $nullable, $default, $auto_increment, $unique, $primary, $comment );
+		$col_def = Column::get_column_definition( $name, $xtype_name, $size, $nullable, $default, $auto_increment, $unique, $primary, $comment, $target_table, $after );
 
 		$sql = "ALTER TABLE `".$this->get_name()."` ADD COLUMN $col_def";
-
-		if ( $after === 'FIRST' ) {
-			$sql .= " FIRST ";
-		} elseif ( $this->get_column( $after ) ) {
-			$sql .= " AFTER `$after` ";
-		}
 
 		// Execute the SQL and reset the cache.
 		$query = $this->get_database()->get_wpdb()->query( $sql );
@@ -974,7 +968,7 @@ class Table {
 
 			} elseif ( $column->is_numeric() ) {
 				// Numeric values.
-				$sql_values[ $field ] = $value;
+				$sql_values[ $field ] = (float) $value;
 
 			} else {
 				// Everything else.

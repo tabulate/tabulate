@@ -14,7 +14,7 @@
 	</table>
 	<h2>
 		Columns
-		<a class="button button-secondary add-new-column" href="javascript:void(0);">Add new column</a>
+		<a class="page-title-action add-new-column" href="javascript:void(0);">Add new column</a>
 	</h2>
 	<table class="widefat column-definitions">
 		<thead>
@@ -46,7 +46,7 @@
 					<input type="radio" name="primary_key" {% if col.get_name == table.get_pk_column.get_name %}checked{% endif %} />
 				</td>
 				<td class="auto-increment">
-					<input type="radio" name="auto_increment" {% if col.is_auto_increment %}checked{% endif %} />
+					<input type="radio" name="auto_increment" value="{{col.get_name}}" {% if col.is_auto_increment %}checked{% endif %} />
 				</td>
 				<td>
 					<input type="hidden" name="columns[{{col.get_name}}][old_name]" value="{{col.get_name}}" />

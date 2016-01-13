@@ -89,13 +89,14 @@ class SchemaEditingTest extends TestBase {
 	 */
 	public function column_definitions() {
 		$def1 = Column::get_column_definition('test_name', 'text_short');
-		$this->assertEquals('`test_name` VARCHAR(200) NULL DEFAULT NULL', $def1);
+		$this->assertEquals('`test_name` VARCHAR(50) NULL DEFAULT NULL', $def1);
 
 		$def2 = Column::get_column_definition('test_name', 'text_short', 40, false);
 		$this->assertEquals('`test_name` VARCHAR(40) NOT NULL', $def2);
 
+		// No default allowed for TEXT columns.
 		$def3 = Column::get_column_definition('test_name', 'text_long', null, true, 'Test');
-		$this->assertEquals("`test_name` TEXT NULL DEFAULT 'Test'", $def3);
+		$this->assertEquals("`test_name` TEXT NULL", $def3);
 
 		$def4 = Column::get_column_definition('ident', 'integer', 5, false, '', true, true, true, 'The Ident');
 		$this->assertEquals("`ident` INT(5) NOT NULL AUTO_INCREMENT UNIQUE COMMENT 'The Ident'", $def4);
@@ -105,7 +106,7 @@ class SchemaEditingTest extends TestBase {
 	 * @testdox Alter a column.
 	 * @test
 	 */
-	public function alter_column() {
+	public function alter_column_name() {
 		$table = $this->db->create_table( 'new_table' );
 		// Check the initial state of the table.
 		$this->assertContains( 'id', array_keys( $table->get_columns() ) );
@@ -127,6 +128,84 @@ class SchemaEditingTest extends TestBase {
 		$this->assertEquals( 10, $identifier_col->get_size() );
 		$this->assertTrue( $identifier_col->is_primary_key() );
 		$this->assertTrue( $identifier_col->is_auto_increment() );
+	}
+
+	/**
+	 * @testdox A column's type can be changed.
+	 * @test
+	 */
+	public function alter_column_type() {
+		$table = $this->db->create_table( 'new_table' );
+		$table->add_column( 'info', 'integer', 20 );
+		$col = $table->get_column( 'info' );
+		$table->save_record( array( 'info' => 99 ) );
+
+		// Make sure the column starts as we expect.
+		$this->assertEquals( 'INT', $col->get_xtype()['type'] );
+		$this->assertEquals( 20, $col->get_size() );
+		$rec = $table->get_record(1);
+		$this->assertEquals( '99', $rec->info() );
+
+		// Change it to a decimal.
+		$col->alter( null, 'decimal', '5,2' );
+		$this->assertEquals( 'DECIMAL', $col->get_xtype()['type'] );
+		$this->assertEquals( '5,2', $col->get_size() );
+		$rec2 = $table->get_record(1);
+		$this->assertEquals( '99.00', $rec2->info() );
+
+		// Change the decimal's scale.
+		$col->alter( null, 'decimal', '6,3' );
+		$this->assertEquals( 'DECIMAL', $col->get_xtype()['type'] );
+		$this->assertEquals( '6,3', $col->get_size() );
+		$rec3 = $table->get_record(1);
+		$this->assertEquals( '99.000', $rec3->info() );
+	}
+
+	/**
+	 * 
+	 */
+	public function reorder_columns() {
+		$table = $this->db->create_table( 'new_table' );
+		// Add a column.
+		$table->add_column( 'title', 'text_long' );
+		$this->assertEquals( array( 'id', 'title' ), array_keys( $table->get_columns() ) );
+		// Change the column's position.
+		$table->get_column( 'title' )->alter( null, null, null, null, null, null, null, null, null, null, 'FIRST' );
+		$this->assertEquals( array( 'title', 'id' ), array_keys( $table->get_columns() ) );
+		// Insert a third column.
+		$table->add_column( 'size', 'decimal', null, null, null, null, null, null, null, null, 'title' );
+		$this->assertEquals( array( 'title', 'size', 'id' ), array_keys( $table->get_columns() ) );
+	}
+
+	/**
+	 * @testdox A column can be changed and then back again, to leave the structure the same.
+	 * @test
+	 */
+	public function is_column_change_idempotent() {
+		$table = $this->db->create_table( 'new_table' );
+		$table->add_column( 'title', 'text_long' );
+		$defining_sql_1 = $table->get_defining_sql();
+
+		$col = $table->get_column( 'title' );
+		$col->alter( 'name', 'text_short', 80, false, 'The def', null, true );
+		$this->assertEquals( 'name', $col->get_name() );
+		$this->assertEquals( 'text_short', $col->get_xtype()['name'] );
+		$this->assertEquals( '80', $col->get_size() );
+		$this->assertEquals( false, $col->nullable() );
+		$this->assertEquals( 'The def', $col->get_default() );
+		$this->assertEquals( false, $col->is_auto_increment() );
+		$this->assertEquals( true, $col->is_unique() );
+
+		// Change back again.
+		$col->alter( 'title', 'text_long', null, false, null, null, false );
+		$this->assertEquals( 'title', $col->get_name() );
+		$this->assertEquals( 'text_long', $col->get_xtype()['name'] );
+		$this->assertEquals( null, $col->get_size() );
+		$this->assertEquals( false, $col->nullable() );
+		$this->assertEquals( null, $col->get_default() );
+		$this->assertEquals( false, $col->is_auto_increment() );
+		$this->assertEquals( false, $col->is_unique() );
+		$this->assertEquals( $defining_sql_1, $table->get_defining_sql() );
 	}
 
 	/**
@@ -225,5 +304,27 @@ class SchemaEditingTest extends TestBase {
 		$this->assertEmpty( $table->get_comment() );
 		$table->set_comment( 'New comment.' );
 		$this->assertEquals( 'New comment.', $table->get_comment() );
+	}
+
+	/**
+	 * @testdox A column can be made UNIQUE twice without it creating duplicate indexes.
+	 * @test
+	 */
+	public function double_unique_column() {
+		$table = $this->db->create_table( 'new_table' );
+		// Create a unique column.
+		$table->add_column( 'title', 'text_short', null, null, null, null, true );
+		$col = $table->get_column( 'title' );
+		$this->assertTrue( $col->is_unique() );
+		// Un-unique it.
+		$col->alter( null, null, null, null, null, null, false );
+		$this->assertFalse( $col->is_unique() );
+		// Re-unique it, twice.
+		$col->alter( null, null, null, null, null, null, true );
+		$col->alter( null, null, null, null, null, null, true );
+		$this->assertTrue( $col->is_unique() );
+		// Un-unique it again.
+		$col->alter( null, null, null, null, null, null, false );
+		$this->assertFalse( $col->is_unique() );
 	}
 }

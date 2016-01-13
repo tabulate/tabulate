@@ -117,7 +117,11 @@ class Menus {
 		$controller = new $controllerClassName( $this->wpdb );
 		$action = ! empty( $request[ 'action' ] ) ? $request[ 'action' ] : 'index';
 		unset( $request[ 'page' ], $request[ 'controller' ], $request[ 'action' ] );
-		$this->output = $controller->$action( $request );
+		try {
+			$this->output = $controller->$action( $request );
+		} catch ( \Exception $e ) {
+			$this->output = '<h2>Error</h2><div class="error"><p>'.$e->getMessage().'</p></div>';
+		}
 	}
 
 	/**

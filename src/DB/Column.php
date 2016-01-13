@@ -21,11 +21,11 @@ class Column {
 	/** @var string This column's collation. */
 	private $collation;
 
-	/**
-	 * @var boolean Whether or not this column is required, i.e. is NULL = not
-	 * required = false; and NOT NULL = required = true.
-	 */
-	private $required = false;
+	/** @var integer The total number of digits in a DECIMAL column. */
+	private $precision;
+
+	/** @var integer The number of digits after the decimal point in a DECIMAL column. */
+	private $scale;
 
 	/** @var boolean Whether or not this column is the Primary Key. */
 	private $is_primary_key = false;
@@ -275,10 +275,14 @@ class Column {
 	/**
 	 * Get this column's size.
 	 *
-	 * @return integer The size of this column.
+	 * @return string The size of this column.
 	 */
 	public function get_size() {
-		return $this->size;
+		$size = $this->size;
+		if ( $this->get_type() === 'decimal' ) {
+			$size = "$this->precision,$this->scale";
+		}
+		return $size;
 	}
 
 	/**
@@ -405,17 +409,22 @@ class Column {
 		//$integer_pattern = '/.*?(int|year)\(+(\d+)\)/';
 		$enum_pattern = '/^(enum|set)\(\'(.*?)\'\)/';
 
+		$this->type = $type_string;
+		$this->size = null;
+		$this->precision = null;
+		$this->scale = null;
+		$this->options = null;
 		if ( preg_match( $varchar_pattern, $type_string, $matches ) ) {
 			$this->type = $matches[1];
 			$this->size = (int) $matches[2];
 		} elseif ( preg_match( $decimal_pattern, $type_string, $matches ) ) {
 			$this->type = 'decimal';
-			//$colData['precision'] = $matches[1];
-			//$colData['scale'] = $matches[2];
+			$this->precision = $matches[1];
+			$this->scale = $matches[2];
 		} elseif ( preg_match( $float_pattern, $type_string, $matches ) ) {
 			$this->type = 'float';
-			//$colData['precision'] = $matches[1];
-			//$colData['scale'] = $matches[2];
+			$this->precision = $matches[1];
+			$this->scale = $matches[2];
 		} elseif ( preg_match( $integer_pattern, $type_string, $matches ) ) {
 			$this->type = $matches[1];
 			$this->size = (int) $matches[2];
@@ -423,8 +432,6 @@ class Column {
 			$this->type = $matches[1];
 			$values = explode( "','", $matches[2] );
 			$this->options = array_combine( $values, $values );
-		} else {
-			$this->type = $type_string;
 		}
 	}
 
@@ -452,32 +459,42 @@ class Column {
 	 * @param string $comment
 	 * @param string $target_table
 	 */
-	public function alter( $new_name = null, $xtype_name = null, $size = null, $nullable = null, $default = null, $auto_increment = null, $unique = null, $primary = null, $comment = null, $target_table = null ) {
+	public function alter( $new_name = null, $xtype_name = null, $size = null, $nullable = null, $default = null, $auto_increment = null, $unique = null, $primary = null, $comment = null, $target_table = null, $after = null ) {
 		// Any that have not been set explicitely should be unchanged.
-		$new_name = !is_null($new_name) ? (string) $new_name : $this->get_name();
-		$xtype_name = !is_null($xtype_name) ? (string) $xtype_name : $this->get_xtype()['name'];
-		$size = !is_null($size) ? $size : (int) $this->get_size();
-		$nullable = !is_null($nullable) ? (boolean) $nullable : $this->nullable();
-		$default = !is_null($default) ? (string) $default : $this->get_default();
-		$auto_increment = !is_null($auto_increment) ? (boolean) $auto_increment : $this->is_auto_increment();
-		$unique = !is_null($unique) ? (boolean) $unique : $this->is_unique();
-		$primary = !is_null($primary) ? (boolean) $primary : $this->is_primary_key();
-		$comment = !is_null($comment) ? (string) $comment : $this->get_comment();
-		if ($this->get_referenced_table() instanceof Table) {
-			$target_table = !is_null($target_table) ? (string) $target_table : $this->get_referenced_table()->get_name();
+		$new_name = ! is_null($new_name) ? (string) $new_name : $this->get_name();
+		$xtype_name = ! is_null($xtype_name) ? (string) $xtype_name : $this->get_xtype()['name'];
+		$size = ! is_null($size) ? $size : $this->get_size();
+		$nullable = ! is_null($nullable) ? (boolean) $nullable : $this->nullable();
+		$default = ! is_null($default) ? (string) $default : $this->get_default();
+		$auto_increment = ! is_null($auto_increment) ? (boolean) $auto_increment : $this->is_auto_increment();
+		$unique = ! is_null($unique) ? (boolean) $unique : $this->is_unique();
+		$primary = ! is_null($primary) ? (boolean) $primary : $this->is_primary_key();
+		$comment = ! is_null($comment) ? (string) $comment : $this->get_comment();
+		if ( $this->get_referenced_table() instanceof Table ) {
+			$target_table = ! is_null($target_table) ? (string) $target_table : $this->get_referenced_table()->get_name();
+		}
+
+		// Drop the unique key if it exists.
+		$table = $this->get_table();
+		$wpdb = $table->get_database()->get_wpdb();
+		if ( $unique === false && $this->is_unique() ) {
+			$sql = 'SHOW INDEXES FROM `' . $table->get_name() .'` WHERE Column_name LIKE "' . $this->get_name() . '"';
+			foreach ( $wpdb->get_results( $sql ) as $index ) {
+				$sql = "DROP INDEX `" . $index->Key_name . "` ON `" . $table->get_name() . "`";
+				$wpdb->query( $sql );
+			}
 		}
 
 		// Alter the column.
-		$col_def = self::get_column_definition($new_name, $xtype_name, $size, $nullable, $default, $auto_increment, $unique, $primary, $comment, $target_table);
-		$table = $this->get_table();
+		$col_def = self::get_column_definition($new_name, $xtype_name, $size, $nullable, $default, $auto_increment, $unique, $primary, $comment, $target_table, $after);
 		$sql = "ALTER TABLE `".$table->get_name()."` CHANGE COLUMN `".$this->get_name()."` $col_def";
-		$table->get_database()->get_wpdb()->query( $sql );
-
-		// Drop the unique key if it exists.
-		if ( $unique === false && $this->is_unique() ) {
-			$sql = "DROP INDEX `".$this->get_name()."` ON `".$table->get_name()."`";
-			$table->get_database()->get_wpdb()->query( $sql );
+		$wpdb = $table->get_database()->get_wpdb();
+		$wpdb->hide_errors();
+		$altered = $wpdb->query( $sql );
+		if ( $altered === false ) {
+			throw new Exception( 'Unable to alter column "' . $this->get_name().'" -- ' . $wpdb->last_error );
 		}
+		$wpdb->show_errors();
 
 		// Reset this object's data.
 		$sql = "SHOW FULL COLUMNS FROM `" . $table->get_name() . "` LIKE '$new_name'";
@@ -487,15 +504,18 @@ class Column {
 
 	}
 
-	public static function get_column_definition( $name , $xtype_name = null, $size = null, $nullable = true, $default = null, $auto_increment = null, $unique = null, $primary = null, $comment = null, $tartget_table = null ) {
+	public static function get_column_definition( $name , $xtype_name = null, $size = null, $nullable = true, $default = null, $auto_increment = null, $unique = null, $primary = null, $comment = null, $tartget_table = null, $after = null ) {
 		$xtypes = self::get_xtypes();
 		$xtype = ( isset( $xtypes[ $xtype_name ] ) ) ? $xtypes[ $xtype_name ] : $xtypes['text_short'];
 		$size_str = '';
 		if ( $xtype['sizes'] > 0 ) {
-			$size_str = '(' . ( $size ? : 200 ) . ')';
+			$size_str = '(' . ( $size ? : 50 ) . ')';
 		}
 		$null_str = $nullable ? 'NULL' : 'NOT NULL';
-		$default_str = ! empty( $default ) ? "DEFAULT '$default'" : ( $nullable ? 'DEFAULT NULL' : '' );
+		$default_str = '';
+		if ( $xtype_name != 'text_long' ) {
+			$default_str = ! empty( $default ) ? "DEFAULT '$default'" : ( $nullable ? 'DEFAULT NULL' : '' );
+		}
 		$auto_increment_str = '';
 		if ( $auto_increment && $xtype['name'] == 'integer' ) {
 			$auto_increment_str = 'AUTO_INCREMENT';
@@ -504,14 +524,14 @@ class Column {
 		//$primary_str = $primary ? 'PRIMARY KEY' : '';
 		$comment_str = !is_null($comment) ? "COMMENT '$comment'" : '';
 
-		// Put it all together.
-		$col_def = "`$name` {$xtype['type']}$size_str $null_str $default_str $auto_increment_str $unique_str $comment_str";
-		return preg_replace( '/ +/', ' ', trim( $col_def ) );
+		$after_str = ( ! empty( $after ) ) ? "AFTER `$after`" : '';
+		if ( strtoupper( $after ) === 'FIRST' ) {
+			$after_str = " FIRST ";
+		}
 
-//		data_type [NOT NULL | NULL] [DEFAULT default_value]
-//      [AUTO_INCREMENT] [UNIQUE [KEY] | [PRIMARY] KEY]
-//      [COMMENT 'string']
-//      [reference_definition]
+		// Put it all together.
+		$col_def = "`$name` {$xtype['type']}$size_str $null_str $default_str $auto_increment_str $unique_str $comment_str $after_str ";
+		return preg_replace( '/ +/', ' ', trim( $col_def ) );
 
 	}
 }

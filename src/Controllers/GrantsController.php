@@ -46,7 +46,7 @@ class GrantsController extends ControllerBase {
 		// Save the grants and return to the granting table.
 		$grants->set( $new_grants );
 		$this->template->add_notice( 'updated', 'Grants saved.' );
-		wp_redirect($this->get_url( 'index' ) );
+		wp_redirect( $this->get_url( 'index' ) );
 		exit;
 	}
 
