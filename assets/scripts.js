@@ -35,36 +35,55 @@ jQuery(document).ready(function ($) {
 		$newTr.find("[name*=name]").focus();
 	});
 	$(document).on('change', "form.tabulate-schema select[name*='xtype']", function() {
-		$type = $(this).val();
+		var xtype = $(this).val();
+		$pk = $(this).parents("tr").find("input[name='primary_key']");
 		$size = $(this).parents("tr").find("input[name*='size']");
 		$targetTable = $(this).parents("tr").find("select[name*='target_table']");
 		$autoInc = $(this).parents("tr").find("input[name='auto_increment']");
-		if ($type === 'fk') {
+		if (xtype === 'fk') {
+			$pk.prop("disabled", true);
 			$size.prop("disabled", true);
 			$targetTable.prop("disabled", false).prop("required", true);
 			$autoInc.prop("disabled", true);
-		} else if ($type === 'integer') {
+		} else if (xtype === 'integer') {
+			$pk.prop("disabled", false);
 			$size.prop("disabled", false).prop("required", true);
 			$targetTable.prop("disabled", true);
 			$autoInc.prop("disabled", false);
-		} else if ($type === 'decimal') {
+		} else if (xtype === 'decimal') {
+			$pk.prop("disabled", true);
 			$size.prop("disabled", false).prop("required", true);
 			$targetTable.prop("disabled", true);
 			$autoInc.prop("disabled", true);
-		} else if ($type === 'text_short') {
+		} else if (xtype === 'boolean') {
+			console.log(xtype);
+			$pk.prop("disabled", true);
+			$size.prop("disabled", true);
+			$targetTable.prop("disabled", true);
+			$autoInc.prop("disabled", true);
+		} else if (xtype === 'text_short') {
+			$pk.prop("disabled", true);
 			$size.prop("disabled", false).prop("required", true);
 			$targetTable.prop("disabled", true);
 			$autoInc.prop("disabled", true);
-		} else if ($type === 'text_long') {
+		} else if (xtype === 'text_long') {
+			$pk.prop("disabled", true);
+			$size.prop("disabled", true);
+			$targetTable.prop("disabled", true);
+			$autoInc.prop("disabled", true);
+		} else if (xtype === 'point') {
+			$pk.prop("disabled", true);
 			$size.prop("disabled", true);
 			$targetTable.prop("disabled", true);
 			$autoInc.prop("disabled", true);
 		} else {
+			$pk.prop("disabled", true);
 			$size.prop("disabled", false);
 			$targetTable.prop("disabled", true);
 			$autoInc.prop("disabled", true);
 		}
-	}).change();
+	});
+	$("form.tabulate-schema select[name*='xtype']").change();
 	$("form.tabulate-schema a.move").click(function() {
 		var $tr = $(this).parents("tr");
 		$tr.hide();

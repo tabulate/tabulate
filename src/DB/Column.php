@@ -286,7 +286,7 @@ class Column {
 	}
 
 	/**
-	 * Whether or not a not-NULL value needs to be supplied for this column.
+	 * Whether or not a non-NULL value needs to be supplied for this column.
 	 *
 	 * Not-NULL columns that have default values are *not* considered to be
 	 * required.
@@ -448,9 +448,10 @@ class Column {
 	}
 
 	/**
-	 * 
+	 * Alter this column.
 	 * @param string $new_name
 	 * @param string $xtype
+	 * @param string $size Either a single integer, or a x,y string of two integers.
 	 * @param boolean $nullable
 	 * @param boolean $default
 	 * @param boolean $auto_increment
@@ -474,10 +475,10 @@ class Column {
 			$target_table = ! is_null($target_table) ? (string) $target_table : $this->get_referenced_table()->get_name();
 		}
 
-		// Drop the unique key if it exists.
+		// Drop the unique key if it exists; it'll be re-created after.
 		$table = $this->get_table();
 		$wpdb = $table->get_database()->get_wpdb();
-		if ( $unique === false && $this->is_unique() ) {
+		if ( $this->is_unique() ) {
 			$sql = 'SHOW INDEXES FROM `' . $table->get_name() .'` WHERE Column_name LIKE "' . $this->get_name() . '"';
 			foreach ( $wpdb->get_results( $sql ) as $index ) {
 				$sql = "DROP INDEX `" . $index->Key_name . "` ON `" . $table->get_name() . "`";
@@ -488,7 +489,6 @@ class Column {
 		// Alter the column.
 		$col_def = self::get_column_definition($new_name, $xtype_name, $size, $nullable, $default, $auto_increment, $unique, $primary, $comment, $target_table, $after);
 		$sql = "ALTER TABLE `".$table->get_name()."` CHANGE COLUMN `".$this->get_name()."` $col_def";
-		$wpdb = $table->get_database()->get_wpdb();
 		$wpdb->hide_errors();
 		$altered = $wpdb->query( $sql );
 		if ( $altered === false ) {
@@ -511,6 +511,9 @@ class Column {
 		if ( $xtype['sizes'] > 0 ) {
 			$size_str = '(' . ( $size ? : 50 ) . ')';
 		}
+		if ( $xtype_name === 'boolean' ) {
+			$size_str = '(1)';
+		}
 		$null_str = $nullable ? 'NULL' : 'NOT NULL';
 		$default_str = '';
 		if ( $xtype_name != 'text_long' ) {
@@ -522,7 +525,7 @@ class Column {
 		}
 		$unique_str = $unique ? 'UNIQUE' : '';
 		//$primary_str = $primary ? 'PRIMARY KEY' : '';
-		$comment_str = !is_null($comment) ? "COMMENT '$comment'" : '';
+		$comment_str = ! is_null($comment) ? "COMMENT '$comment'" : '';
 
 		$after_str = ( ! empty( $after ) ) ? "AFTER `$after`" : '';
 		if ( strtoupper( $after ) === 'FIRST' ) {

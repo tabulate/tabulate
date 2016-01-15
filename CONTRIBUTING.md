@@ -14,9 +14,8 @@ the `tags` directory is a mirror of the Git tags.
 
 Tabulate follows the Semantic Versioning guidelines: http://semver.org/
 
-The version number is hard-coded at two places in `tabulate.php`. It would also
-be in `README.md` but as trunk is stable there's no need to specify a stable
-tag.
+The version number is hard-coded at two places in `tabulate.php` and two in `docs/conf.py`.
+It would also be in `README.md` but as trunk is stable there's no need to specify a stable tag.
 
 The versions of WordPress that we test against are hard-coded in `README.md`
 and the Travis build file `.travis.yml`.

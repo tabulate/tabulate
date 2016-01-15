@@ -125,9 +125,10 @@ with it please see
 
 ## Changelog
 
-This is a reverse-chronologically ordered list of breaking changes to Tabulate.
+This is a reverse-chronologically ordered list of breaking or major changes to Tabulate.
 A full list of all changes can be found at https://github.com/tabulate/tabulate/commits/master
 
+* January 2016: Version 2.5, introduced schema editing.
 * October 2015: Version 2, switching to version 2 of the WP-API plugin.
 * July 2015: Version 1, with basic functionality and after having
   been run for some months in a production environment by the plugin author.

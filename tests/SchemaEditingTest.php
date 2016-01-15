@@ -100,6 +100,9 @@ class SchemaEditingTest extends TestBase {
 
 		$def4 = Column::get_column_definition('ident', 'integer', 5, false, '', true, true, true, 'The Ident');
 		$this->assertEquals("`ident` INT(5) NOT NULL AUTO_INCREMENT UNIQUE COMMENT 'The Ident'", $def4);
+
+		$def5 = Column::get_column_definition('can_do', 'boolean', 5, false, '', true, false, true, 'Can it do this thing?');
+		$this->assertEquals("`can_do` TINYINT(1) NOT NULL COMMENT 'Can it do this thing?'", $def5);
 	}
 
 	/**
@@ -192,6 +195,7 @@ class SchemaEditingTest extends TestBase {
 		$this->assertEquals( 'text_short', $col->get_xtype()['name'] );
 		$this->assertEquals( '80', $col->get_size() );
 		$this->assertEquals( false, $col->nullable() );
+		$this->assertEquals( false, $col->is_required() );
 		$this->assertEquals( 'The def', $col->get_default() );
 		$this->assertEquals( false, $col->is_auto_increment() );
 		$this->assertEquals( true, $col->is_unique() );
@@ -202,6 +206,7 @@ class SchemaEditingTest extends TestBase {
 		$this->assertEquals( 'text_long', $col->get_xtype()['name'] );
 		$this->assertEquals( null, $col->get_size() );
 		$this->assertEquals( false, $col->nullable() );
+		$this->assertEquals( true, $col->is_required() );
 		$this->assertEquals( null, $col->get_default() );
 		$this->assertEquals( false, $col->is_auto_increment() );
 		$this->assertEquals( false, $col->is_unique() );
@@ -225,6 +230,12 @@ class SchemaEditingTest extends TestBase {
 		$this->assertEquals( array( 'title', 'id' ), array_keys( $table->get_columns() ) );
 		$this->assertEquals( 'A comment', $table->get_column( 'title' )->get_comment() );
 		$this->assertTrue( $table->get_column( 'title' )->is_unique() );
+
+		// Add a unique column.
+		$table->add_column('birthday', 'date', null, null, null, false, true );
+		$this->assertCount( 3, $table->get_columns() );
+		$this->assertEquals( array( 'title', 'id', 'birthday' ), array_keys( $table->get_columns() ) );
+		$this->assertTrue( $table->get_column( 'birthday' )->is_unique() );
 	}
 
 	/**

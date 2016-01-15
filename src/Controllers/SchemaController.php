@@ -74,7 +74,7 @@ class SchemaController extends ControllerBase {
 			$nullable = isset( $col_info['nullable'] ) ? $col_info['nullable'] : null;
 			$default = isset( $col_info['default'] ) ? $col_info['default'] : null;
 			$auto_increment = $args['auto_increment'] === $old_col_name;
-			$unique = isset( $col_info['unique'] ) ? $col_info['unique'] : false;
+			$unique = isset( $col_info['unique'] );
 			$primary = isset( $col_info['primary'] ) ? $col_info['primary'] : false;
 			$comment = isset( $col_info['comment'] ) ? $col_info['comment'] : null;
 			$target_table = isset( $col_info['target_table'] ) ? $col_info['target_table'] : null;
