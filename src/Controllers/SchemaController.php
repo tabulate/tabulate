@@ -77,7 +77,7 @@ class SchemaController extends ControllerBase {
 			$unique = isset( $col_info['unique'] );
 			$primary = isset( $col_info['primary'] ) ? $col_info['primary'] : false;
 			$comment = isset( $col_info['comment'] ) ? $col_info['comment'] : null;
-			$target_table = isset( $col_info['target_table'] ) ? $col_info['target_table'] : null;
+			$target_table = isset( $col_info['target_table'] ) ? $db->get_table( $col_info['target_table'] ) : null;
 			$after = isset( $col_info['after'] ) ? $col_info['after'] : null;
 
 			// Change existing or insert new column.

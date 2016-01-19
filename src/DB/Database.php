@@ -111,7 +111,7 @@ class Database {
 			throw new Exception( 'Only administrators are allowed to create tables' );
 		}
 		$sql = "CREATE TABLE IF NOT EXISTS `$name` ( "
-			. " `id` INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY "
+			. " `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY "
 			. ") ENGINE=InnoDB, COMMENT='$comment';";
 		$this->get_wpdb()->query( $sql );
 		$this->reset();

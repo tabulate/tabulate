@@ -16,6 +16,8 @@ class SchemaEditingTest extends TestBase {
 		$this->wpdb->query( "DROP TABLE IF EXISTS `testing_table`;" );
 		$this->wpdb->query( 'DROP TABLE IF EXISTS `new_table`;' );
 		$this->wpdb->query( 'DROP TABLE IF EXISTS `new_table_2`;' );
+		$this->wpdb->query( 'DROP TABLE IF EXISTS `widgets`;' );
+		$this->wpdb->query( 'DROP TABLE IF EXISTS `types`;' );
 		parent::tearDown();
 	}
 
@@ -337,5 +339,20 @@ class SchemaEditingTest extends TestBase {
 		// Un-unique it again.
 		$col->alter( null, null, null, null, null, null, false );
 		$this->assertFalse( $col->is_unique() );
+	}
+
+	/**
+	 * @testdox A column can be a foreign key.
+	 * @test
+	 */
+	public function foreign_keys() {
+		$widgets = $this->db->create_table( 'widgets' );
+		$types = $this->db->create_table( 'types' );
+		$widgets->add_column( 'type', 'fk', null, null, null, null, null, null, null, $types );
+		$type_col = $widgets->get_column( 'type' );
+		$this->assertTrue( $type_col->is_foreign_key() );
+		$this->assertEquals( $widgets->get_pk_column()->get_type(), $type_col->get_type() );
+		$this->assertEquals( $widgets->get_pk_column()->get_size(), $type_col->get_size() );
+		$this->assertEquals( $widgets->get_pk_column()->is_unsigned(), $type_col->is_unsigned() );
 	}
 }

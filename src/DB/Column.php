@@ -355,6 +355,14 @@ class Column {
 	}
 
 	/**
+	 * Whether this column is an unsigned number.
+	 * @return boolean
+	 */
+	public function is_unsigned() {
+		return $this->unsigned;
+	}
+
+	/**
 	 * Whether or not this column is an integer, float, or decimal column.
 	 */
 	public function is_numeric() {
@@ -398,9 +406,7 @@ class Column {
 	 */
 	private function parse_type($type_string) {
 
-		if ( preg_match( '/unsigned/', $type_string ) ) {
-			$this->unsigned = true;
-		}
+		$this->unsigned = ( false !== stripos( $type_string, 'unsigned' ) );
 
 		$varchar_pattern = '/^((?:var)?char)\((\d+)\)/';
 		$decimal_pattern = '/^decimal\((\d+),(\d+)\)/';
@@ -458,7 +464,8 @@ class Column {
 	 * @param boolean $unique
 	 * @param boolean $primary
 	 * @param string $comment
-	 * @param string $target_table
+	 * @param \WordPress\Tabulate\DB\Table $target_table
+	 * @param string $after
 	 */
 	public function alter( $new_name = null, $xtype_name = null, $size = null, $nullable = null, $default = null, $auto_increment = null, $unique = null, $primary = null, $comment = null, $target_table = null, $after = null ) {
 		// Any that have not been set explicitely should be unchanged.
@@ -492,7 +499,9 @@ class Column {
 		$wpdb->hide_errors();
 		$altered = $wpdb->query( $sql );
 		if ( $altered === false ) {
-			throw new Exception( 'Unable to alter column "' . $this->get_name().'" -- ' . $wpdb->last_error );
+			$err = "Unable to alter '" . $table->get_name() . "." . $this->get_name() . "' "
+				. " &mdash; $wpdb->last_error &mdash; <code>$sql</code>";
+			throw new Exception( $err );
 		}
 		$wpdb->show_errors();
 
@@ -504,9 +513,27 @@ class Column {
 
 	}
 
-	public static function get_column_definition( $name , $xtype_name = null, $size = null, $nullable = true, $default = null, $auto_increment = null, $unique = null, $primary = null, $comment = null, $tartget_table = null, $after = null ) {
+	/**
+	 * 
+	 * @param string $name
+	 * @param string $xtype_name
+	 * @param string $size
+	 * @param boolean $nullable
+	 * @param string $default
+	 * @param boolean $auto_increment
+	 * @param boolean $unique
+	 * @param boolean $primary
+	 * @param string $comment
+	 * @param \WordPress\Tabulate\DB\Table $target_table
+	 * @param string $after
+	 * @return string
+	 */
+	public static function get_column_definition( $name , $xtype_name = null, $size = null, $nullable = true, $default = null, $auto_increment = null, $unique = null, $primary = null, $comment = null, $target_table = null, $after = null ) {
+		// Type.
 		$xtypes = self::get_xtypes();
 		$xtype = ( isset( $xtypes[ $xtype_name ] ) ) ? $xtypes[ $xtype_name ] : $xtypes['text_short'];
+		$type_str = $xtype['type'];
+		// Size.
 		$size_str = '';
 		if ( $xtype['sizes'] > 0 ) {
 			$size_str = '(' . ( $size ? : 50 ) . ')';
@@ -532,9 +559,30 @@ class Column {
 			$after_str = " FIRST ";
 		}
 
+		$ref_str = '';
+		$sign_str = '';
+		if ( $target_table instanceof \WordPress\Tabulate\DB\Table ) {
+			$pk_col = $target_table->get_pk_column();
+			$ref_str = ', ADD CONSTRAINT `' . $name . '_fk_to_' . $target_table->get_name() . '`'
+				. ' FOREIGN KEY (`' . $name . '`) '
+				. ' REFERENCES `' . $target_table->get_name() . '` '
+				. ' (`'.$pk_col->get_name().'`)';
+			$type_str = $pk_col->get_type();
+			$size_str = '('.$pk_col->get_size().')';
+			$sign_str = ($pk_col->is_unsigned()) ? 'UNSIGNED' : '';
+		}
+
 		// Put it all together.
-		$col_def = "`$name` {$xtype['type']}$size_str $null_str $default_str $auto_increment_str $unique_str $comment_str $after_str ";
+		$col_def = "`$name` $type_str$size_str $sign_str $null_str $default_str $auto_increment_str $unique_str $comment_str $after_str $ref_str";
 		return preg_replace( '/ +/', ' ', trim( $col_def ) );
 
+	}
+
+	public static function get_reference_definition( $name, $target_table ) {
+		$pk_col = $target_table->get_pk_column();
+		$ref_str = 'CONSTRAINT `' . $name . '_fk_to_' . $target_table->get_name() . '` FOREIGN KEY (`' . $name . '`) '
+			. ' REFERENCES `' . $target_table->get_name() . '` '
+			. ' (`'.$pk_col->get_name().'`)';
+		return $ref_str;
 	}
 }

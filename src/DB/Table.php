@@ -629,7 +629,7 @@ class Table {
 	 * @param boolean $unique
 	 * @param boolean $primary
 	 * @param string $comment
-	 * @param string $target_table
+	 * @param \WordPress\Tabulate\DB\Table $target_table
 	 * @param string $after
 	 * @throws Exception
 	 */
