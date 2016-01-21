@@ -2,8 +2,6 @@
 
 namespace WordPress\Tabulate;
 
-use WordPress\Tabulate\Tabulate;
-
 class Template {
 
 	/** @var string */
@@ -133,8 +131,11 @@ class Template {
 		$loader = new \Twig_Loader_Filesystem( self::$paths );
 		$twig = new \Twig_Environment( $loader );
 
-		// Add the admin_url() function.
-		$twig->addFunction( 'admin_url', new \Twig_SimpleFunction( 'admin_url', 'admin_url' ) );
+		// Add some useful functions to Twig.
+		$funcs = array( 'admin_url', '__', '_e' );
+		foreach ( $funcs as $f ) {
+			$twig->addFunction( $f, new \Twig_SimpleFunction( $f, $f ) );
+		}
 
 		// Add titlecase filter.
 		$titlecase_filter = new \Twig_SimpleFilter( 'titlecase', '\\WordPress\\Tabulate\\Text::titlecase' );

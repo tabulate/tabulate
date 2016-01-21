@@ -6,20 +6,21 @@
 	<h1>{{table.get_title}} <small class='about-text'>{{table.get_comment}}</small></h1>
 	<h3 class="nav-tab-wrapper">
 		<a href="{{table.get_url}}" class="nav-tab {% if controller=='table' %}nav-tab-active{% endif %}">
-			Search
+			{{__('Search', 'tabulate')}}
 		</a>
 		<a href="{{record.get_url('index', false)}}"
 		   class="nav-tab {% if controller=='record' and not record.get_primary_key %}nav-tab-active{% endif %}">
-			Create
+			{{__('Create', 'tabulate')}}
 		</a>
 		<a href="{{record.get_url}}" class="nav-tab {% if controller=='record' and record.get_primary_key %}nav-tab-active{% endif %}">
-			Edit
+			{{__('Edit', 'tabulate')}}
 		</a>
 		<a href="{{table.get_url('import')}}" class="nav-tab {% if action=='import' %}nav-tab-active{% endif %}">
-			Import
+			{{__('Import', 'tabulate')}}
 		</a>
 		{% if current_user_is_admin %}
 		<a href="{{table.get_url('index', false, 'schema')}}" class="nav-tab {% if action=='structure' %}nav-tab-active{% endif %}">
+			{{__('Structure', 'tabulate')}}
 			Structure
 		</a>
 		{% endif %}
@@ -33,11 +34,11 @@
 		<p>
 			<a href="https://wordpress.org/plugins/tabulate/" class="button button-small"
 			   title="Go to the Tabulate website (opens in a new tab)" target="_blank">
-				This is <strong>Tabulate {{tabulate_version}}</strong>
+				{{__('This is <strong>Tabulate %s</strong>', 'tabulate')|format(tabulate_version)|raw}}
 			</a>
 			<a href="https://github.com/tabulate/tabulate/issues" class="button button-small"
 			   title="Let the authors of Tabulate know that something is wrong (opens in a new tab)" target="_blank">
-				Report an issue
+				{{__('Report an issue', 'tabulate')}}
 			</a>
 		</p>
 	</div>

@@ -6,15 +6,22 @@
  * Author URI: http://samwilson.id.au/
  * License: GPL-2.0+
  * Text Domain: tabulate
- * Version: 2.5.1
+ * Domain Path: /languages
+ * Version: 2.5.2
  */
-define( 'TABULATE_VERSION', '2.5.1' );
+define( 'TABULATE_VERSION', '2.5.2' );
 define( 'TABULATE_SLUG', 'tabulate' );
+
+// Load textdomain.
+add_action( 'plugins_loaded', function() {
+    load_plugin_textdomain( TABULATE_SLUG, FALSE, basename( __DIR__ ) . '/languages/' );
+} );
 
 // Make sure Composer has been set up (for installation from Git, mostly).
 if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	add_action( 'admin_notices', function() {
-		echo '<div class="error"><p>Please run <tt>composer install</tt> prior to using Tabulate.</p></div>';
+		$msg = __( 'Please run <tt>composer install</tt> prior to using Tabulate.', 'tabulate' );
+		echo "<div class='error'><p>$msg</p></div>";
 	} );
 	return;
 }
