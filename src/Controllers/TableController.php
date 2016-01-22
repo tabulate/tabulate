@@ -12,7 +12,8 @@ class TableController extends ControllerBase {
 		$table = $db->get_table( $table_name );
 		if ( ! $table ) {
 			add_action( 'admin_notices', function($table_name) use ($table_name) {
-				echo "<div class='error'><p>Table '" . $table_name . "' not found.</p></div>";
+				$err = __('Table "%s" not found.', 'tabulate');
+				echo "<div class='error'><p>" . sprintf( $err, $table_name ) . "</p></div>";
 			} );
 			$home = new HomeController( $this->wpdb );
 			return $home->index();
