@@ -103,17 +103,31 @@ class Table {
 	 * @param boolean $force Whether to transform the value, for FKs.
 	 */
 	public function add_filter( $column, $operator, $value, $force = false ) {
-		// Allow Columns to be passed in.
+		// Allow Column objects to be passed in.
 		if ( $column instanceof Column ) {
 			$column = $column->get_name();
 		}
-		// Validate the parts of the filter.
+		// Validate the column name.
 		$valid_columm = in_array( $column, array_keys( $this->get_columns() ) );
+		if ( ! $valid_columm ) {
+			$msg = __( '"%s" is not a valid column of table "%s".', 'tabulate' );
+			throw new Exception( sprintf( $msg, $column, $this->get_name() ) );
+		}
+		// Validate the operator.
 		$valid_operator = in_array( $operator, array_keys( $this->operators ) );
-		$emptyValueAllowed = (strpos( $operator, 'empty' ) === false && !empty( $value ));
+		if ( ! $valid_operator ) {
+			$msg = __( '"%s" is not a valid operator.', 'tabulate' );
+			throw new Exception( sprintf( $msg, $operator ) );
+		}
+		// Validate the value.
+		$emptyValueAllowed = ( strpos( $operator, 'empty' ) === false && ! empty( $value ) );
 		$valid_value = (strpos( $operator, 'empty' ) !== false) || $emptyValueAllowed;
+		if ( ! $valid_operator ) {
+			$msg = __( '"%s" is not a valid value.', 'tabulate' );
+			throw new Exception( sprintf( $msg, $value ) );
+		}
+		// Save the filter for later application (see Table::apply_filters()).
 		if ( $valid_columm && $valid_operator && $valid_value ) {
-			// Save the filter for later application.
 			$this->filters[] = array(
 				'column' => $column,
 				'operator' => $operator,
@@ -173,28 +187,28 @@ class Table {
 			}
 
 			// LIKE or NOT LIKE
-			if ( $filter['operator'] == 'like' || $filter['operator'] == 'not like' ) {
+			if ( $filter['operator'] === 'like' || $filter['operator'] === 'not like' ) {
 				$where_clause .= " AND CONVERT($f_column, CHAR) " . strtoupper( $filter['operator'] ) . " %s ";
 				$params[$param_name] = '%' . trim($filter['value']) . '%';
 			} // Equals or does-not-equal
-			elseif ( $filter['operator'] == '=' || $filter['operator'] == '!=' ) {
-				$where_clause .= " AND $f_column " . strtoupper( $filter['operator'] ) . " %s ";
+			elseif ( $filter['operator'] === '=' || $filter['operator'] === '!=' ) {
+				$where_clause .= " AND $f_column " . $filter['operator'] . " %s ";
 				$params[$param_name] = trim($filter['value']);
 			} // IS EMPTY
-			elseif ( $filter['operator'] == 'empty' ) {
+			elseif ( $filter['operator'] === 'empty' ) {
 				$where_clause .= " AND ($f_column IS NULL OR $f_column = '')";
 			} // IS NOT EMPTY
-			elseif ( $filter['operator'] == 'not empty' ) {
+			elseif ( $filter['operator'] === 'not empty' ) {
 				$where_clause .= " AND ($f_column IS NOT NULL AND $f_column != '')";
 			} // IN or NOT IN
-			elseif ( $filter['operator'] == 'in' || $filter['operator'] == 'not in') {
-				$values = explode( "\n", $filter['value'] );
+			elseif ( $filter['operator'] === 'in' || $filter['operator'] === 'not in') {
+				$values = preg_split( '/\n|\r|\r\n/', $filter['value'], -1, PREG_SPLIT_NO_EMPTY );
 				$placeholders = array();
 				foreach ( $values as $vid => $val ) {
 					$placeholders[] = "%s";
 					$params[ $param_name . '_' . $vid ] = trim($val);
 				}
-				$negate = ( $filter['operator'] == 'not in' ) ? 'NOT' : '';
+				$negate = ( $filter['operator'] === 'not in' ) ? 'NOT' : '';
 				$where_clause .= " AND ($f_column $negate IN (" . join( ", ", $placeholders ) . "))";
 			} // Other operators. They're already validated in $this->addFilter()
 			else {

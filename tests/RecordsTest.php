@@ -134,4 +134,25 @@ class RecordsTest extends TestBase {
 		$this->assertEquals( 1, $type_col->get_referenced_table()->count_records() );
 	}
 
+	/**
+	 * @testdox It is possible to provide multiple filter values, one per line.
+	 * @test
+	 */
+	public function multiple_filter_values() {
+		// Set up some test data.
+		$types = $this->db->get_table( 'test_table' );
+		$types->save_record( array( 'title' => "Type One", 'description' => '' ) );
+		$types->save_record( array( 'title' => "One Type", 'description' => 'One' ) );
+		$types->save_record( array( 'title' => "Type Two", 'description' => 'Two' ) );
+		$types->save_record( array( 'title' => "Four", 'description' => ' ' ) );
+
+		// Search for 'One' and get 2 records.
+		$types->add_filter('description', 'in', "One\nTwo");
+		$this->assertEquals( 2, $types->count_records() );
+
+		// Make sure empty lines are ignored in filter value.
+		$types->reset_filters();
+		$types->add_filter('description', 'in', "One\n\nTwo\n");
+		$this->assertEquals( 2, $types->count_records() );
+	}
 }
