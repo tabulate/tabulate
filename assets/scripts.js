@@ -111,9 +111,9 @@ jQuery(document).ready(function ($) {
 	 * Set up the bits that use WP_API.
 	 * Make sure the WP-API nonce is always set on AJAX requests.
 	 */
-	if (typeof WP_API_Settings !== 'undefined') {
+	if (typeof wpApiSettings !== 'undefined') {
 		$.ajaxSetup({
-			headers: { 'X-WP-Nonce': WP_API_Settings.nonce }
+			headers: { 'X-WP-Nonce': wpApiSettings.nonce }
 		});
 
 
@@ -121,7 +121,7 @@ jQuery(document).ready(function ($) {
 		 * Jump between tables.
 		 */
 		// Get the table list.
-		$.getJSON(WP_API_Settings.root + "tabulate/tables", function( tableNames ) {
+		$.getJSON(wpApiSettings.root + "tabulate/tables", function( tableNames ) {
 			for ( var t in tableNames ) {
 				var table = tableNames[t];
 				var url = tabulate.admin_url + "&controller=table&table=" + table.value;
@@ -169,7 +169,7 @@ jQuery(document).ready(function ($) {
 		$(".tabulate .foreign-key .form-control:input").each(function() {
 			// Autocomplete.
 			$(this).autocomplete({
-				source: WP_API_Settings.root + "tabulate/fk/" + $(this).data('fk-table'),
+				source: wpApiSettings.root + "tabulate/fk/" + $(this).data('fk-table'),
 				select: function( event, ui ) {
 					event.preventDefault();
 					$(this).val(ui.item.label);
@@ -192,7 +192,7 @@ jQuery(document).ready(function ($) {
 			});
 		});
 
-	} // if (typeof WP_API_Settings !== 'undefined')
+	} // if (typeof wpApiSettings !== 'undefined')
 
 
 	/**
