@@ -52,8 +52,8 @@ Features (in no particular order):
 8.  All data modifications are recorded, along with optional comments that users
     can provide when updating data.
 9.  The `[tabulate]` shortcode can be used to embed tables, lists, row-counts,
-    and data-entry forms into WordPress content. For more details, see the
-    [FAQ section](https://wordpress.org/plugins/tabulate/faq/).
+    and data-entry forms into WordPress content. For more details,
+    [read the documentation](http://tabulate.readthedocs.org/en/latest/shortcode.html).
 10. Tables with *point* columns can be exported to KML and OpenStreetMap XML.
     Also, data entry for these columns is done with a small slippy map, on which
     a marker can be placed.
@@ -66,23 +66,9 @@ See http://tabulate.readthedocs.org/en/latest/install.html
 
 ## Frequently Asked Questions
 
-### How does one use the shortcode?
+### Where is the documentation?
 
-A [Shortcode](http://codex.wordpress.org/Shortcode) is a WordPress method of
-embedding content into posts and pages. Tabulate provides one short code, `[tabulate]`,
-which can be used to add tables, lists, data-entry forms, and record-counts to
-your content. Its parameters (which can appear in any order) are as follows:
-
-1. `table` — The name of the table in question. Required. No default.
-2. `format` — One of `table`, `list`, `form`, `count`, or `record`. Optional. Defaults to `table`.
-
-Do note that if a table is not accessible to the browsing user then nothing will
-be displayed.
-
-When using the `record` format, the primary key of the record to display will be
-taken from the URL parameter that is the table's name
-(e.g. `[tabulate table=widgets format=record]` will look for `?widgets=45`
-and display the record with a primary key value of `45`).
+Tabulate documentation is hosted on *Read The Docs* at http://tabulate.readthedocs.org/
 
 ### Where should issues be reported?
 

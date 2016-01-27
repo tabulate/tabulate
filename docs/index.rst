@@ -50,3 +50,4 @@ Contents
 
    intro
    install
+   shortcode

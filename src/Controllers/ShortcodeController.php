@@ -30,6 +30,7 @@ class ShortcodeController extends ControllerBase {
 		$defaults = array(
 			'format' => 'table',
 			'table' => null,
+			'ident' => null,
 		);
 		$attrs = shortcode_atts( $defaults, $atts );
 		if ( ! isset( $attrs['table'] ) ) {
@@ -61,12 +62,22 @@ class ShortcodeController extends ControllerBase {
 	}
 
 	protected function record_format( Table $table, $attrs, $query = null ) {
-		if ( ! isset( $query[ $table->get_name() ] ) || ! is_scalar( $query[ $table->get_name() ] ) ) {
-			return '';
+		// Check for the ident shortcode parameter...
+		if ( isset( $attrs['ident'] ) ) {
+			$ident = $attrs['ident'];
 		}
-		$record = $table->get_record( $query[ $table->get_name() ] );
+		// ...or the tablename=ident URL parameter.
+		if ( isset( $query[ $table->get_name() ] ) && is_scalar( $query[ $table->get_name() ] ) ) {
+			$ident = $query[ $table->get_name() ];
+		}
+		if ( ! isset( $ident ) ) {
+			return $this->error( __( 'No record identifier could be determined.', 'tabulate' ) );
+		}
+
+		// Get the record.
+		$record = $table->get_record( $ident );
 		if ( $record === false ) {
-			return $this->error("No record found.");
+			return $this->error( __( 'No record found.', 'tabulate' ) );
 		}
 		$template = new Template( 'record/view.html' );
 		$template->table = $table;
