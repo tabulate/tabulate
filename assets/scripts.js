@@ -198,7 +198,7 @@ jQuery(document).ready(function ($) {
 	/**
 	 * Dynamically add new filters.
 	 */
-	var $addFilter = $("<a class='button'>Add new filter</a>");
+	var $addFilter = $("<a class='button btn btn-default'>Add new filter</a>");
 	$(".tabulate-filters td.buttons").append($addFilter);
 	$addFilter.click(function () {
 		var filterCount = $(this).parents("table").find("tr.tabulate-filter").size();
@@ -249,10 +249,11 @@ jQuery(document).ready(function ($) {
 	// Fire keyup manually.
 	$(".tabulate-filters textarea").change();
 	// Change the controller, action, and page num of the form depending on which button was clicked.
-	$(".tabulate-filters button").click(function(e){
+	$(".tabulate-filters button").click(function(e) {
 		$(this).parents("form").find("input[name='controller']").val($(this).data("controller"));
 		$(this).parents("form").find("input[name='action']").val($(this).data("action"));
 		$(this).parents("form").find("input[name='p']").val($(this).data("p"));
+		$(this).parents("form").find("input[name='tabulate_p']").val($(this).data("p"));
 	});
 
 

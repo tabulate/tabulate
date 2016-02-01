@@ -4,10 +4,16 @@ namespace WordPress\Tabulate\Controllers;
 
 use \WordPress\Tabulate\DB\Grants;
 use \WordPress\Tabulate\DB\Database;
+use \WordPress\Tabulate\DB\Table;
 
 class TableController extends ControllerBase {
 
-	private function get_table( $table_name ) {
+	/**
+	 * Get a Table object for a given table, or an error message and the
+	 * Tabulate overview page.
+	 * @param string $table_name
+	 */
+	protected function get_table( $table_name ) {
 		$db = new Database( $this->wpdb );
 		$table = $db->get_table( $table_name );
 		if ( ! $table ) {
@@ -23,7 +29,7 @@ class TableController extends ControllerBase {
 
 	public function index( $args ) {
 		$table = $this->get_table( $args['table'] );
-		if ( ! $table instanceof \WordPress\Tabulate\DB\Table ) {
+		if ( ! $table instanceof Table ) {
 			return $table;
 		}
 
@@ -59,13 +65,11 @@ class TableController extends ControllerBase {
 		$template->controller = 'table';
 		$template->table = $table;
 		$template->columns = $table->get_columns();
-		$template->operators = $table->get_operators();
 		$template->filters = $filters;
 		$template->filter_count = count( $filters );
 		$template->sortable = true;
 		$template->record = $table->get_default_record();
 		$template->records = $table->get_records();
-		$template->record_count = $table->count_records();
 		return $template->render();
 	}
 

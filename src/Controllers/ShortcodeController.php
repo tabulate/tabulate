@@ -31,6 +31,7 @@ class ShortcodeController extends ControllerBase {
 			'format' => 'table',
 			'table' => null,
 			'ident' => null,
+			'search' => null,
 		);
 		$attrs = shortcode_atts( $defaults, $atts );
 		if ( ! isset( $attrs['table'] ) ) {
@@ -46,7 +47,7 @@ class ShortcodeController extends ControllerBase {
 		$format_method = $attrs['format'].'_format';
 		if ( is_callable( array( $this, $format_method ) ) ) {
 			wp_enqueue_script( 'tabulate-scripts' );
-			return $this->$format_method( $table, $attrs, $_GET );
+			return $this->$format_method( $table, $attrs, $_REQUEST );
 		} else {
 			return $this->error( "Format '{$attrs['format']}' not available." );
 		}
@@ -110,12 +111,45 @@ class ShortcodeController extends ControllerBase {
 		return '<span class="tabulate list-format">' . join( $glue, $titles ) . '</span>';
 	}
 
-	protected function table_format( Table $table, $attrs ) {
-		$template = new Template( 'data_table.html' );
+	protected function table_format( Table $table, $attrs, $query = null ) {
+		// Filters.
+		// Apply filters from the URL query parameters.
+		if ( isset( $query['table'] ) && $query['table'] == $table->get_name() ) {
+			$query_filters = (isset( $query[ 'filter' ] )) ? $query[ 'filter' ] : array();
+			$table->add_filters( $query_filters );
+		}
+		// Add a blank filter.
+		$filters = $table->get_filters();
+		$title_col = $table->get_title_column();
+		$first_filter = ( $title_col ) ? $title_col->get_name() : '';
+		$filters[] = array(
+			'column' => $first_filter,
+			'operator' => 'like',
+			'value' => ''
+		);
+
+		// Pagination.
+		$page_num = 1;
+		if (isset( $query['tabulate_p'] ) && is_numeric( $query['tabulate_p'] ) ) {
+			$page_num = abs( $query['tabulate_p'] );
+		}
+		$table->set_current_page_num( $page_num );
+		if ( isset( $query['tabulate_psize'] ) ) {
+			$table->set_records_per_page( $query['tabulate_psize'] );
+		}
+
+		// Construct the HTML.
+		$template = new Template( 'table/shortcode.html' );
+		$template->filters = $filters;
 		$template->table = $table;
-		$template->links = false;
 		$template->record = $table->get_default_record();
-		$template->records = $table->get_records( false );
+		$template->records = $table->get_records();
+
+		// Add the search form if required.
+		$template->search = ! empty( $attrs['search'] );
+		$template->form_action = get_the_permalink();
+
+		// Return completed HTML output.
 		return $template->render();
 	}
 

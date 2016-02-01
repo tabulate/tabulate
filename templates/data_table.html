@@ -7,7 +7,7 @@
 		<tr>
 			<th></th>
 			{% for column in table.get_columns %}
-			<th>
+			<th {% if sortable %}class="sortable"{% endif %}>
 				{{column.get_title}}
 
 				{% if sortable %}

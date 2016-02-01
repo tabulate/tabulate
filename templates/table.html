@@ -7,55 +7,8 @@
 	<input type="hidden" name="controller" value="table" />
 	<input type="hidden" name="action" value="index" />
 	<input type="hidden" name="table" value="{{table.get_name}}" />
-	<table>
 
-		{% for fid,filter in filters %}
-		<tr class="tabulate-filter">
-			<td class="label">
-				<label>
-					{% if fid==0 %}Find records where{% else %}&hellip;and{% endif %}
-				</label>
-			</td>
-			<td>
-				<select name="filter[{{fid}}][column]">
-					{% for column in table.get_columns %}
-					<option value="{{column.get_name}}" {% if column.get_name==filter.column %}selected{% endif %}>
-						{{column.get_title}}
-					</option>
-					{% endfor %}
-				</select>
-			</td>
-			<td>
-				<select name="filter[{{fid}}][operator]">
-					{% for op,name in operators %}
-					<option value="{{op}}" {% if op==filter.operator %}selected{% endif %}>
-						{{name}}
-					</option>
-					{% endfor %}
-				</select>
-			</td>
-			<td>
-				{% if filter.operator == 'in' or filter.operator == 'not in' %}
-				<textarea name="filter[{{fid}}][value]">{{filter.value}}</textarea>
-				{% else %}
-				<input type="text" name="filter[{{fid}}][value]" value="{{filter.value}}" />
-				{% endif %}
-			</td>
-		</tr>
-		{% endfor %}
-
-		<tr>
-			<td colspan="3">
-			</td>
-			<td class="buttons">
-				<button class="button" data-controller="table" data-action="index">Search</button>
-				{% if filter_count > 1 %}
-				<a href="{{table.get_url}}" class="button">Clear filters</a>
-				{% endif %}
-			</td>
-		</tr>
-
-	</table>
+	{% include "filters.html" with {clear_url: table.get_url} %}
 
 	{% if records %}
 	<div class='tablenav tablenav-top'>
@@ -81,7 +34,7 @@
 		<!-- Left side -->
 		<div class='tablenav-pages'>
 			<span class="displaying-num">
-				{{record_count|number_format}} record{% if record_count != 1 %}s{% endif %}
+				{{table.count_records|number_format}} record{% if record_count != 1 %}s{% endif %}
 			</span>
 
 			{% if table.get_page_count > 1 %}

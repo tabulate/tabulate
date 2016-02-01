@@ -1,0 +1,49 @@
+<table>
+
+	{% for fid,filter in filters %}
+	<tr class="tabulate-filter">
+		<td class="label">
+			<label>
+				{% if fid==0 %}Find records where{% else %}&hellip;and{% endif %}
+			</label>
+		</td>
+		<td>
+			<select name="filter[{{fid}}][column]" class="form-control">
+				{% for column in table.get_columns %}
+				<option value="{{column.get_name}}" {% if column.get_name==filter.column %}selected{% endif %}>
+					{{column.get_title}}
+				</option>
+				{% endfor %}
+			</select>
+		</td>
+		<td>
+			<select name="filter[{{fid}}][operator]" class="form-control">
+				{% for op,name in table.get_operators %}
+				<option value="{{op}}" {% if op==filter.operator %}selected{% endif %}>
+					{{name}}
+				</option>
+				{% endfor %}
+			</select>
+		</td>
+		<td>
+			{% if filter.operator == 'in' or filter.operator == 'not in' %}
+			<textarea name="filter[{{fid}}][value]" class="form-control">{{filter.value}}</textarea>
+			{% else %}
+			<input type="text" name="filter[{{fid}}][value]" value="{{filter.value}}" class="form-control" />
+			{% endif %}
+		</td>
+	</tr>
+	{% endfor %}
+
+	<tr>
+		<td colspan="3">
+		</td>
+		<td class="buttons">
+			<button class="button btn btn-success" data-controller="table" data-action="index">Search</button>
+			{% if table.get_filters > 1 %}
+			<a href="{{clear_url}}" class="button btn btn-default">Clear filters</a>
+			{% endif %}
+		</td>
+	</tr>
+
+</table>

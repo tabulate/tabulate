@@ -24,6 +24,9 @@ Example: ``[tabulate table=widgets search=yes]``
 
 The table format displays an HTML-table displaying all records from the Tabulate-table specified.
 
+The displayed data will be paginated if there are more than a certain number of records,
+and the user will be able to page through the data.
+
 If the additional parameter ``search`` is provided (and given any value at all; ``yes`` is just a convention)
 then a record-filtering form will be displayed.
 
