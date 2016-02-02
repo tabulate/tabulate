@@ -1,16 +1,25 @@
 <?php
+/**
+ * This file contains only the Text class
+ *
+ * @package WordPress
+ * @subpackage Tabulate
+ */
 
 namespace WordPress\Tabulate;
 
+/**
+ * The Text class contains static methods for working with text
+ */
 class Text {
 
 	/**
 	 * Turn a spaced or underscored string to camelcase (with no spaces or underscores).
 	 *
-	 * @param string $str
+	 * @param string $str The string to format.
 	 * @return string
 	 */
-	public static function camelcase($str) {
+	public static function camelcase( $str ) {
 		return str_replace( ' ', '', ucwords( str_replace( '_', ' ', $str ) ) );
 	}
 
@@ -19,13 +28,13 @@ class Text {
 	 * initial letters, and performing a few common (and not-so-common) word
 	 * replacements such as initialisms and punctuation.
 	 *
-	 * @param string|array $value    The underscored and lowercase string to be
-	 *                               titlecased, or an array of such strings.
+	 * @param string|array   $value  The underscored and lowercase string to be titlecased, or an array of such strings.
 	 * @param 'html'|'latex' $format The desired output format.
-	 * @return string                A properly-typeset title.
+	 *
+	 * @return string A properly-typeset title.
 	 * @todo Get replacement strings from configuration file.
 	 */
-	public static function titlecase($value, $format = 'html') {
+	public static function titlecase( $value, $format = 'html' ) {
 
 		/**
 		 * The mapping of words (and initialisms, etc.) to their titlecased
@@ -55,7 +64,7 @@ class Text {
 		/**
 		 * Marshall the correct replacement strings.
 		 */
-		if ( 'latex' == $format ) {
+		if ( 'latex' === $format ) {
 			$replacements = array_merge( $html_replacements, $latex_replacements );
 		} else {
 			$replacements = $html_replacements;
@@ -77,7 +86,7 @@ class Text {
 
 	/**
 	 * Format a MySQL-format date according to WP's preference.
-	 * @param string $date
+	 * @param string $date The date string to format.
 	 * @return string|int|bool Formatted date string or Unix timestamp. False if $date is empty.
 	 */
 	public static function wp_date_format( $date ) {
@@ -86,11 +95,10 @@ class Text {
 
 	/**
 	 * Format a MySQL-format time according to WP's preference.
-	 * @param string $time
+	 * @param string $time The time string to format.
 	 * @return string|int|bool Formatted date string or Unix timestamp. False if $date is empty.
 	 */
 	public static function wp_time_format( $time ) {
 		return mysql2date( get_option( 'time_format' ), $time );
 	}
-
 }

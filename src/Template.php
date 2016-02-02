@@ -1,29 +1,53 @@
 <?php
+/**
+ * This file contains only the Text class
+ *
+ * @package WordPress
+ * @subpackage Tabulate
+ */
 
 namespace WordPress\Tabulate;
 
+/**
+ * A Template is a wrapper for a Twig file
+ */
 class Template {
 
-	/** @var string */
+	/**
+	 * The name of the template to render (if not using a Twig string).
+	 * @var string
+	 */
 	protected $template_name;
 
-	/** @var string */
+	/**
+	 * The Twig string to render (if not using a template file).
+	 * @var string
+	 */
 	protected $template_string;
 
-	/** @var string[] */
+	/**
+	 * The template data, all of which is passed to the Twig template.
+	 * @var string[]
+	 */
 	protected $data;
 
-	/** @var string[] Paths at which to find templates. */
+	/**
+	 * Paths at which to find templates.
+	 * @var string[]
+	 */
 	protected static $paths = array();
 
-	/** @var string The name of the transient used to store notices. */
+	/**
+	 * The name of the transient used to store notices.
+	 * @var string
+	 */
 	protected $transient_notices;
 
 	/**
 	 * Create a new template either with a file-based Twig template, or a Twig string.
 	 * @global type $wpdb
-	 * @param string|false $template_name
-	 * @param string|false $template_string
+	 * @param string|false $template_name   The name of a Twig file to render.
+	 * @param string|false $template_string A Twig string to render.
 	 */
 	public function __construct( $template_name = false, $template_string = false ) {
 		global $wpdb;
@@ -47,7 +71,7 @@ class Template {
 
 	/**
 	 * Add a filesystem path under which to look for template files.
-	 * @param string $new_path
+	 * @param string $new_path The path to add.
 	 */
 	public static function add_path( $new_path ) {
 		$path = realpath( $new_path );
@@ -56,13 +80,17 @@ class Template {
 		}
 	}
 
+	/**
+	 * Get a list of the filesystem paths searched for template files.
+	 * @return string[] An array of paths
+	 */
 	public static function get_paths() {
 		return self::$paths;
 	}
 
 	/**
 	 * Get a list of templates in a given directory, across all registered template paths.
-	 * @param string $directory
+	 * @param string $directory The directory to search in.
 	 */
 	public function get_templates( $directory ) {
 		$templates = array();
@@ -75,6 +103,11 @@ class Template {
 		return $templates;
 	}
 
+	/**
+	 * Magically set a template variable.
+	 * @param string $name  The name of the variable.
+	 * @param mixed  $value The value of the variable.
+	 */
 	public function __set( $name, $value ) {
 		$this->data[ $name ] = $value;
 	}
@@ -92,7 +125,7 @@ class Template {
 	/**
 	 * Get an item from this template's data.
 	 *
-	 * @param string $name
+	 * @param string $name The name of the template variable.
 	 * @return mixed
 	 */
 	public function __get( $name ) {
@@ -172,5 +205,4 @@ class Template {
 		}
 		return $template->render( $this->data );
 	}
-
 }

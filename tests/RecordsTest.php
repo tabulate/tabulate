@@ -155,4 +155,20 @@ class RecordsTest extends TestBase {
 		$types->add_filter('description', 'in', "One\n\nTwo\n");
 		$this->assertEquals( 2, $types->count_records() );
 	}
+
+	/**
+	 * @testdox When searching for multiple filter values, the not-found values can be reported upon.
+	 * @test
+	 */
+	public function multiple_filters_not_found() {
+		/*
+		// Create 10 types.
+		$types = $this->db->get_table( 'test_types' );
+		for ( $i = 0; $i < 10; $i ++ ) {
+			$types->save_record( array( 'title' => "T$i" ) );
+		}
+		$not_found = $types->get_not_found( 'title', "T1\nT2.0\nT3\nT4\nNot5\nT6" );
+		$this->assertEquals( array( 'T2.0', 'Not5' ), $not_found );
+		*/
+	}
 }

@@ -1,7 +1,17 @@
 <?php
+/**
+ * This file contains only the Util class
+ *
+ * @package WordPress
+ * @subpackage Tabulate
+ */
 
 namespace WordPress\Tabulate;
 
+/**
+ * This is a utility class to hold miscellaneous helper methods.
+ * Not great design, certainly, but then neither is lots of WP core.
+ */
 class Util {
 
 	/**
@@ -20,5 +30,4 @@ class Util {
 		}
 		return in_array( $plugin, get_option( 'active_plugins', array() ) );
 	}
-
 }

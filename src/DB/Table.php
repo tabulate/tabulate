@@ -248,7 +248,7 @@ class Table {
 	 * @param string $order_by The name of the column to order by.
 	 */
 	public function set_order_by( $order_by ) {
-		if ( in_array( $order_by, array_keys( $this->columns ) ) ) {
+		if ( $this->get_column( $order_by ) ) {
 			$this->order_by = $order_by;
 		}
 	}

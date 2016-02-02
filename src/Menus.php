@@ -1,10 +1,21 @@
 <?php
+/**
+ * This file contains only the Menus class
+ *
+ * @package WordPress
+ * @subpackage Tabulate
+ */
 
 namespace WordPress\Tabulate;
 
+/**
+ * This class is an attempt to group all functionality around managing the menus
+ * in the Admin Area in one place. It includes adding scripts and stylesheets.
+ */
 class Menus {
 
 	/**
+	 * The global wpdb object.
 	 * @var \wpdb
 	 */
 	protected $wpdb;
@@ -12,19 +23,21 @@ class Menus {
 	/**
 	 * The page output is stored between being called/created in
 	 * self::dispatch() and output in self::add_menu_pages()
-	 *
 	 * @var string
 	 */
 	protected $output;
 
-	public function __construct($wpdb) {
+	/**
+	 * Create a new Menus object, supplying it with the database so that it
+	 * doesn't have to use a global.
+	 * @param \wpdb $wpdb The global wpdb object.
+	 */
+	public function __construct( $wpdb ) {
 		$this->wpdb = $wpdb;
 	}
 
 	/**
-	 * Set up all required hooks.
-	 *
-	 * This is called from the top level of tabulate.php
+	 * Set up all required hooks. This is called from the top level of tabulate.php
 	 * @return void
 	 */
 	public function init() {
@@ -79,10 +92,7 @@ class Menus {
 	}
 
 	/**
-	 * Get any currently-stored output. This is the callback for all the menu
-	 * items.
-	 *
-	 * @return string The page HTML.
+	 * Print the currently-stored output; this is the callback for all the menu items.
 	 */
 	public function output() {
 		echo $this->output;
@@ -99,7 +109,7 @@ class Menus {
 
 		// Only dispatch when it's our page.
 		$slugLenth = strlen( TABULATE_SLUG );
-		if ( ! isset( $request['page'] ) || substr( $request['page'], 0, $slugLenth ) != TABULATE_SLUG ) {
+		if ( ! isset( $request['page'] ) || substr( $request['page'], 0, $slugLenth ) !== TABULATE_SLUG ) {
 			return;
 		}
 
@@ -115,8 +125,8 @@ class Menus {
 		// Create the controller and run the action.
 		$controllerClassName = 'WordPress\\Tabulate\\Controllers\\' . ucfirst( $controllerName ) . 'Controller';
 		$controller = new $controllerClassName( $this->wpdb );
-		$action = ! empty( $request[ 'action' ] ) ? $request[ 'action' ] : 'index';
-		unset( $request[ 'page' ], $request[ 'controller' ], $request[ 'action' ] );
+		$action = ! empty( $request['action'] ) ? $request['action'] : 'index';
+		unset( $request['page'], $request['controller'], $request['action'] );
 		try {
 			$this->output = $controller->$action( $request );
 		} catch ( \Exception $e ) {
@@ -128,13 +138,14 @@ class Menus {
 	 * This is the callback method used in self::init() to add scripts and
 	 * styles to the Tabulate admin pages and everywhere the shortcode is used.
 	 *
+	 * @param string $page The current page name.
 	 * @return void
 	 */
 	public function enqueue( $page ) {
 		// Make sure we only enqueue on Tabulate pages.
 		$allowed_pages = array(
 			'index.php', // For the Dashboard widget.
-			'tabulate_shortcode', // Not really a page! :-(
+			'tabulate_shortcode', // Not really a page.
 			'toplevel_page_tabulate',
 			'tabulate_page_tabulate_erd',
 			'tabulate_page_tabulate_reports',
@@ -165,7 +176,7 @@ class Menus {
 
 		// Javascript page variables.
 		$js_vars = array(
-			'admin_url' => admin_url() . 'admin.php?page=' . TABULATE_SLUG
+			'admin_url' => admin_url() . 'admin.php?page=' . TABULATE_SLUG,
 		);
 		wp_localize_script( 'tabulate-scripts', 'tabulate', $js_vars );
 
@@ -181,5 +192,4 @@ class Menus {
 		$style_url = plugins_url( TABULATE_SLUG ) . '/assets/style.css';
 		wp_enqueue_style( 'tabulate-styles', $style_url, null, TABULATE_VERSION );
 	}
-
 }
