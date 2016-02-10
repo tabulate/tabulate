@@ -130,7 +130,10 @@ class Menus {
 		try {
 			$this->output = $controller->$action( $request );
 		} catch ( \Exception $e ) {
-			$this->output = '<h2>Error</h2><div class="error"><p>'.$e->getMessage().'</p></div>';
+			$this->output = '<h1>An error occured</h1><div class="error"><p>'.$e->getMessage().'</p></div>';
+			if ( WP_DEBUG ) {
+				$this->output .= '<h2>Stack trace</h2><pre>' . $e->getTraceAsString() . '</pre>';
+			}
 		}
 	}
 

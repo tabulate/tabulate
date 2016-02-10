@@ -1016,7 +1016,8 @@ class Table {
 				throw new Exception( 'You do not have permission to update data in this table.' );
 			}
 			$where_clause = $this->database->get_wpdb()->prepare( "WHERE `$pk_name` = %s", $pk_value );
-			$this->database->get_wpdb()->query( 'UPDATE ' . $this->get_name()." $set_clause $where_clause;" );
+			$sql = 'UPDATE ' . $this->get_name() . " $set_clause $where_clause";
+			$this->get_database()->query( $sql, null, 'Unable to update a record' );
 			$new_pk_value = (isset( $data[ $pk_name ] ) ) ? $data[ $pk_name ] : $pk_value;
 
 		} else { // Or insert?
@@ -1024,11 +1025,8 @@ class Table {
 			if ( ! Grants::current_user_can( Grants::CREATE, $this->get_name() ) ) {
 				throw new Exception( 'You do not have permission to insert records into this table.' );
 			}
-			$sql = 'INSERT INTO ' . $this->get_name() . ' ' . $set_clause . ';';
-			$this->database->get_wpdb()->query( $sql );
-			if ( ! empty( $this->database->get_wpdb()->last_error ) ) {
-				Exception::wp_die( 'The record was not created.', 'Unable to create record', $this->database->get_wpdb()->last_error, $sql ); // WPCS: XSS OK.
-			}
+			$sql = 'INSERT INTO ' . $this->get_name() . ' ' . $set_clause;
+			$this->get_database()->query( $sql, null, 'Unable to create new record' );
 			if ( $this->get_pk_column()->is_auto_increment() ) {
 				// Use the last insert ID.
 				$new_pk_value = $this->database->get_wpdb()->insert_id;

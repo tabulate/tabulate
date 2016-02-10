@@ -8,7 +8,7 @@
 	<div class="postbox-container" id="postbox-container-1">
 		<div class="postbox">
 			<div class="handlediv" title="Click to toggle"><br /></div>
-			<h3><span>Tables</span></h3>
+			<h2 class="hndle"><span>Tables</span></h2>
 			<div class="inside">
 				{% if current_user_is_admin %}
 				<form action="{{admin_url('admin.php?page=tabulate&controller=schema&action=newtable')}}" method="post">
@@ -31,7 +31,7 @@
 
 	<div class="postbox-container" id="postbox-container-2">
 		<div class="postbox">
-			<h3>Views</h3>
+			<h2 class="hndle">Views</h2>
 			<div class="inside">
 				<ol>
 					{% for view in views %}
@@ -44,7 +44,7 @@
 
 	<div class="postbox-container" id="postbox-container-3">
 		<div class="postbox">
-			<h3>Reports</h3>
+			<h2 class="hndle">Reports</h2>
 			<div class="inside">
 				<ol>
 					{% for report in reports %}

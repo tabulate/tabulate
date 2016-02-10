@@ -78,7 +78,7 @@ class Database {
 			if ( ! $table ) {
 				continue;
 			}
-			if ( $exclude_views && $table->get_type() == Table::TYPE_VIEW ) {
+			if ( $exclude_views && $table->get_type() === Table::TYPE_VIEW ) {
 				continue;
 			}
 			$out[] = $table;
@@ -94,7 +94,7 @@ class Database {
 	public function get_views() {
 		$out = array();
 		foreach ( $this->get_tables( false ) as $table ) {
-			if ( $table->get_type() == Table::TYPE_VIEW ) {
+			if ( $table->get_type() === Table::TYPE_VIEW ) {
 				$out[] = $table;
 			}
 		}
@@ -103,8 +103,9 @@ class Database {
 
 	/**
 	 * Create a new table.
-	 * @param string $name
-	 * @param string $comment
+	 * @param string $name The name of the new table.
+	 * @param string $comment The table comment.
+	 * @throws Exception If the current user cannot 'promote_users'.
 	 */
 	public function create_table( $name, $comment = '' ) {
 		if ( ! current_user_can( 'promote_users' ) ) {
@@ -113,9 +114,30 @@ class Database {
 		$sql = "CREATE TABLE IF NOT EXISTS `$name` ( "
 			. " `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY "
 			. ") ENGINE=InnoDB, COMMENT='$comment';";
-		$this->get_wpdb()->query( $sql );
+		$this->query( $sql );
 		$this->reset();
 		return $this->get_table( $name );
 	}
 
+	/**
+	 * A wrapper around wpdb::prepare() and wpdb::query()
+	 * that also checks wpdb::$last_error and throws up on occasion of badness.
+	 * @param string   $sql The SQL statement to execute.
+	 * @param string[] $params Parameters to pass to wpdb::prepare().
+	 * @param string   $error_message What to tell the user if this query fails.
+	 * @throws Exception The exception message is taken from wpdb::$last_error and if WP_DEBUG is set will also include the erroneous SQL.
+	 */
+	public function query( $sql, $params = null, $error_message = null ) {
+		if ( $params ) {
+			$sql = $this->get_wpdb()->prepare( $sql, $params );
+		}
+		$this->get_wpdb()->query( $sql );
+		if ( ! empty( $this->get_wpdb()->last_error ) ) {
+			$msg = $error_message . ': ' . $this->get_wpdb()->last_error;
+			if ( WP_DEBUG ) {
+				$msg .= " <code>$sql</code>";
+			}
+			throw new Exception( $msg );
+		}
+	}
 }

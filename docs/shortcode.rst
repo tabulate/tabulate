@@ -1,3 +1,5 @@
+.. _shortcodes:
+
 Using the shortcode
 ===================
 
