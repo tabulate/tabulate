@@ -171,4 +171,35 @@ class RecordsTest extends TestBase {
 		$this->assertEquals( array( 'T2.0', 'Not5' ), $not_found );
 		*/
 	}
+
+	/**
+	 * @testdox Empty values can be saved (where a field permits it).
+	 * @test
+	 */
+	public function save_null_values() {
+		// Get a table and make sure it is what we want it to be.
+		$test_table = $this->db->get_table( 'test_table' );
+		$this->assertTrue( $test_table->get_column( 'description' )->nullable() );
+
+		// Save a record and check it.
+		$rec1a = $test_table->save_record( array( 'title' => "Test One", 'description' => 'Desc' ) );
+		$this->assertEquals( 1, $rec1a->id() );
+		$this->assertEquals( 'Desc', $rec1a->description() );
+
+		// Save the same record to set 'description' to null.
+		$rec1b = $test_table->save_record( array( 'description' => '' ), 1 );
+		$this->assertEquals( 1, $rec1b->id() );
+		$this->assertEquals( null, $rec1b->description() );
+
+		// Now repeat that, but with a nullable foreign key.
+		$this->db->get_table( 'test_types' )->save_record( [ 'title' => 'A type'] );
+		$rec2a = $test_table->save_record( array( 'title' => 'Test Two', 'type_id' => 1 ) );
+		$this->assertEquals( 2, $rec2a->id() );
+		$this->assertEquals( 'Test Two', $rec2a->title() );
+		$this->assertEquals( 'A type', $rec2a->type_idFKTITLE() );
+		$rec2b = $test_table->save_record( array( 'type_id' => '' ), 2 );
+		$this->assertEquals( 2, $rec2b->id() );
+		$this->assertEquals( 'Test Two', $rec2b->title() );
+		$this->assertEquals( null, $rec2b->type_idFKTITLE() );
+	}
 }

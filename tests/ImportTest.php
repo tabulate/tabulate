@@ -1,5 +1,8 @@
 <?php
 
+use WordPress\Tabulate\CSV;
+use WordPress\Tabulate\DB\ChangeTracker;
+
 class ImportTest extends TestBase {
 
 	public function setUp() {
@@ -11,8 +14,8 @@ class ImportTest extends TestBase {
 
 	/**
 	 * Save some CSV data to a file, and create a quasi-$_FILES entry for it.
-	 * @param string $data
-	 * @return string|array
+	 * @param string $data The CSV string to save.
+	 * @return string[] With two keys: 'type' and 'file'.
 	 */
 	private function save_data_file( $data ) {
 		$test_filename = get_temp_dir() . '/test_' . uniqid() . '.csv';
@@ -34,7 +37,7 @@ class ImportTest extends TestBase {
 			. '"1","One"' . "\r\n"
 			. '"2","Two"' . "\r\n";
 		$uploaded = $this->save_data_file( $csv );
-		$csv = new WordPress\Tabulate\CSV( null, $uploaded );
+		$csv = new CSV( null, $uploaded );
 		$csv->load_data();
 		$column_map = array( 'title' => 'Title' );
 		$csv->import_data( $testtypes_table, $column_map );
@@ -43,7 +46,7 @@ class ImportTest extends TestBase {
 		$rec1 = $testtypes_table->get_record( 1 );
 		$this->assertEquals( 'One', $rec1->title() );
 		// And that 1 changeset was created, with 4 changes.
-		$change_tracker = new \WordPress\Tabulate\DB\ChangeTracker( $this->wpdb );
+		$change_tracker = new ChangeTracker( $this->wpdb );
 		$sql = "SELECT COUNT(id) FROM ".$change_tracker->changesets_name();
 		$this->assertEquals( 1, $this->wpdb->get_var( $sql ) );
 		$sql = "SELECT COUNT(id) FROM ".$change_tracker->changes_name();
@@ -64,7 +67,7 @@ class ImportTest extends TestBase {
 		$csv = '"ID","Title","Description"' . "\r\n"
 			. '"1","One","A description"' . "\r\n";
 		$uploaded = $this->save_data_file( $csv );
-		$csv = new WordPress\Tabulate\CSV( null, $uploaded );
+		$csv = new CSV( null, $uploaded );
 		$csv->load_data();
 		$column_map = array( 'id' => 'ID', 'title' => 'Title', 'description' => 'Description' );
 		$csv->import_data( $testtable, $column_map );
@@ -78,8 +81,7 @@ class ImportTest extends TestBase {
 		$csv = '"ID","Description"' . "\r\n"
 			. '"1","New description"' . "\r\n";
 		$uploaded2 = $this->save_data_file( $csv );
-		$csv2 = new WordPress\Tabulate\CSV( null, $uploaded2 );
-		$csv2->load_data();
+		$csv2 = new CSV( null, $uploaded2 );
 		$column_map2 = array( 'id' => 'ID', 'description' => 'Description' );
 		$csv2->import_data( $testtable, $column_map2 );
 		// Make sure there's still only one record, and that it's been updated.
@@ -89,4 +91,37 @@ class ImportTest extends TestBase {
 		$this->assertEquals( 'New description', $rec3->description() );
 	}
 
+	/**
+	 * @testdox Importing a nullable FK removes the value from that field.
+	 * @test
+	 */
+	public function nullable_foreign_keys() {
+		// Set up foreign record and some other things.
+		$this->db->get_table( 'test_types' )->save_record( [ 'title' => 'A type' ] );
+		$test_table = $this->db->get_table( 'test_table' );
+		$column_map = array( 'id' => 'ID', 'title' => 'Title', 'type_id' => 'Type' );
+
+		// Import data.
+		$csv_data_1 = '"Title","Type"' . "\r\n"
+			. '"One","A type"' . "\r\n";
+		$csv_file_1 = $this->save_data_file( $csv_data_1 );
+		$csv = new CSV( null, $csv_file_1 );
+		$csv->import_data( $test_table, $column_map );
+
+		// Check imported data.
+		$rec1 = $test_table->get_record( 1 );
+		$this->assertEquals( 'A type', $rec1->type_idFKTITLE() );
+
+		// Import new data.
+		$csv_data_2 = '"ID","Title","Type"' . "\n"
+			. '"1","Changed FK",""' . "\n";
+		$csv_file_2 = $this->save_data_file( $csv_data_2 );
+		$this->assertNotEquals( $csv_file_1, $csv_file_2 );
+		$csv2 = new CSV( null, $csv_file_2 );
+		$csv2->import_data( $test_table, $column_map );
+
+		// Re-check imported data.
+		$rec2 = $test_table->get_record( 1 );
+		$this->assertEquals( null, $rec2->type_idFKTITLE() );
+	}
 }

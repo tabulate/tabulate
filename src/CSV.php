@@ -2,6 +2,8 @@
 
 namespace WordPress\Tabulate;
 
+use WordPress\Tabulate\DB\ChangeTracker;
+
 /**
  * A class for parsing a CSV file has either just been uploaded (i.e. $_FILES is
  * set), or is stored as a temporary file (as defined herein).
@@ -57,8 +59,8 @@ class CSV {
 			unlink( $uploaded['file'] );
 			throw new \Exception( 'Only CSV files can be imported.' );
 		}
-		$this->hash = md5( time() );
-		rename( $uploaded['file'], get_temp_dir().'/'.$this->hash );
+		$this->hash = uniqid( TABULATE_SLUG );
+		rename( $uploaded['file'], get_temp_dir() . '/' . $this->hash );
 	}
 
 	/**
@@ -215,35 +217,30 @@ class CSV {
 	 */
 	public function import_data($table, $column_map) {
 		global $wpdb;
-		$change_tracker = new \WordPress\Tabulate\DB\ChangeTracker( $wpdb );
+		$change_tracker = new ChangeTracker( $wpdb );
 		$change_tracker->open_changeset( 'CSV import.', true );
 		$count = 0;
 		$headers = $this->remap( $column_map );
 		for ( $row_num = 1; $row_num <= $this->row_count(); $row_num++ ) {
 			$row = array();
-			foreach ( $this->data[$row_num] as $col_num => $value ) {
+			foreach ( $this->data[ $row_num ] as $col_num => $value ) {
 				if ( !isset( $headers[$col_num] ) ) {
 					continue;
 				}
 				$db_column_name = $headers[$col_num];
 				$column = $table->get_column( $db_column_name );
 
-				// Get actual foreign key value
-				if ( $column->is_foreign_key() ) {
-					if ( empty( $value ) ) {
-						// Ignore empty-string FKs.
-						continue;
-					} else {
-						$fk_rows = $this->get_fk_rows( $column->get_referenced_table(), $value );
-						$foreign_row = array_shift( $fk_rows );
-						$value = $foreign_row->get_primary_key();
-					}
+				// Get actual foreign key value.
+				if ( $column->is_foreign_key() && ! empty( $value ) ) {
+					$fk_rows = $this->get_fk_rows( $column->get_referenced_table(), $value );
+					$foreign_row = array_shift( $fk_rows );
+					$value = $foreign_row->get_primary_key();
 				}
 
-				// All other values are used as they are
+				// All other values are used as they are.
 				$row[$db_column_name] = $value;
 			}
-			
+
 			$pk_name = $table->get_pk_column()->get_name();
 			$pk_value = ( isset( $row[ $pk_name ] ) ) ? $row[ $pk_name ] : null;
 			$table->save_record( $row, $pk_value );
