@@ -2,6 +2,7 @@
 
 namespace WordPress\Tabulate\Controllers;
 
+use WordPress\Tabulate\Util;
 use \WordPress\Tabulate\DB\Grants;
 use \WordPress\Tabulate\DB\Database;
 use \WordPress\Tabulate\DB\Table;
@@ -51,22 +52,12 @@ class TableController extends ControllerBase {
 		// Filters.
 		$filter_param = (isset( $args[ 'filter' ] )) ? $args[ 'filter' ] : array();
 		$table->add_filters( $filter_param );
-		$filters = $table->get_filters();
-		$title_col = $table->get_title_column();
-		$first_filter = ( $title_col ) ? $title_col->get_name() : '';
-		$filters[] = array(
-			'column' => $first_filter,
-			'operator' => 'like',
-			'value' => ''
-		);
 
 		// Give it all to the template.
 		$template = new \WordPress\Tabulate\Template( 'table.html' );
 		$template->controller = 'table';
 		$template->table = $table;
 		$template->columns = $table->get_columns();
-		$template->filters = $filters;
-		$template->filter_count = count( $filters );
 		$template->sortable = true;
 		$template->record = $table->get_default_record();
 		$template->records = $table->get_records();
@@ -230,22 +221,60 @@ class TableController extends ControllerBase {
 	 */
 	public function export( $args )
 	{
-		// Get database and table.
+		// Get table.
 		$table = $this->get_table( $args['table'] );
 
 		// Filter and export.
-		$filter_param = (isset( $args[ 'filter' ] )) ? $args[ 'filter' ] : array();
+		$filter_param = ( isset( $args['filter'] )) ? $args['filter'] : array();
 		$table->add_filters( $filter_param );
 		$filename = $table->export();
 
 		// Send CSV to client.
-		$download_name = date('Y-m-d').'_'.$table->get_name().'.csv';
-		header('Content-Encoding: UTF-8');
-		header('Content-type: text/csv; charset=UTF-8');
-		header('Content-Disposition: attachment; filename="'.$download_name.'"');
+		$download_name = date( 'Y-m-d' ) . '_' . $table->get_name() . '.csv';
+		header( 'Content-Encoding: UTF-8' );
+		header( 'Content-type: text/csv; charset=UTF-8' );
+		header( 'Content-Disposition: attachment; filename="' . $download_name . '"' );
 		echo "\xEF\xBB\xBF";
-		readfile($filename);
-		exit( 0 );
+		readfile( $filename );
+		exit;
+	}
+
+	/**
+	 * Download a CSV of given titles that could not be found in this table.
+	 * @param string[] $args The request parameters.
+	 */
+	public function notfound( $args ) {
+		// Get table.
+		$table = $this->get_table( $args['table'] );
+
+		// Get the values from the request, or give up.
+		$filter_id = isset( $args['notfound'] ) ? $args['notfound'] : false;
+		$values_string = isset( $args['filter'][ $filter_id ]['value'] ) ? $args['filter'][ $filter_id ]['value'] : false;
+		if ( ! $table instanceof Table || ! $values_string ) {
+			return;
+		}
+		$values = Util::split_newline( $values_string );
+
+		// Find all values that exist.
+		$title_col = $table->get_title_column();
+		$table->add_filter( $title_col, 'in', $values_string );
+
+		// And remove them from the list of supplied values.
+		$recs = $table->get_records( false );
+		foreach ( $recs as $rec ) {
+			$key = array_search( $rec->get_title(), $values );
+			if ( $key !== false ) {
+				unset( $values[ $key ] );
+			}
+		}
+
+		$download_name = date( 'Y-m-d' ) . '_' . $table->get_name() . '_not_found.csv';
+		header( 'Content-Encoding: UTF-8' );
+		header( 'Content-type: text/csv; charset=UTF-8' );
+		header( 'Content-Disposition: attachment; filename="' . $download_name . '"' );
+		echo "\xEF\xBB\xBF";
+		echo $title_col->get_title() . "\n" . join( "\n", $values );
+		exit;
 	}
 
 	public function timeline( $args ) {

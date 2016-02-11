@@ -41,7 +41,7 @@ class Menus {
 	 * @return void
 	 */
 	public function init() {
-		add_action( 'admin_init', array( $this, 'dispatch' ) );
+		add_action( 'init', array( $this, 'dispatch' ) );
 		add_action( 'admin_menu', array( $this, 'add_menu_pages' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue' ) );

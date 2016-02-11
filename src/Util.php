@@ -30,4 +30,15 @@ class Util {
 		}
 		return in_array( $plugin, get_option( 'active_plugins', array() ) );
 	}
+
+	/**
+	 * Split a string on line boundaries.
+	 * @param string $val The string to split.
+	 * @return string[] The resulting array.
+	 */
+	public static function split_newline( $val ) {
+		$vals = preg_split( '/\n|\r|\r\n/', $val, -1, PREG_SPLIT_NO_EMPTY );
+		return array_filter( array_map( 'trim', $vals ) );
+	}
+
 }

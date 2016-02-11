@@ -23,7 +23,7 @@ class ShortcodeController extends ControllerBase {
 
 	/**
 	 * Substitute the Shortcode with the relevant formatted output.
-	 * @param string[] $atts
+	 * @param string[] $atts The shortcode attributes.
 	 * @return string
 	 */
 	public function run( $atts ) {
@@ -118,15 +118,6 @@ class ShortcodeController extends ControllerBase {
 			$query_filters = (isset( $query[ 'filter' ] )) ? $query[ 'filter' ] : array();
 			$table->add_filters( $query_filters );
 		}
-		// Add a blank filter.
-		$filters = $table->get_filters();
-		$title_col = $table->get_title_column();
-		$first_filter = ( $title_col ) ? $title_col->get_name() : '';
-		$filters[] = array(
-			'column' => $first_filter,
-			'operator' => 'like',
-			'value' => ''
-		);
 
 		// Pagination.
 		$page_num = 1;
@@ -140,7 +131,6 @@ class ShortcodeController extends ControllerBase {
 
 		// Construct the HTML.
 		$template = new Template( 'table/shortcode.html' );
-		$template->filters = $filters;
 		$template->table = $table;
 		$template->record = $table->get_default_record();
 		$template->records = $table->get_records();

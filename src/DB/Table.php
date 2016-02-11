@@ -2,6 +2,8 @@
 
 namespace WordPress\Tabulate\DB;
 
+use WordPress\Tabulate\Util;
+
 class Table {
 
 	/** @static A base table. */
@@ -149,8 +151,24 @@ class Table {
 		}
 	}
 
-	public function get_filters() {
-		return $this->filters;
+	/**
+	 * Get the current filters.
+	 * @param boolean $append_blank Whether to append a blank filter or not.
+	 * @return string[]
+	 */
+	public function get_filters( $append_blank = false ) {
+		$out = $this->filters;
+		if ( $append_blank ) {
+			// Add an empty default filter to start with.
+			$title_col = $this->get_title_column();
+			$first_filter = ( $title_col ) ? $title_col->get_name() : '';
+			$out[] = array(
+				'column' => $first_filter,
+				'operator' => 'like',
+				'value' => '',
+			);
+		}
+		return $out;
 	}
 
 	protected function get_fk_join_clause($table, $alias, $column) {
@@ -171,7 +189,7 @@ class Table {
 		$param_num = 1; // Incrementing parameter suffix, to permit duplicate columns.
 		$where_clause = '';
 		$join_clause = '';
-		foreach ( $this->filters as $filter ) {
+		foreach ( $this->filters as $filter_idx => $filter ) {
 			$f_column = $filter['column'];
 			$param_name = $filter['column'] . $param_num;
 
@@ -202,15 +220,17 @@ class Table {
 				$where_clause .= " AND ($f_column IS NOT NULL AND $f_column != '')";
 			} // IN or NOT IN
 			elseif ( $filter['operator'] === 'in' || $filter['operator'] === 'not in') {
-				$values = preg_split( '/\n|\r|\r\n/', $filter['value'], -1, PREG_SPLIT_NO_EMPTY );
 				$placeholders = array();
-				foreach ( $values as $vid => $val ) {
+				foreach ( Util::split_newline( $filter['value'] ) as $vid => $val ) {
+					//$val = trim( $val );
 					$placeholders[] = "%s";
-					$params[ $param_name . '_' . $vid ] = trim($val);
+					$params[ $param_name . '_' . $vid ] = $val;
+					// Save the separated filter values for later.
+					$this->filters[ $filter_idx ]['values'][] = $val;
 				}
 				$negate = ( $filter['operator'] === 'not in' ) ? 'NOT' : '';
 				$where_clause .= " AND ($f_column $negate IN (" . join( ", ", $placeholders ) . "))";
-			} // Other operators. They're already validated in $this->addFilter()
+			} // Other operators. They're already validated in self::addFilter().
 			else {
 				$where_clause .= " AND ($f_column " . $filter['operator'] . " %s)";
 				$params[$param_name] = trim($filter['value']);

@@ -1,4 +1,7 @@
 <form action="{{form_action}}" method="get" class="tabulate-filters about-description">
+	<input type="hidden" name="page" value="tabulate" />
+	<input type="hidden" name="controller" value="table" />
+	<input type="hidden" name="action" value="index" />
 	<input type="hidden" name="table" value="{{table.get_name}}" />
 
 	{% if search %}
