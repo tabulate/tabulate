@@ -32,9 +32,9 @@ before_script:
     - sed -i "s/yourpasswordhere//" wp-tests-config.php
     - cd "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
     - composer install
-    - $TRAVIS_BUILD_DIR/vendor/bin/phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs
+    - vendor/bin/phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs
 
 # Run the actual tests.
 script:
     - phpunit
-    - $TRAVIS_BUILD_DIR/vendor/bin/phpcs --standard=phpcs.xml $TRAVIS_BUILD_DIR/tests $TRAVIS_BUILD_DIR/src
+    - vendor/bin/phpcs --standard=phpcs.xml $TRAVIS_BUILD_DIR/tests $TRAVIS_BUILD_DIR/src
