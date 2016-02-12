@@ -1,4 +1,10 @@
 <?php
+/**
+ * This file contains only a single class.
+ *
+ * @file
+ * @package Tabulate
+ */
 
 class RecordsTest extends TestBase {
 

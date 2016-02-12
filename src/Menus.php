@@ -2,8 +2,7 @@
 /**
  * This file contains only the Menus class
  *
- * @package WordPress
- * @subpackage Tabulate
+ * @package Tabulate
  */
 
 namespace WordPress\Tabulate;
@@ -16,6 +15,7 @@ class Menus {
 
 	/**
 	 * The global wpdb object.
+	 *
 	 * @var \wpdb
 	 */
 	protected $wpdb;
@@ -23,6 +23,7 @@ class Menus {
 	/**
 	 * The page output is stored between being called/created in
 	 * self::dispatch() and output in self::add_menu_pages()
+	 *
 	 * @var string
 	 */
 	protected $output;
@@ -30,6 +31,7 @@ class Menus {
 	/**
 	 * Create a new Menus object, supplying it with the database so that it
 	 * doesn't have to use a global.
+	 *
 	 * @param \wpdb $wpdb The global wpdb object.
 	 */
 	public function __construct( $wpdb ) {
@@ -38,6 +40,7 @@ class Menus {
 
 	/**
 	 * Set up all required hooks. This is called from the top level of tabulate.php
+	 *
 	 * @return void
 	 */
 	public function init() {
@@ -45,12 +48,12 @@ class Menus {
 		add_action( 'admin_menu', array( $this, 'add_menu_pages' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue' ) );
-		// @TODO Only enable this once it can be scrolled when it's long.
-		// add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ) );
+		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ) );
 	}
 
 	/**
 	 * Add Tabulate's menu items to the main admin menu.
+	 *
 	 * @return void
 	 */
 	public function add_menu_pages() {
@@ -71,14 +74,20 @@ class Menus {
 
 	/**
 	 * Add all tables in which the user is allowed to create records to the
-	 * Admin Bar new-content menu.
+	 * Admin Bar new-content menu. If there are more than ten, none are added
+	 * because the menu would get too long. Not sure how this should be fixed.
+	 *
 	 * @global \WP_Admin_Bar $wp_admin_bar
 	 * @global \wpdb $wpdb
 	 */
 	public function admin_bar_menu() {
 		global $wp_admin_bar, $wpdb;
 		$db = new DB\Database( $wpdb );
-		foreach ( $db->get_tables() as $table ) {
+		$tables = $db->get_tables();
+		if ( count( $tables ) > 10 ) {
+			return false;
+		}
+		foreach ( $tables as $table ) {
 			if ( ! DB\Grants::current_user_can( DB\Grants::CREATE, $table->get_name() ) ) {
 				continue;
 			}
@@ -108,23 +117,23 @@ class Menus {
 		$request = $_REQUEST;
 
 		// Only dispatch when it's our page.
-		$slugLenth = strlen( TABULATE_SLUG );
-		if ( ! isset( $request['page'] ) || substr( $request['page'], 0, $slugLenth ) !== TABULATE_SLUG ) {
+		$slug_lenth = strlen( TABULATE_SLUG );
+		if ( ! isset( $request['page'] ) || substr( $request['page'], 0, $slug_lenth ) !== TABULATE_SLUG ) {
 			return;
 		}
 
 		// Discern the controller name, based on an explicit request parameter, or
 		// the trailing part of the page slug (i.e. after 'tabulate_').
-		$controllerName = 'home';
+		$controller_name = 'home';
 		if ( isset( $request['controller'] ) ) {
-			$controllerName = $request['controller'];
-		} elseif ( isset( $request['page'] ) && strlen( $request['page'] ) > $slugLenth ) {
-			$controllerName = substr( $request['page'], $slugLenth + 1 );
+			$controller_name = $request['controller'];
+		} elseif ( isset( $request['page'] ) && strlen( $request['page'] ) > $slug_lenth ) {
+			$controller_name = substr( $request['page'], $slug_lenth + 1 );
 		}
 
 		// Create the controller and run the action.
-		$controllerClassName = 'WordPress\\Tabulate\\Controllers\\' . ucfirst( $controllerName ) . 'Controller';
-		$controller = new $controllerClassName( $this->wpdb );
+		$controller_classname = 'WordPress\\Tabulate\\Controllers\\' . ucfirst( $controller_name ) . 'Controller';
+		$controller = new $controller_classname( $this->wpdb );
 		$action = ! empty( $request['action'] ) ? $request['action'] : 'index';
 		unset( $request['page'], $request['controller'], $request['action'] );
 		try {
@@ -155,7 +164,7 @@ class Menus {
 			'tabulate_page_tabulate_grants',
 			'tabulate_page_tabulate_schema',
 		);
-		if ( ! ( empty( $page ) || in_array( $page, $allowed_pages ) ) ) {
+		if ( ! ( empty( $page ) || in_array( $page, $allowed_pages, true ) ) ) {
 			return;
 		}
 

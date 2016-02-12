@@ -1,4 +1,10 @@
 <?php
+/**
+ * This file contains only the CSV class.
+ *
+ * @file
+ * @package Tabulate
+ */
 
 namespace WordPress\Tabulate;
 
@@ -10,13 +16,25 @@ use WordPress\Tabulate\DB\ChangeTracker;
  */
 class CSV {
 
-	/** @var string[] The headers in the CSV data. */
+	/**
+	 * The headers in the CSV data.
+	 *
+	 * @var string[]
+	 */
 	public $headers;
 
-	/** @var array[] two-dimenstional integer-indexed array of the CSV's data */
+	/**
+	 * Two-dimenstional integer-indexed array of the CSV's data.
+	 *
+	 * @var array[]
+	 */
 	public $data;
 
-	/** @var string Temporary identifier for CSV file. */
+	/**
+	 * Temporary identifier for CSV file.
+	 *
+	 * @var string
+	 */
 	public $hash = false;
 
 	/**
@@ -31,7 +49,7 @@ class CSV {
 	 * exception.
 	 *
 	 * @param string $hash The hash of an in-progress import.
-	 * @param array $uploaded The result of wp_handle_upload().
+	 * @param array  $uploaded The result of wp_handle_upload().
 	 */
 	public function __construct( $hash = false, $uploaded = false ) {
 		if ( $uploaded ) {
@@ -47,15 +65,16 @@ class CSV {
 
 	/**
 	 * Check the (already-handled) upload and rename the uploaded file.
+	 *
 	 * @see wp_handle_upload()
-	 * @param array $uploaded
-	 * @throws \Exception
+	 * @param array $uploaded The array detailing the uploaded file.
+	 * @throws \Exception On upload error or if the file isn't a CSV.
 	 */
 	private function save_file( $uploaded ) {
 		if ( isset( $uploaded['error'] ) ) {
 			throw new \Exception( $uploaded['error'] );
 		}
-		if ( $uploaded['type'] != 'text/csv' ) {
+		if ( 'text/csv' !== $uploaded['type'] ) {
 			unlink( $uploaded['file'] );
 			throw new \Exception( 'Only CSV files can be imported.' );
 		}
@@ -66,6 +85,7 @@ class CSV {
 	/**
 	 * Load CSV data from the file identified by the current hash. If no hash is
 	 * set, this method does nothing.
+	 *
 	 * @return void
 	 * @throws \Exception If the hash-identified file doesn't exist.
 	 */
@@ -74,7 +94,7 @@ class CSV {
 			return;
 		}
 		$file_path = get_temp_dir() . '/' . $this->hash;
-		if ( !file_exists( $file_path ) ) {
+		if ( ! file_exists( $file_path ) ) {
 			throw new \Exception( "No import was found with the identifier &lsquo;$this->hash&rsquo;" );
 		}
 
@@ -93,7 +113,7 @@ class CSV {
 
 	/**
 	 * Get the number of data rows in the file (i.e. excluding the header row).
-	 * 
+	 *
 	 * @return integer The number of rows.
 	 */
 	public function row_count() {
@@ -106,7 +126,7 @@ class CSV {
 	 * @return boolean
 	 */
 	public function loaded() {
-		return $this->hash !== FALSE;
+		return false !== $this->hash;
 	}
 
 	/**
@@ -115,16 +135,16 @@ class CSV {
 	 * column headers in the CSV (so we don't have to distinguish between
 	 * not-matching and matching-on-empty-string).
 	 *
-	 * @param array $column_map
+	 * @param array $column_map The map from column headings to indices.
 	 * @return array Keys are CSV indexes, values are DB column names
 	 */
-	private function remap($column_map) {
+	private function remap( $column_map ) {
 		$heads = array();
 		foreach ( $column_map as $db_col_name => $csv_col_name ) {
 			foreach ( $this->headers as $head_num => $head_name ) {
 				// If the header has a name, and it matches that of the column.
 				if ( ! empty( $head_name ) && strcasecmp( $head_name, $csv_col_name ) === 0 ) {
-					$heads[$head_num] = $db_col_name;
+					$heads[ $head_num ] = $db_col_name;
 				}
 			}
 		}
@@ -138,16 +158,16 @@ class CSV {
 	 * If a _value_ in the array matches a lowercased DB column header, the _key_
 	 * of that value is the DB column name to which that header has been matched.
 	 *
-	 * @param DB\Table $table
-	 * @param array $column_map
+	 * @param DB\Table $table The table object.
+	 * @param array    $column_map Associating the headings to the indices.
 	 * @return array Array of error messages.
 	 */
-	public function match_fields($table, $column_map) {
+	public function match_fields( $table, $column_map ) {
 		// First get the indexes of the headers, including the PK if it's there.
 		$heads = $this->remap( $column_map );
 		$pk_col_num = false;
-		foreach ($heads as $head_index => $head_name) {
-			if ( $head_name == $table->get_pk_column()->get_name() ) {
+		foreach ( $heads as $head_index => $head_name ) {
+			if ( $head_name === $table->get_pk_column()->get_name() ) {
 				$pk_col_num = $head_index;
 				break;
 			}
@@ -155,16 +175,17 @@ class CSV {
 
 		// Collect all errors.
 		$errors = array();
-		for ( $row_num = 1; $row_num <= $this->row_count(); $row_num++ ) {
+		$row_count = $this->row_count();
+		for ( $row_num = 1; $row_num <= $row_count; $row_num++ ) {
 			$pk_set = isset( $this->data[ $row_num ][ $pk_col_num ] );
-			foreach ( $this->data[$row_num] as $col_num => $value ) {
-				if ( !isset( $heads[$col_num] ) ) {
+			foreach ( $this->data[ $row_num ] as $col_num => $value ) {
+				if ( ! isset( $heads[ $col_num ] ) ) {
 					continue;
 				}
 				$col_errors = array();
-				$db_column_name = $heads[$col_num];
+				$db_column_name = $heads[ $col_num ];
 				$column = $table->get_column( $db_column_name );
-				// Required, is not an update, has no default, and is empty
+				// Required, is not an update, has no default, and is empty.
 				if ( $column->is_required() && ! $pk_set && ! $column->get_default() && empty( $value ) ) {
 					$col_errors[] = 'Required but empty';
 				}
@@ -172,31 +193,31 @@ class CSV {
 				if ( $column->is_unique() && ! $pk_set && $this->value_exists( $table, $column, $value ) ) {
 					$col_errors[] = "Unique value already present: '$value'";
 				}
-				// Too long (if the column has a size and the value is greater than this)
-				if ( ! $column->is_foreign_key() AND ! $column->is_boolean()
-						AND $column->get_size() > 0
-						AND strlen( $value ) > $column->get_size() ) {
+				// Too long (if the column has a size and the value is greater than this).
+				if ( ! $column->is_foreign_key() && ! $column->is_boolean()
+						&& $column->get_size() > 0
+						&& strlen( $value ) > $column->get_size() ) {
 					$col_errors[] = 'Value (' . $value . ') too long (maximum length of ' . $column->get_size() . ')';
 				}
-				// Invalid foreign key value
-				if ( !empty( $value ) AND $column->is_foreign_key() ) {
-					$err = $this->validate_foreign_key( $column, $col_num, $row_num, $value );
+				// Invalid foreign key value.
+				if ( ! empty( $value ) && $column->is_foreign_key() ) {
+					$err = $this->validate_foreign_key( $column, $value );
 					if ( $err ) {
 						$col_errors[] = $err;
 					}
 				}
-				// Dates
-				if ( $column->get_type() == 'date' AND ! empty( $value ) AND preg_match( '/\d{4}-\d{2}-\d{2}/', $value ) !== 1 ) {
+				// Dates.
+				if ( $column->get_type() === 'date' && ! empty( $value ) && preg_match( '/\d{4}-\d{2}-\d{2}/', $value ) !== 1 ) {
 					$col_errors[] = 'Value (' . $value . ') not in date format';
 				}
-				if ( $column->get_type() == 'year' AND ! empty( $value ) AND ( $value < 1901 || $value > 2155 ) ) {
+				if ( $column->get_type() === 'year' && ! empty( $value ) && ( $value < 1901 || $value > 2155 ) ) {
 					$col_errors[] = 'Year values must be between 1901 and 2155 (' . $value . ' given)';
 				}
 
 				if ( count( $col_errors ) > 0 ) {
-					// Construct error details array
+					// Construct error details array.
 					$errors[] = array(
-						'column_name' => $this->headers[$col_num],
+						'column_name' => $this->headers[ $col_num ],
 						'column_number' => $col_num,
 						'field_name' => $column->get_name(),
 						'row_number' => $row_num,
@@ -210,24 +231,25 @@ class CSV {
 
 	/**
 	 * Assume all data is now valid, and only FK values remain to be translated.
-	 * 
+	 *
 	 * @param DB\Table $table The table into which to import data.
-	 * @param array $column_map array of DB names to import names.
+	 * @param array    $column_map array of DB names to import names.
 	 * @return integer The number of rows imported.
 	 */
-	public function import_data($table, $column_map) {
+	public function import_data( $table, $column_map ) {
 		global $wpdb;
 		$change_tracker = new ChangeTracker( $wpdb );
 		$change_tracker->open_changeset( 'CSV import.', true );
 		$count = 0;
 		$headers = $this->remap( $column_map );
-		for ( $row_num = 1; $row_num <= $this->row_count(); $row_num++ ) {
+		$row_count = $this->row_count();
+		for ( $row_num = 1; $row_num <= $row_count; $row_num++ ) {
 			$row = array();
 			foreach ( $this->data[ $row_num ] as $col_num => $value ) {
-				if ( !isset( $headers[$col_num] ) ) {
+				if ( ! isset( $headers[ $col_num ] ) ) {
 					continue;
 				}
-				$db_column_name = $headers[$col_num];
+				$db_column_name = $headers[ $col_num ];
 				$column = $table->get_column( $db_column_name );
 
 				// Get actual foreign key value.
@@ -238,7 +260,7 @@ class CSV {
 				}
 
 				// All other values are used as they are.
-				$row[$db_column_name] = $value;
+				$row[ $db_column_name ] = $value;
 			}
 
 			$pk_name = $table->get_pk_column()->get_name();
@@ -253,15 +275,12 @@ class CSV {
 	/**
 	 * Determine whether a given value is valid for a foreign key (i.e. is the
 	 * title of a foreign row).
-	 * 
-	 * @param Webdb_DBMS_Column $column
-	 * @param integer $col_num
-	 * @param integer $row_num
-	 * @param string $value
-	 * @return FALSE if the value is valid
-	 * @return array error array if the value is not valid
+	 *
+	 * @param DB\Column $column The column to check in.
+	 * @param string    $value  The value to validate.
+	 * @return false|array false if the value is valid, error array otherwise.
 	 */
-	protected function validate_foreign_key($column, $col_num, $row_num, $value) {
+	protected function validate_foreign_key( $column, $value ) {
 		$foreign_table = $column->get_referenced_table();
 		if ( ! $this->get_fk_rows( $foreign_table, $value ) ) {
 			$link = '<a href="' . $foreign_table->get_url() . '" title="Opens in a new tab or window" target="_blank" >'
@@ -275,12 +294,12 @@ class CSV {
 	/**
 	 * Get the rows of a foreign table where the title column equals a given
 	 * value.
-	 * 
-	 * @param DB\Table $foreign_table
-	 * @param string $value The value to match against the title column.
+	 *
+	 * @param DB\Table $foreign_table The table from which to fetch rows.
+	 * @param string   $value The value to match against the title column.
 	 * @return Database_Result
 	 */
-	protected function get_fk_rows($foreign_table, $value) {
+	protected function get_fk_rows( $foreign_table, $value ) {
 		$foreign_table->reset_filters();
 		$foreign_table->add_filter( $foreign_table->get_title_column()->get_name(), '=', $value );
 		return $foreign_table->get_records();
@@ -288,17 +307,17 @@ class CSV {
 
 	/**
 	 * Determine whether the given value exists.
-	 * @param DB\Table $table
-	 * @param DB\Column $column
-	 * @param mixed $value
+	 *
+	 * @param DB\Table  $table  The table to check in.
+	 * @param DB\Column $column The column to check.
+	 * @param mixed     $value  The value to look for.
 	 */
 	protected function value_exists( $table, $column, $value ) {
-		$wpdb = $table->get_database()->get_wpdb();
+		$db = $table->get_database()->get_wpdb();
 		$sql = 'SELECT 1 FROM `' . $table->get_name() . '` '
 			. 'WHERE `' . $column->get_name() . '` = %s '
 			. 'LIMIT 1';
-		$exists = $wpdb->get_row( $wpdb->prepare( $sql, array( $value ) ) );
+		$exists = $db->get_row( $db->prepare( $sql, array( $value ) ) );
 		return ! is_null( $exists );
 	}
-
 }

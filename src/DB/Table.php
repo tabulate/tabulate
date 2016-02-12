@@ -1,18 +1,33 @@
 <?php
+/**
+ * The Table class.
+ * @file
+ * @package Tabulate
+ */
 
 namespace WordPress\Tabulate\DB;
 
 use WordPress\Tabulate\Util;
 
+/**
+ * The Table class encapsulates all the work that can be done on a database table.
+ */
 class Table {
 
-	/** @static A base table. */
+	/**
+	 * A base table.
+	 */
 	const TYPE_TABLE = 'table';
 
-	/** @static A database view, possibly of multiple base tables. */
+	/**
+	 * A database view, possibly of multiple base tables.
+	 */
 	const TYPE_VIEW = 'view';
 
-	/** @var \WordPress\Tabulate\DB\Database The database to which this table belongs. */
+	/**
+	 * The database to which this table belongs.
+	 * @var \WordPress\Tabulate\DB\Database
+	 */
 	protected $database;
 
 	/** @var string The name of this table. */
@@ -99,6 +114,7 @@ class Table {
 
 	/**
 	 * Add a filter.
+	 *
 	 * @param string|\WordPress\Tabulate\DB\Column $column Column name or object.
 	 * @param string $operator
 	 * @param string $value
@@ -110,20 +126,20 @@ class Table {
 			$column = $column->get_name();
 		}
 		// Validate the column name.
-		$valid_columm = in_array( $column, array_keys( $this->get_columns() ) );
+		$valid_columm = in_array( $column, array_keys( $this->get_columns() ), true );
 		if ( ! $valid_columm ) {
 			$msg = __( '"%s" is not a valid column of table "%s".', 'tabulate' );
 			throw new Exception( sprintf( $msg, $column, $this->get_name() ) );
 		}
 		// Validate the operator.
-		$valid_operator = in_array( $operator, array_keys( $this->operators ) );
+		$valid_operator = in_array( $operator, array_keys( $this->operators ), true );
 		if ( ! $valid_operator ) {
 			$msg = __( '"%s" is not a valid operator.', 'tabulate' );
 			throw new Exception( sprintf( $msg, $operator ) );
 		}
 		// Validate the value.
-		$emptyValueAllowed = ( strpos( $operator, 'empty' ) === false && ! empty( $value ) );
-		$valid_value = (strpos( $operator, 'empty' ) !== false) || $emptyValueAllowed;
+		$empty_value_allowed = ( strpos( $operator, 'empty' ) === false && ! empty( $value ) );
+		$valid_value = (strpos( $operator, 'empty' ) !== false) || $empty_value_allowed;
 		if ( ! $valid_operator ) {
 			$msg = __( '"%s" is not a valid value.', 'tabulate' );
 			throw new Exception( sprintf( $msg, $value ) );
@@ -141,6 +157,8 @@ class Table {
 
 	/**
 	 * Add multiple filters.
+	 *
+	 * @param string[] $filters the filters to add.
 	 */
 	public function add_filters( $filters ) {
 		foreach ( $filters as $filter ) {
@@ -153,6 +171,7 @@ class Table {
 
 	/**
 	 * Get the current filters.
+	 *
 	 * @param boolean $append_blank Whether to append a blank filter or not.
 	 * @return string[]
 	 */
@@ -171,7 +190,15 @@ class Table {
 		return $out;
 	}
 
-	protected function get_fk_join_clause($table, $alias, $column) {
+	/**
+	 * Get the SQL join clause for joining to a foreign table.
+	 *
+	 * @param Table  $table The foreign table to join to.
+	 * @param string $alias The alias to use for the table.
+	 * @param Column $column The column to join on.
+	 * @return string
+	 */
+	protected function get_fk_join_clause( $table, $alias, $column ) {
 		return 'LEFT OUTER JOIN `' . $table->get_name() . '` AS f' . $alias
 				. ' ON (`' . $this->get_name() . '`.`' . $column->get_name() . '` '
 				. ' = `f' . $alias . '`.`' . $table->get_pk_column()->get_name() . '`)';
@@ -180,10 +207,10 @@ class Table {
 	/**
 	 * Apply the stored filters to the supplied SQL.
 	 *
-	 * @param string $sql The SQL to modify
+	 * @param string $sql The SQL to modify.
 	 * @return array Parameter values, in the order of their occurence in $sql
 	 */
-	public function apply_filters(&$sql) {
+	public function apply_filters( &$sql ) {
 
 		$params = array();
 		$param_num = 1; // Incrementing parameter suffix, to permit duplicate columns.
@@ -194,7 +221,7 @@ class Table {
 			$param_name = $filter['column'] . $param_num;
 
 			// Filters on foreign keys need to work on the FKs title column.
-			$column = $this->columns[$f_column];
+			$column = $this->columns[ $f_column ];
 			if ( $column->is_foreign_key() && ! $filter['force'] ) {
 				$join = $this->join_on( $column );
 				$f_column = $join['column_alias'];
@@ -204,42 +231,41 @@ class Table {
 				$f_column = "`" . $this->get_name() . "`.`$f_column`";
 			}
 
-			// LIKE or NOT LIKE
-			if ( $filter['operator'] === 'like' || $filter['operator'] === 'not like' ) {
+			// LIKE or NOT LIKE.
+			if ( 'like' === $filter['operator'] || 'not like' === $filter['operator'] ) {
 				$where_clause .= " AND CONVERT($f_column, CHAR) " . strtoupper( $filter['operator'] ) . " %s ";
-				$params[$param_name] = '%' . trim($filter['value']) . '%';
+				$params[ $param_name ] = '%' . trim( $filter['value'] ) . '%';
 			} // Equals or does-not-equal
-			elseif ( $filter['operator'] === '=' || $filter['operator'] === '!=' ) {
+			elseif ( '=' === $filter['operator'] || '!=' === $filter['operator'] ) {
 				$where_clause .= " AND $f_column " . $filter['operator'] . " %s ";
-				$params[$param_name] = trim($filter['value']);
+				$params[ $param_name ] = trim( $filter['value'] );
 			} // IS EMPTY
-			elseif ( $filter['operator'] === 'empty' ) {
+			elseif ( 'empty' === $filter['operator'] ) {
 				$where_clause .= " AND ($f_column IS NULL OR $f_column = '')";
 			} // IS NOT EMPTY
-			elseif ( $filter['operator'] === 'not empty' ) {
+			elseif ( 'not empty' === $filter['operator'] ) {
 				$where_clause .= " AND ($f_column IS NOT NULL AND $f_column != '')";
 			} // IN or NOT IN
-			elseif ( $filter['operator'] === 'in' || $filter['operator'] === 'not in') {
+			elseif ( 'in' === $filter['operator'] || 'not in' === $filter['operator'] ) {
 				$placeholders = array();
 				foreach ( Util::split_newline( $filter['value'] ) as $vid => $val ) {
-					//$val = trim( $val );
 					$placeholders[] = "%s";
 					$params[ $param_name . '_' . $vid ] = $val;
 					// Save the separated filter values for later.
 					$this->filters[ $filter_idx ]['values'][] = $val;
 				}
-				$negate = ( $filter['operator'] === 'not in' ) ? 'NOT' : '';
+				$negate = ( 'not in' === $filter['operator'] ) ? 'NOT' : '';
 				$where_clause .= " AND ($f_column $negate IN (" . join( ", ", $placeholders ) . "))";
 			} // Other operators. They're already validated in self::addFilter().
 			else {
 				$where_clause .= " AND ($f_column " . $filter['operator'] . " %s)";
-				$params[$param_name] = trim($filter['value']);
+				$params[ $param_name ] = trim( $filter['value'] );
 			}
 
 			$param_num++;
-		} // end foreach filter
+		} // end foreach filter.
 
-		// Add clauses into SQL
+		// Add clauses into SQL.
 		if ( ! empty( $where_clause ) ) {
 			$where_clause_pattern = '/^(.* FROM .*?)((?:GROUP|HAVING|ORDER|LIMIT|$).*)$/m';
 			$where_clause = substr( $where_clause, 5 ); // Strip leading ' AND'.
@@ -265,6 +291,7 @@ class Table {
 
 	/**
 	 * Change the column by which this table is ordered.
+	 *
 	 * @param string $order_by The name of the column to order by.
 	 */
 	public function set_order_by( $order_by ) {
@@ -273,6 +300,11 @@ class Table {
 		}
 	}
 
+	/**
+	 * Get the current order direction.
+	 *
+	 * @return string Either ASC or DESC.
+	 */
 	public function get_order_dir() {
 		if ( empty( $this->order_dir ) ) {
 			$this->order_dir = 'ASC';
@@ -282,10 +314,11 @@ class Table {
 
 	/**
 	 * Set the direction of ordering.
+	 *
 	 * @param string $order_dir Either 'ASC' or 'DESC' (case insensitive).
 	 */
 	public function set_order_dir( $order_dir ) {
-		if ( in_array( strtoupper( $order_dir ), array( 'ASC', 'DESC' ) ) ) {
+		if ( in_array( strtoupper( $order_dir ), array( 'ASC', 'DESC' ), true ) ) {
 			$this->order_dir = $order_dir;
 		}
 	}
@@ -296,7 +329,7 @@ class Table {
 	 * the alias will just be the qualified column name, and the join clause will
 	 * be the empty string.
 	 *
-	 * @param Column $column The FK column
+	 * @param Column $column The FK column.
 	 * @return array Array with 'join_clause' and 'column_alias' keys
 	 */
 	public function join_on( $column ) {
@@ -325,6 +358,7 @@ class Table {
 
 	/**
 	 * Get rows, optionally with pagination.
+	 *
 	 * @param boolean $with_pagination Whether to only return the top N results.
 	 * @param boolean $save_sql Whether to store the SQL for later use.
 	 * @return \WordPress\Tabulate\DB\Record[]
@@ -353,7 +387,7 @@ class Table {
 			}
 		}
 
-		// Run query and save SQL
+		// Run query and save SQL.
 		if ( ! empty( $params ) ) {
 			$sql = $this->database->get_wpdb()->prepare( $sql, $params );
 		}
@@ -372,38 +406,64 @@ class Table {
 		return $records;
 	}
 
+	/**
+	 * Get the current page number.
+	 *
+	 * @return integer
+	 */
 	public function get_current_page_num() {
 		return $this->current_page_num;
 	}
 
-	public function set_current_page_num($current_page_num) {
-		$this->current_page_num = $current_page_num;
+	/**
+	 * Set the current page number (the first page is page 1).
+	 *
+	 * @param integer $new_page_num The new page number.
+	 */
+	public function set_current_page_num( $new_page_num ) {
+		$this->current_page_num = $new_page_num;
 	}
 
+	/**
+	 * Get the number of records that are included in each page.
+	 *
+	 * @return integer
+	 */
 	public function get_records_per_page() {
 		return $this->records_per_page;
 	}
 
-	public function set_records_per_page($recordsPerPage) {
-		$this->records_per_page = $recordsPerPage;
+	/**
+	 * Set the number of records that will be fetched per page.
+	 *
+	 * @param integer $records_per_page The new number of records per page.
+	 */
+	public function set_records_per_page( $records_per_page ) {
+		$this->records_per_page = $records_per_page;
 	}
 
+	/**
+	 * Get the saved SQL and its parameters.
+	 *
+	 * @return string[]
+	 */
 	public function get_saved_query() {
 		return array(
 			'sql' => $this->saved_sql,
-			'parameters' => $this->saved_parameters
+			'parameters' => $this->saved_parameters,
 		);
 	}
 
 	/**
 	 * Get the SQL for SELECTing all columns in this table.
+	 *
 	 * @return string
 	 */
 	private function columns_sql_select() {
 		$select = array();
 		$table_name = $this->get_name();
 		foreach ( $this->get_columns() as $col_name => $col ) {
-			if ( $col->get_type() == 'point' ) {
+			if ( 'point' === $col->get_type() ) {
 				$select[] = "AsText(`$table_name`.`$col_name`) AS `$col_name`";
 			} else {
 				$select[] = "`$table_name`.`$col_name`";
@@ -443,12 +503,18 @@ class Table {
 		foreach ( $this->get_columns() as $col ) {
 			$row[ $col->get_name() ] = $col->get_default();
 		}
-		$record = new Record($this, $row);
+		$record = new Record( $this, $row );
 		return $record;
 	}
 
+	/**
+	 * Whether this table should have changes recorded or not.
+	 * The change-tracking tables themselves do not.
+	 *
+	 * @return boolean
+	 */
 	public function has_changes_recorded() {
-		return ! in_array( $this->get_name(), ChangeTracker::table_names() );
+		return ! in_array( $this->get_name(), ChangeTracker::table_names(), true );
 	}
 
 	/**
@@ -474,6 +540,7 @@ class Table {
 
 	/**
 	 * Whether this table is a table (as opposed to a view).
+	 *
 	 * @return boolean
 	 */
 	public function is_table() {
@@ -482,6 +549,7 @@ class Table {
 
 	/**
 	 * Whether this table is a view.
+	 *
 	 * @return boolean
 	 */
 	public function is_view() {
@@ -491,11 +559,12 @@ class Table {
 	/**
 	 * Whether this view is updatable. Always true for base tables. Currently
 	 * always false for all views.
+	 *
 	 * @todo Implement this.
 	 * @link https://dev.mysql.com/doc/refman/5.6/en/view-updatability.html
 	 */
 	public function is_updatable() {
-		if ($this->is_table()) {
+		if ( $this->is_table() ) {
 			return true;
 		}
 		return false;
@@ -520,6 +589,11 @@ class Table {
 		return $this->operators;
 	}
 
+	/**
+	 * Get a count of the number of pages in the currently filtered record set.
+	 *
+	 * @return integer The page count.
+	 */
 	public function get_page_count() {
 		return ceil( $this->count_records() / $this->get_records_per_page() );
 	}
@@ -527,11 +601,11 @@ class Table {
 	/**
 	 * Get or set the current page.
 	 *
-	 * @param integer $page
+	 * @param integer $page The page number.
 	 * @return integer Current page
 	 */
-	public function page($page = false) {
-		if ( $page !== false ) {
+	public function page( $page = false ) {
+		if ( false !== $page ) {
 			$this->current_page_num = $page;
 		} else {
 			return $this->current_page_num;
@@ -540,6 +614,7 @@ class Table {
 
 	/**
 	 * Get the number of rows in the current filtered set.
+	 *
 	 * @return integer
 	 */
 	public function count_records() {
@@ -547,6 +622,8 @@ class Table {
 	}
 
 	/**
+	 * Export this table's data (with filters applied) to a file on disk.
+	 *
 	 * @return string Full filesystem path to resulting temporary file.
 	 */
 	public function export() {
@@ -570,14 +647,14 @@ class Table {
 			$column_headers[] = $col->get_title();
 		}
 
-		// Build basic SELECT statement
+		// Build basic SELECT statement.
 		$sql = 'SELECT ' . join( ',', $columns )
 			. ' FROM `' . $this->get_name() . '` ' . $join_clause;
 
 		$params = $this->apply_filters( $sql );
 
 		$filename = get_temp_dir() . uniqid( 'tabulate_' ) . '.csv';
-		if ( DIRECTORY_SEPARATOR == '\\' ) {
+		if ( DIRECTORY_SEPARATOR === '\\' ) {
 			// Clean Windows slashes, for MySQL's benefit.
 			$filename = str_replace( '\\', '/', $filename );
 		}
@@ -612,6 +689,7 @@ class Table {
 
 	/**
 	 * Get one of this table's columns.
+	 *
 	 * @param string $name The column name.
 	 * @return \WordPress\Tabulate\DB\Column|false The column, or false if it's not found.
 	 */
@@ -620,6 +698,10 @@ class Table {
 		return ( isset( $columns[ $name ] ) ) ? $columns[ $name ] : false;
 	}
 
+	/**
+	 * Reset the column, comment, and defining SQL of this table. This forces
+	 * them to be re-read from the databaes when next required.
+	 */
 	public function reset() {
 		$this->columns = array();
 		$this->comment = false;
@@ -656,19 +738,19 @@ class Table {
 
 	/**
 	 * Add a new column to this table.
-	 * 
-	 * @param string $name
-	 * @param string $xtype_name
-	 * @param integer $size
-	 * @param boolean $nullable
-	 * @param string $default
-	 * @param boolean $auto_increment
-	 * @param boolean $unique
-	 * @param boolean $primary
-	 * @param string $comment
-	 * @param \WordPress\Tabulate\DB\Table $target_table
-	 * @param string $after
-	 * @throws Exception
+	 *
+	 * @param string  $name Table name.
+	 * @param string  $xtype_name Which 'xtype' to use.
+	 * @param integer $size The length of the column.
+	 * @param boolean $nullable Whether null values are allowed.
+	 * @param string  $default The default value.
+	 * @param boolean $auto_increment Whether it shall be an auto-inrementing column.
+	 * @param boolean $unique Whether a unique constraint shall be applied.
+	 * @param boolean $primary Whether this is the Primary Key.
+	 * @param string  $comment The table comment.
+	 * @param Table   $target_table For 'cross-reference' types, the name of the foreign table.
+	 * @param string  $after The name of the column after which this one shall be added.
+	 * @throws Exception If the column already exists or is unable to be added.
 	 */
 	public function add_column( $name, $xtype_name, $size = null, $nullable = null, $default = null, $auto_increment = null, $unique = null, $primary = null, $comment = null, $target_table = null, $after = null ) {
 		// Can it be done?
@@ -686,7 +768,7 @@ class Table {
 
 		// Execute the SQL and reset the cache.
 		$query = $this->get_database()->get_wpdb()->query( $sql );
-		if ( $query === false ) {
+		if ( false === $query ) {
 			throw new Exception( "Unable to add column '$name'. SQL was: <code>$sql</code>" );
 		}
 		$this->reset();
@@ -694,6 +776,7 @@ class Table {
 
 	/**
 	 * Get the table comment text; for views, this returns '(View)'.
+	 *
 	 * @return string
 	 */
 	public function get_comment() {
@@ -712,6 +795,7 @@ class Table {
 
 	/**
 	 * Get a list of all the unique columns in this table.
+	 *
 	 * @return \WordPress\Tabulate\DB\Column[]
 	 */
 	public function get_unique_columns() {
@@ -781,8 +865,9 @@ class Table {
 
 	/**
 	 * Get a list of this table's foreign keys and the tables to which they refer.
-	 * This does <em>not</em> take into account a user's permissions (i.e. the
+	 * This does *not* take into account a user's permissions (i.e. the
 	 * name of a table which the user is not allowed to read may be returned).
+	 *
 	 * @param boolean $instantiate Whether to instantiate the Table objects (or just return their names).
 	 * @return string[]|Table[] The list of <code>column_name => table_name|Table</code> pairs.
 	 */
@@ -791,24 +876,24 @@ class Table {
 		// Extract the FK info from the CREATE TABLE statement.
 		if ( ! is_array( $this->referenced_tables ) ) {
 			$this->referenced_table_names = array();
-			$definingSql = $this->get_defining_sql();
-			$foreignKeyPattern = '|FOREIGN KEY \(`(.*?)`\) REFERENCES `(.*?)`|';
-			preg_match_all( $foreignKeyPattern, $definingSql, $matches );
+			$defining_sql = $this->get_defining_sql();
+			$fk_pattern = '|FOREIGN KEY \(`(.*?)`\) REFERENCES `(.*?)`|';
+			preg_match_all( $fk_pattern, $defining_sql, $matches );
 			if ( isset( $matches[1] ) && count( $matches[1] ) > 0 ) {
-				foreach ( array_combine( $matches[1], $matches[2] ) as $colName => $tabName ) {
-					$this->referenced_table_names[ $colName ] = $tabName;
+				foreach ( array_combine( $matches[1], $matches[2] ) as $col_name => $tab_name ) {
+					$this->referenced_table_names[ $col_name ] = $tab_name;
 				}
 			}
 		}
 
 		if ( $instantiate ) {
 			$this->referenced_tables = array();
-			foreach ( $this->referenced_table_names as $refCol => $ref_tab ) {
-				$this->referenced_tables[ $refCol ] = new Table( $this->get_database(), $ref_tab ); // $this->get_database()->get_table( $ref_tab );
+			foreach ( $this->referenced_table_names as $ref_col => $ref_tab ) {
+				$this->referenced_tables[ $ref_col ] = new Table( $this->get_database(), $ref_tab );
 			}
 		}
 
-		return ($instantiate) ? $this->referenced_tables : $this->referenced_table_names;
+		return $instantiate ? $this->referenced_tables : $this->referenced_table_names;
 	}
 
 	/**
@@ -917,6 +1002,7 @@ class Table {
 
 	/**
 	 * Delete a record and its associated change-tracker records.
+	 *
 	 * @param string $pk_value The value of the primary key of the record to delete.
 	 * @return void
 	 * @throws Exception When the user doesn't have permission, or any error occurs deleting the record.
@@ -975,12 +1061,13 @@ class Table {
 				; // Do nothing (don't set $sql_values item).
 
 			} elseif ( $column->is_boolean() ) {
+				$val_is_falseish = in_array( strtoupper( $value ), array( '0', 'FALSE', 'OFF', 'NO' ), true );
 				// Boolean values.
-				if ( $column->nullable() && ( is_null($value) || '' === $value ) ) {
+				if ( $column->nullable() && ( is_null( $value ) || '' === $value ) ) {
 					// Null.
 					$data[ $field ] = null;
 					$sql_values[ $field ] = 'NULL';
-				} elseif ( $value === false || in_array( strtoupper($value), array( '0', 'FALSE', 'OFF', 'NO' ) ) ) {
+				} elseif ( false === $value || $val_is_falseish ) {
 					// False.
 					$data[ $field ] = false;
 					$sql_values[ $field ] = '0';
@@ -1019,7 +1106,7 @@ class Table {
 		$this->database->get_wpdb()->hide_errors();
 
 		// Compile SQL for insert and update statements.
-		// This is a workaround for NULL support in $wpdb->update() and $wpdb->insert().
+		// This is a workaround for NULL support in \wpdb::update and \wpdb::insert.
 		// Can probably be removed when https://core.trac.wordpress.org/ticket/15158 is resolved.
 		$set_items = array();
 		foreach ( $sql_values as $field => $escd_datum ) {
@@ -1033,8 +1120,10 @@ class Table {
 		}
 
 		$change_tracker->before_save( $this, $data, $pk_value );
-		if ( ! empty( $pk_value ) ) { // Update?
-			// Check permission.
+		if ( ! empty( $pk_value ) ) {
+			/*
+			 * Update?
+			 */
 			if ( ! Grants::current_user_can( Grants::UPDATE, $this->get_name() ) ) {
 				throw new Exception( 'You do not have permission to update data in this table.' );
 			}
@@ -1043,8 +1132,10 @@ class Table {
 			$this->get_database()->query( $sql, null, 'Unable to update a record' );
 			$new_pk_value = (isset( $data[ $pk_name ] ) ) ? $data[ $pk_name ] : $pk_value;
 
-		} else { // Or insert?
-			// Check permission.
+		} else {
+			/*
+			 * Or insert?
+			 */
 			if ( ! Grants::current_user_can( Grants::CREATE, $this->get_name() ) ) {
 				throw new Exception( 'You do not have permission to insert records into this table.' );
 			}
@@ -1063,7 +1154,7 @@ class Table {
 		}
 		$new_record = $this->get_record( $new_pk_value );
 		if ( ! $new_record instanceof Record ) {
-			throw new Exception( "Unable to fetch record with PK of: <code>" . var_export( $new_pk_value, true ) . '</code>' );
+			throw new Exception( "Unable to fetch record with PK of: <code>$new_pk_value</code>" );
 		}
 
 		// Save the changes.
@@ -1078,6 +1169,7 @@ class Table {
 
 	/**
 	 * Get a fully-qualified URL to a Back End page for this table.
+	 *
 	 * @param string   $action Which action to use ('index', 'import', etc.).
 	 * @param string[] $extra_params Other query string parameters to add.
 	 * @param string   $controller Which controller to use ('table', 'record', etc.).
@@ -1098,15 +1190,17 @@ class Table {
 
 	/**
 	 * Rename this table and all of its change-tracker entries.
-	 * @param string $new_name
+	 *
+	 * @param string $new_name The new table name.
+	 * @throws Exception If the derired name already exists or some other error occurs.
 	 */
 	public function rename( $new_name ) {
-		if ( $this->get_name() == $new_name ) {
+		if ( $this->get_name() === $new_name ) {
 			// Do nothing, we're trying to rename to the current name.
 			return;
 		}
 		if ( $this->get_database()->get_table( $new_name ) ) {
-			throw new Exception("Table '$new_name' already exists");
+			throw new Exception( "Table '$new_name' already exists" );
 		}
 		$wpdb = $this->get_database()->get_wpdb();
 		$old_name = $this->get_name();
@@ -1114,17 +1208,19 @@ class Table {
 		$this->get_database()->reset();
 		$new = $this->get_database()->get_table( $new_name, false );
 		if ( ! $new ) {
-			throw new Exception("Table '$old_name' was not renamed to '$new_name'");
+			throw new Exception( "Table '$old_name' was not renamed to '$new_name'" );
 		}
 		$this->name = $new->get_name();
-		$wpdb->query( "UPDATE `".ChangeTracker::changes_name() . "`"
+		$sql = "UPDATE `".ChangeTracker::changes_name() . "`"
 			. " SET `table_name` = '$new_name' "
-			. " WHERE `table_name` = '$old_name';" );
+			. " WHERE `table_name` = '$old_name';";
+		$wpdb->query( $sql );
 	}
 
 	/**
 	 * Set the table's comment.
-	 * @param string $new_comment
+	 *
+	 * @param string $new_comment The comment to set.
 	 */
 	public function set_comment( $new_comment ) {
 		if ( $new_comment === $this->get_comment() ) {
@@ -1140,11 +1236,11 @@ class Table {
 	 * Drop this table and all its history.
 	 */
 	public function drop() {
-		$dropTable = 'DROP TABLE IF EXISTS `' . $this->get_name() . '`';
-		$this->get_database()->get_wpdb()->query( $dropTable );
-		$deleteHistory = "DELETE FROM `" . ChangeTracker::changes_name() . "` "
+		$drop_table = 'DROP TABLE IF EXISTS `' . $this->get_name() . '`';
+		$this->get_database()->get_wpdb()->query( $drop_table );
+		$delete_history = "DELETE FROM `" . ChangeTracker::changes_name() . "` "
 			. "WHERE table_name = '" . $this->get_name() . "'";
-		$this->get_database()->get_wpdb()->query( $deleteHistory );
+		$this->get_database()->get_wpdb()->query( $delete_history );
 		$this->get_database()->reset();
 	}
 }

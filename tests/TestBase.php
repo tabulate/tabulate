@@ -1,13 +1,32 @@
 <?php
+/**
+ * This file contains only a single class.
+ *
+ * @file
+ * @package Tabulate
+ */
 
-class TestBase extends WP_UnitTestCase {
+/**
+ * The base test class, from which all tests inherit.
+ */
+abstract class TestBase extends WP_UnitTestCase {
 
-	/** @var WordPress\Tabulate\DB\Database */
+	/**
+	 * The Database.
+	 * @var WordPress\Tabulate\DB\Database
+	 */
 	protected $db;
 
-	/** @var wpdb */
+	/**
+	 * The global wpdb object.
+	 * @var wpdb
+	 */
 	protected $wpdb;
 
+	/**
+	 * Set up everything common to all Tabulate tests.
+	 * @global \wpdb $wpdb
+	 */
 	public function setUp() {
 		parent::setUp();
 		global $wpdb;
@@ -60,6 +79,9 @@ class TestBase extends WP_UnitTestCase {
 		$this->db = new WordPress\Tabulate\DB\Database( $this->wpdb );
 	}
 
+	/**
+	 * Drop all created tables and uninstall Tabulate.
+	 */
 	public function tearDown() {
 		// Remove test tables.
 		$this->wpdb->query( 'SET FOREIGN_KEY_CHECKS = 0' );
@@ -67,10 +89,10 @@ class TestBase extends WP_UnitTestCase {
 		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_table`' );
 		$this->wpdb->query( 'SET FOREIGN_KEY_CHECKS = 1' );
 
-		$ct = new \WordPress\Tabulate\DB\ChangeTracker($this->wpdb);
+		$ct = new \WordPress\Tabulate\DB\ChangeTracker( $this->wpdb );
 		$ct->close_changeset();
 
-		// Uninstall
+		// Uninstall.
 		if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 			define( 'WP_UNINSTALL_PLUGIN', 'tabulate/tabulate.php' );
 		}
@@ -78,5 +100,4 @@ class TestBase extends WP_UnitTestCase {
 
 		parent::tearDown();
 	}
-
 }

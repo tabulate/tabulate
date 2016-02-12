@@ -2,8 +2,7 @@
 /**
  * This file contains only the Text class
  *
- * @package WordPress
- * @subpackage Tabulate
+ * @package Tabulate
  */
 
 namespace WordPress\Tabulate;
@@ -39,7 +38,6 @@ class Text {
 		/**
 		 * The mapping of words (and initialisms, etc.) to their titlecased
 		 * counterparts for HTML output.
-		 * @var array
 		 */
 		$html_replacements = array(
 			'id' => 'ID',
@@ -55,7 +53,6 @@ class Text {
 		/**
 		 * The mapping of words (and initialisms, etc.) to their titlecased
 		 * counterparts for LaTeX output.
-		 * @var array
 		 */
 		$latex_replacements = array(
 			'cant' => "can't",
@@ -86,6 +83,7 @@ class Text {
 
 	/**
 	 * Format a MySQL-format date according to WP's preference.
+	 *
 	 * @param string $date The date string to format.
 	 * @return string|int|bool Formatted date string or Unix timestamp. False if $date is empty.
 	 */
@@ -95,6 +93,7 @@ class Text {
 
 	/**
 	 * Format a MySQL-format time according to WP's preference.
+	 *
 	 * @param string $time The time string to format.
 	 * @return string|int|bool Formatted date string or Unix timestamp. False if $date is empty.
 	 */

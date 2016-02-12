@@ -1,4 +1,10 @@
 <?php
+/**
+ * This file contains only a single class.
+ *
+ * @file
+ * @package Tabulate
+ */
 
 use WordPress\Tabulate\CSV;
 use WordPress\Tabulate\DB\ChangeTracker;

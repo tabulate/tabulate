@@ -1,11 +1,9 @@
 <?php
-
 /**
  * Bootstrap the plugin unit testing environment.
  *
- * Edit 'active_plugins' setting below to point to your main plugin file.
- *
- * @package wordpress-plugin-tests
+ * @file
+ * @package Tabulate
  * @link https://github.com/tierra/wordpress-plugin-tests/
  */
 
@@ -24,4 +22,3 @@ if ( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
 } else {
 	require '../../../../tests/phpunit/includes/bootstrap.php';
 }
-

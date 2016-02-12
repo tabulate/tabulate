@@ -1,4 +1,11 @@
 <?php
+/**
+ * This file contains only a single class.
+ *
+ * @file
+ * @package WordPress
+ * @subpackage Tabulate
+ */
 
 class ExportTest extends TestBase {
 

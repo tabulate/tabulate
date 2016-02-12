@@ -2,8 +2,7 @@
 /**
  * This file contains only the Text class
  *
- * @package WordPress
- * @subpackage Tabulate
+ * @package Tabulate
  */
 
 namespace WordPress\Tabulate;
@@ -15,36 +14,42 @@ class Template {
 
 	/**
 	 * The name of the template to render (if not using a Twig string).
+	 *
 	 * @var string
 	 */
 	protected $template_name;
 
 	/**
 	 * The Twig string to render (if not using a template file).
+	 *
 	 * @var string
 	 */
 	protected $template_string;
 
 	/**
 	 * The template data, all of which is passed to the Twig template.
+	 *
 	 * @var string[]
 	 */
 	protected $data;
 
 	/**
 	 * Paths at which to find templates.
+	 *
 	 * @var string[]
 	 */
 	protected static $paths = array();
 
 	/**
 	 * The name of the transient used to store notices.
+	 *
 	 * @var string
 	 */
 	protected $transient_notices;
 
 	/**
 	 * Create a new template either with a file-based Twig template, or a Twig string.
+	 *
 	 * @global type $wpdb
 	 * @param string|false $template_name   The name of a Twig file to render.
 	 * @param string|false $template_string A Twig string to render.
@@ -71,17 +76,19 @@ class Template {
 
 	/**
 	 * Add a filesystem path under which to look for template files.
+	 *
 	 * @param string $new_path The path to add.
 	 */
 	public static function add_path( $new_path ) {
 		$path = realpath( $new_path );
-		if ( ! in_array( $path, self::$paths ) ) {
+		if ( ! in_array( $path, self::$paths, true ) ) {
 			self::$paths[] = $path;
 		}
 	}
 
 	/**
 	 * Get a list of the filesystem paths searched for template files.
+	 *
 	 * @return string[] An array of paths
 	 */
 	public static function get_paths() {
@@ -90,6 +97,7 @@ class Template {
 
 	/**
 	 * Get a list of templates in a given directory, across all registered template paths.
+	 *
 	 * @param string $directory The directory to search in.
 	 */
 	public function get_templates( $directory ) {
@@ -105,6 +113,7 @@ class Template {
 
 	/**
 	 * Magically set a template variable.
+	 *
 	 * @param string $name  The name of the variable.
 	 * @param mixed  $value The value of the variable.
 	 */
@@ -136,6 +145,7 @@ class Template {
 	 * Add a notice. All notices are saved to a Transient, which is deleted when
 	 * the template is rendered but otherwise available to all subsequent
 	 * instances of the Template class.
+	 *
 	 * @param string $type Either 'updated' or 'error'.
 	 * @param string $message The message to display.
 	 */
@@ -149,6 +159,7 @@ class Template {
 
 	/**
 	 * Render the template and output it.
+	 *
 	 * @return void
 	 */
 	public function __toString() {
@@ -157,6 +168,7 @@ class Template {
 
 	/**
 	 * Render the template and return the output.
+	 *
 	 * @return string
 	 */
 	public function render() {

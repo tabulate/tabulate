@@ -2,8 +2,7 @@
 /**
  * This file contains only the Util class
  *
- * @package WordPress
- * @subpackage Tabulate
+ * @package Tabulate
  */
 
 namespace WordPress\Tabulate;
@@ -28,11 +27,12 @@ class Util {
 		if ( function_exists( 'is_plugin_active' ) ) {
 			return is_plugin_active( $plugin );
 		}
-		return in_array( $plugin, get_option( 'active_plugins', array() ) );
+		return in_array( $plugin, get_option( 'active_plugins', array() ), true );
 	}
 
 	/**
 	 * Split a string on line boundaries.
+	 *
 	 * @param string $val The string to split.
 	 * @return string[] The resulting array.
 	 */
@@ -40,5 +40,4 @@ class Util {
 		$vals = preg_split( '/\n|\r|\r\n/', $val, -1, PREG_SPLIT_NO_EMPTY );
 		return array_filter( array_map( 'trim', $vals ) );
 	}
-
 }

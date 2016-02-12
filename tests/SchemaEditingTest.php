@@ -1,4 +1,10 @@
 <?php
+/**
+ * This file contains only a single class.
+ *
+ * @file
+ * @package Tabulate
+ */
 
 use \WordPress\Tabulate\DB\Column;
 use \WordPress\Tabulate\DB\ChangeTracker;
