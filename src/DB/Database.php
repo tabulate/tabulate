@@ -25,7 +25,7 @@ class Database {
 	}
 
 	/**
-	 * Get a list of tables that the current user can read.
+	 * Get a list of tables and views that the current user can read.
 	 * @return string[] The table names.
 	 */
 	public function get_table_names() {
@@ -33,7 +33,7 @@ class Database {
 			$this->table_names = array();
 			foreach ( $this->wpdb->get_col( 'SHOW TABLES' ) as $table_name ) {
 				if ( Grants::current_user_can( Grants::READ, $table_name ) ) {
-					$this->table_names[] = $table_name;
+					$this->table_names[ $table_name ] = $table_name;
 				}
 			}
 		}
@@ -78,10 +78,10 @@ class Database {
 			if ( ! $table ) {
 				continue;
 			}
-			if ( $exclude_views && $table->get_type() === Table::TYPE_VIEW ) {
+			if ( $exclude_views && $table->is_view() ) {
 				continue;
 			}
-			$out[] = $table;
+			$out[ $table->get_name() ] = $table;
 		}
 		return $out;
 	}
@@ -94,8 +94,8 @@ class Database {
 	public function get_views() {
 		$out = array();
 		foreach ( $this->get_tables( false ) as $table ) {
-			if ( $table->get_type() === Table::TYPE_VIEW ) {
-				$out[] = $table;
+			if ( $table->is_view() ) {
+				$out[ $table->get_name() ] = $table;
 			}
 		}
 		return $out;

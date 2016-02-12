@@ -327,7 +327,7 @@ class SchemaTest extends TestBase {
 	 * @testdox It should be possible to provide a value for a (non-autoincrementing) PK.
 	 * @test
 	 */
-	public function timestamp_pk() {
+	public function provided_pk() {
 		$this->wpdb->query( 'DROP TABLE IF EXISTS `provided_pk`' );
 		$sql = "CREATE TABLE `provided_pk` ( "
 			. "  `code` VARCHAR(10) NOT NULL PRIMARY KEY, "
@@ -338,5 +338,23 @@ class SchemaTest extends TestBase {
 		$tbl = $db->get_table( 'provided_pk' );
 		$rec = $tbl->save_record( array( 'code' => 'TEST') );
 		$this->assertEquals( 'TEST', $rec->get_primary_key() );
+	}
+
+	/**
+	 * @testdox It is possible to list base-tables and views separately.
+	 * @test
+	 */
+	public function views() {
+		$sql = "CREATE OR REPLACE VIEW test_types_view AS "
+			. " SELECT * FROM `test_types`;";
+		$this->db->query( $sql );
+		$this->db->reset();
+		$view = $this->db->get_table( 'test_types_view' );
+		$this->assertInstanceOf( 'WordPress\\Tabulate\\DB\\Table', $view );
+		$this->assertTrue( $view->is_view() );
+		$this->assertArrayHasKey( 'test_types_view', $this->db->get_table_names() );
+		$this->assertArrayHasKey( 'test_types_view', $this->db->get_views() );
+		$this->assertArrayHasKey( 'test_types_view', $this->db->get_tables( false ) );
+		$this->assertArrayNotHasKey( 'test_types_view', $this->db->get_tables( true ) );
 	}
 }

@@ -466,6 +466,9 @@ class Table {
 	 * @return string Either `Table::TYPE_TABLE` or `Table::TYPE_VIEW`.
 	 */
 	public function get_type() {
+		if ( ! $this->type ) {
+			$this->get_defining_sql();
+		}
 		return $this->type;
 	}
 
@@ -474,7 +477,7 @@ class Table {
 	 * @return boolean
 	 */
 	public function is_table() {
-		return $this->get_type() == self::TYPE_TABLE;
+		return $this->get_type() === self::TYPE_TABLE;
 	}
 
 	/**
@@ -482,7 +485,7 @@ class Table {
 	 * @return boolean
 	 */
 	public function is_view() {
-		return $this->get_type() == self::TYPE_VIEW;
+		return $this->get_type() === self::TYPE_VIEW;
 	}
 
 	/**
