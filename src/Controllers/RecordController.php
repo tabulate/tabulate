@@ -1,12 +1,24 @@
 <?php
+/**
+ * This file contains only a single class.
+ *
+ * @package Tabulate
+ * @file
+ */
 
 namespace WordPress\Tabulate\Controllers;
 
 use WordPress\Tabulate\DB\Grants;
 
+/**
+ * This controller handles viewing, saving, and deleting of individual Records.
+ */
 class RecordController extends ControllerBase {
 
 	/**
+	 * Get the record-editing template for the given table.
+	 *
+	 * @param \WordPress\Tabulate\DB\Table $table The table.
 	 * @return \WordPress\Tabulate\Template
 	 */
 	private function get_template( $table ) {
@@ -16,21 +28,27 @@ class RecordController extends ControllerBase {
 		return $template;
 	}
 
+	/**
+	 * Show the record-editing form.
+	 *
+	 * @param string $args The request arguments.
+	 * @return string
+	 */
 	public function index( $args ) {
 		// Get database and table.
 		$db = new \WordPress\Tabulate\DB\Database( $this->wpdb );
-		$table = $db->get_table( $args[ 'table' ] );
+		$table = $db->get_table( $args['table'] );
 
 		// Give it all to the template.
 		$template = $this->get_template( $table );
-		if ( isset( $args[ 'ident' ] ) ) {
-			$template->record = $table->get_record( $args[ 'ident' ] );
+		if ( isset( $args['ident'] ) ) {
+			$template->record = $table->get_record( $args['ident'] );
 			// Check permission.
 			if ( ! Grants::current_user_can( Grants::UPDATE, $table->get_name() ) ) {
 				$template->add_notice( 'error', 'You do not have permission to update data in this table.' );
 			}
 		}
-		if ( ! isset( $template->record ) || $template->record === false ) {
+		if ( ! isset( $template->record ) || false === $template->record ) {
 			$template->record = $table->get_default_record();
 			// Check permission.
 			if ( ! Grants::current_user_can( Grants::CREATE, $table->get_name() ) ) {
@@ -57,23 +75,30 @@ class RecordController extends ControllerBase {
 		return $template->render();
 	}
 
+	/**
+	 * Save a record.
+	 *
+	 * @param string[] $args The request arguments.
+	 * @return boolean
+	 */
 	public function save( $args ) {
 		$db = new \WordPress\Tabulate\DB\Database( $this->wpdb );
-		$table = $db->get_table( $args[ 'table' ] );
+		$table = $db->get_table( $args['table'] );
 		if ( ! $table ) {
 			// It shouldn't be possible to get here via the UI, so no message.
 			return false;
 		}
 
-		// Guard against non-post requests. c.f. wp-comments-post.php
-		if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' != $_SERVER['REQUEST_METHOD'] ) {
-			header('Allow: POST');
-			header('HTTP/1.1 405 Method Not Allowed');
-			header('Content-Type: text/plain');
+		// Guard against non-post requests. c.f. wp-comments-post.php.
+		if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
+			header( 'Allow: POST' );
+			header( 'HTTP/1.1 405 Method Not Allowed' );
+			header( 'Content-Type: text/plain' );
 			return false;
 		}
 
-		$record_ident = isset( $args[ 'ident' ] ) ? $args[ 'ident' ] : false;
+		$record_ident = isset( $args['ident'] ) ? $args['ident'] : false;
+		$this->verify_nonce( 'tabulate-record-' . $record_ident );
 		$template = $this->get_template( $table );
 
 		// Make sure we're not saving over an already-existing record.
@@ -102,14 +127,21 @@ class RecordController extends ControllerBase {
 		exit;
 	}
 
+	/**
+	 * Delete (or ask for confirmation of deleting) a single record.
+	 *
+	 * @param string[] $args The request arguments.
+	 * @return type
+	 */
 	public function delete( $args ) {
 		$db = new \WordPress\Tabulate\DB\Database( $this->wpdb );
-		$table = $db->get_table( $args[ 'table' ] );
-		$record_ident = isset( $args[ 'ident' ] ) ? $args[ 'ident' ] : false;
+		$table = $db->get_table( $args['table'] );
+		$record_ident = isset( $args['ident'] ) ? $args['ident'] : false;
 		if ( ! $record_ident ) {
 			wp_redirect( $table->get_url() );
 			exit;
 		}
+		check_admin_referer( 'tabulate-record-' . $record_ident );
 
 		// Ask for confirmation.
 		if ( ! isset( $_POST['confirm_deletion'] ) ) {
@@ -134,5 +166,4 @@ class RecordController extends ControllerBase {
 		wp_redirect( $table->get_url() );
 		exit;
 	}
-
 }

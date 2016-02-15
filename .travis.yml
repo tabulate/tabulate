@@ -37,4 +37,4 @@ before_script:
 # Run the actual tests.
 script:
     - phpunit
-    - vendor/bin/phpcs --standard=phpcs.xml $TRAVIS_BUILD_DIR/tests $TRAVIS_BUILD_DIR/src
+    - vendor/bin/phpcs --standard=phpcs.xml tests src
