@@ -177,7 +177,7 @@ class Template {
 		$twig = new \Twig_Environment( $loader );
 
 		// Add some useful functions to Twig.
-		$funcs = array( 'admin_url', '__', '_e' );
+		$funcs = array( 'admin_url', '__', '_e', 'wp_nonce_field' );
 		foreach ( $funcs as $f ) {
 			$twig->addFunction( $f, new \Twig_SimpleFunction( $f, $f ) );
 		}

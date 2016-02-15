@@ -1,22 +1,54 @@
 <?php
+/**
+ * This file contains only a single class.
+ *
+ * @package Tabulate
+ */
 
 namespace WordPress\Tabulate\Controllers;
 
+/**
+ * The GrantsController enables viewing and saving of grants.
+ */
 class GrantsController extends ControllerBase {
 
-	/** @var array|string */
+	/**
+	 * The list of tables.
+	 *
+	 * @var string[]
+	 */
 	private $table_names;
 
-	/** @var \WordPress\Tabulate\Template */
+	/**
+	 * The Template.
+	 *
+	 * @var \WordPress\Tabulate\Template
+	 */
 	private $template;
 
-	public function __construct($wpdb) {
-		parent::__construct($wpdb);
+	/**
+	 * Prevent non-admin users from doing anything here (i.e. redirect and exit
+	 * instead). Otherwise, setup the list of tables and the template.
+	 *
+	 * @param wpdb $wpdb The global wpdb object.
+	 */
+	public function __construct( $wpdb ) {
+		parent::__construct( $wpdb );
+		if ( ! current_user_can( 'promote_users' ) ) {
+			$url = admin_url( 'admin.php?page=tabulate' );
+			wp_redirect( $url );
+			exit;
+		}
 		$db = new \WordPress\Tabulate\DB\Database( $this->wpdb );
 		$this->table_names = $db->get_table_names();
 		$this->template = new \WordPress\Tabulate\Template( 'grants.html' );
 	}
 
+	/**
+	 * Get the HTML table of grants.
+	 *
+	 * @return string
+	 */
 	public function index() {
 		$this->template->tables = $this->table_names;
 		$grants = new \WordPress\Tabulate\DB\Grants();
@@ -27,17 +59,21 @@ class GrantsController extends ControllerBase {
 		return $this->template->render();
 	}
 
+	/**
+	 * Save the POSTed grants array.
+	 */
 	public function save() {
+		check_admin_referer( 'tabulate-grants' );
 		$grants = new \WordPress\Tabulate\DB\Grants();
 
 		// Validate the POSTed grants.
 		$new_grants = array();
-		foreach ($_POST as $table => $table_grants) {
-			if ( in_array( $table, $this->table_names ) ) {
-				$new_grants[$table] = array();
-				foreach ($table_grants as $capability => $roles) {
-					if ( in_array( $capability, $grants->get_capabilities() ) ) {
-						$new_grants[$table][$capability] = array_keys($roles);
+		foreach ( $_POST as $table => $table_grants ) {
+			if ( in_array( $table, $this->table_names, true ) ) {
+				$new_grants[ $table ] = array();
+				foreach ( $table_grants as $capability => $roles ) {
+					if ( in_array( $capability, $grants->get_capabilities(), true ) ) {
+						$new_grants[ $table ][ $capability ] = array_keys( $roles );
 					}
 				}
 			}
@@ -52,6 +88,7 @@ class GrantsController extends ControllerBase {
 
 	/**
 	 * Get the URL of the grants' admin page.
+	 *
 	 * @param string $action Either 'save' or 'index'.
 	 * @return string
 	 */

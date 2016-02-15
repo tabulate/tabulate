@@ -6,6 +6,7 @@
 <p>Here you can grant access to the database to members of any Roles.</p>
 
 <form action="{{form_action}}" method="post" class="tabulate-grants">
+	{{wp_nonce_field('tabulate-grants')|raw}}
 	<table class="widefat">
 		<thead>
 			<tr>
