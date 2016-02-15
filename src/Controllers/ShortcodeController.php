@@ -1,4 +1,10 @@
 <?php
+/**
+ * This file contains only one class.
+ *
+ * @package Tabulate
+ * @file
+ */
 
 namespace WordPress\Tabulate\Controllers;
 
@@ -7,11 +13,23 @@ use WordPress\Tabulate\DB\Table;
 use WordPress\Tabulate\DB\Grants;
 use WordPress\Tabulate\Template;
 
+/**
+ * The shortcode controller.
+ */
 class ShortcodeController extends ControllerBase {
 
-	/** @var \WordPress\Tabulate\DB\Database */
+	/**
+	 * The Database object.
+	 *
+	 * @var \WordPress\Tabulate\DB\Database
+	 */
 	private $db;
 
+	/**
+	 * Create the controller and dequeue scripts.
+	 *
+	 * @param wpdb $wpdb The global wpdb object.
+	 */
 	public function __construct( $wpdb ) {
 		parent::__construct( $wpdb );
 		$this->db = new Database( $wpdb );
@@ -23,6 +41,7 @@ class ShortcodeController extends ControllerBase {
 
 	/**
 	 * Substitute the Shortcode with the relevant formatted output.
+	 *
 	 * @param string[] $atts The shortcode attributes.
 	 * @return string
 	 */
@@ -56,12 +75,21 @@ class ShortcodeController extends ControllerBase {
 	/**
 	 * Get an error message, and dequeue scripts.
 	 * It's too late now to dequeue styles.
-	 * @param string $message
+	 *
+	 * @param string $message The error message to display.
 	 */
 	protected function error( $message = '' ) {
 		return "<div class='tabulate shortcode-error'>$message</div>";
 	}
 
+	/**
+	 * The 'record' format.
+	 *
+	 * @param Table    $table The table to display.
+	 * @param string[] $attrs The shortcode attributes.
+	 * @param string   $query The query parameters.
+	 * @return string
+	 */
 	protected function record_format( Table $table, $attrs, $query = null ) {
 		// Check for the ident shortcode parameter...
 		if ( isset( $attrs['ident'] ) ) {
@@ -77,7 +105,7 @@ class ShortcodeController extends ControllerBase {
 
 		// Get the record.
 		$record = $table->get_record( $ident );
-		if ( $record === false ) {
+		if ( false === $record ) {
 			return $this->error( __( 'No record found.', 'tabulate' ) );
 		}
 		$template = new Template( 'record/view.html' );
@@ -86,6 +114,13 @@ class ShortcodeController extends ControllerBase {
 		return $template->render();
 	}
 
+	/**
+	 * The 'form' format.
+	 *
+	 * @param Table    $table The table to display.
+	 * @param string[] $attrs The shortcode attributes.
+	 * @return string
+	 */
 	protected function form_format( Table $table, $attrs ) {
 		if ( ! Grants::current_user_can( Grants::CREATE, $table ) ) {
 			return 'You do not have permission to create ' . $table->get_title() . ' records.';
@@ -97,11 +132,24 @@ class ShortcodeController extends ControllerBase {
 		return $template->render();
 	}
 
-	protected function count_format( Table $table, $attrs ) {
+	/**
+	 * The 'count' format.
+	 *
+	 * @param Table $table The table to display.
+	 * @return string
+	 */
+	protected function count_format( Table $table ) {
 		$count = number_format( $table->count_records() );
 		return '<span class="tabulate count-format">'.$count.'</span>';
 	}
 
+	/**
+	 * The 'list' format.
+	 *
+	 * @param Table    $table The table to display.
+	 * @param string[] $attrs The shortcode attributes.
+	 * @return string
+	 */
 	protected function list_format( Table $table, $attrs ) {
 		$titles = array();
 		foreach ( $table->get_records() as $rec ) {
@@ -111,17 +159,25 @@ class ShortcodeController extends ControllerBase {
 		return '<span class="tabulate list-format">' . join( $glue, $titles ) . '</span>';
 	}
 
+	/**
+	 * The 'table' format.
+	 *
+	 * @param Table    $table The table to display.
+	 * @param string[] $attrs The shortcode attributes.
+	 * @param string   $query The query parameters.
+	 * @return string
+	 */
 	protected function table_format( Table $table, $attrs, $query = null ) {
 		// Filters.
 		// Apply filters from the URL query parameters.
-		if ( isset( $query['table'] ) && $query['table'] == $table->get_name() ) {
-			$query_filters = (isset( $query[ 'filter' ] )) ? $query[ 'filter' ] : array();
+		if ( isset( $query['table'] ) && $query['table'] === $table->get_name() ) {
+			$query_filters = (isset( $query['filter'] )) ? $query['filter'] : array();
 			$table->add_filters( $query_filters );
 		}
 
 		// Pagination.
 		$page_num = 1;
-		if (isset( $query['tabulate_p'] ) && is_numeric( $query['tabulate_p'] ) ) {
+		if ( isset( $query['tabulate_p'] ) && is_numeric( $query['tabulate_p'] ) ) {
 			$page_num = abs( $query['tabulate_p'] );
 		}
 		$table->set_current_page_num( $page_num );
@@ -142,5 +198,4 @@ class ShortcodeController extends ControllerBase {
 		// Return completed HTML output.
 		return $template->render();
 	}
-
 }
