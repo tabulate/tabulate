@@ -36,53 +36,42 @@ jQuery(document).ready(function ($) {
 	});
 	$(document).on('change', "form.tabulate-schema select[name*='xtype']", function() {
 		var xtype = $(this).val();
-		$pk = $(this).parents("tr").find("input[name='primary_key']");
-		$size = $(this).parents("tr").find("input[name*='size']");
-		$targetTable = $(this).parents("tr").find("select[name*='target_table']");
-		$autoInc = $(this).parents("tr").find("input[name='auto_increment']");
+		var $size = $(this).parents("tr").find("input[name*='size']");
+		var $targetTable = $(this).parents("tr").find("select[name*='target_table']");
+		var $autoInc = $(this).parents("tr").find("input[name='auto_increment']");
 		if (xtype === 'fk') {
-			$pk.prop("disabled", true);
 			$size.prop("disabled", true);
 			$targetTable.prop("disabled", false).prop("required", true);
 			$autoInc.prop("disabled", true);
 		} else if (xtype === 'integer') {
-			$pk.prop("disabled", false);
 			$size.prop("disabled", false).prop("required", true);
 			$targetTable.prop("disabled", true);
 			$autoInc.prop("disabled", false);
 		} else if (xtype === 'decimal') {
-			$pk.prop("disabled", true);
 			$size.prop("disabled", false).prop("required", true);
 			$targetTable.prop("disabled", true);
 			$autoInc.prop("disabled", true);
 		} else if (xtype === 'boolean') {
-			console.log(xtype);
-			$pk.prop("disabled", true);
 			$size.prop("disabled", true);
 			$targetTable.prop("disabled", true);
 			$autoInc.prop("disabled", true);
 		} else if (xtype === 'text_short') {
-			$pk.prop("disabled", true);
 			$size.prop("disabled", false).prop("required", true);
 			$targetTable.prop("disabled", true);
 			$autoInc.prop("disabled", true);
 		} else if (xtype === 'text_long') {
-			$pk.prop("disabled", true);
 			$size.prop("disabled", true);
 			$targetTable.prop("disabled", true);
 			$autoInc.prop("disabled", true);
 		} else if (xtype === 'date') {
-			$pk.prop("disabled", false);
 			$size.prop("disabled", true);
 			$targetTable.prop("disabled", true);
 			$autoInc.prop("disabled", true);
 		} else if (xtype === 'point') {
-			$pk.prop("disabled", true);
 			$size.prop("disabled", true);
 			$targetTable.prop("disabled", true);
 			$autoInc.prop("disabled", true);
 		} else {
-			$pk.prop("disabled", true);
 			$size.prop("disabled", false);
 			$targetTable.prop("disabled", true);
 			$autoInc.prop("disabled", true);

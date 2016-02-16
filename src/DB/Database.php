@@ -4,7 +4,7 @@ namespace WordPress\Tabulate\DB;
 
 class Database {
 
-	/** @var wpdb */
+	/** @var \wpdb */
 	protected $wpdb;
 
 	/** @var array|string */

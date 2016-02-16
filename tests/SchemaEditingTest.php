@@ -9,8 +9,16 @@
 use \WordPress\Tabulate\DB\Column;
 use \WordPress\Tabulate\DB\ChangeTracker;
 
+/**
+ * Test the schema-editing features.
+ */
 class SchemaEditingTest extends TestBase {
 
+	/**
+	 * Make sure the current user can do anything.
+	 *
+	 * @global WP_User $current_user
+	 */
 	public function setUp() {
 		parent::setUp();
 		// Let the current user do anything.
@@ -18,6 +26,9 @@ class SchemaEditingTest extends TestBase {
 		$current_user->add_cap( 'promote_users' );
 	}
 
+	/**
+	 * Delete any created tables.
+	 */
 	public function tearDown() {
 		$this->wpdb->query( "DROP TABLE IF EXISTS `testing_table`;" );
 		$this->wpdb->query( 'DROP TABLE IF EXISTS `new_table`;' );
@@ -28,7 +39,8 @@ class SchemaEditingTest extends TestBase {
 	}
 
 	/**
-	 * @testdox It is possible to rename a table.
+	 * It is possible to rename a table.
+	 *
 	 * @test
 	 */
 	public function rename_table() {
@@ -41,7 +53,8 @@ class SchemaEditingTest extends TestBase {
 	}
 
 	/**
-	 * @testdox When renaming a table, its history comes along with it.
+	 * When renaming a table, its history comes along with it.
+	 *
 	 * @test
 	 */
 	public function rename_table_history() {
@@ -59,7 +72,8 @@ class SchemaEditingTest extends TestBase {
 	}
 
 	/**
-	 * @testdox It should be possible to 'rename' to the same name (nothing should happen).
+	 * It should be possible to 'rename' to the same name (nothing should happen).
+	 *
 	 * @test
 	 */
 	public function rename_to_same_name() {
@@ -69,7 +83,8 @@ class SchemaEditingTest extends TestBase {
 	}
 
 	/**
-	 * @testdox When creating a table, we first create a minumum table.
+	 * When creating a table, we first create a minumum table.
+	 *
 	 * @test
 	 */
 	public function create_table() {
@@ -86,35 +101,39 @@ class SchemaEditingTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Build column definition statements.
+	 * Build column definition statements.
+	 *
+	 * The required SQL structure is as follows:
+	 *     data_type [NOT NULL | NULL] [DEFAULT default_value]
+	 *     [AUTO_INCREMENT] [UNIQUE [KEY] | [PRIMARY] KEY]
+	 *     [COMMENT 'string']
+	 *     [COLUMN_FORMAT {FIXED|DYNAMIC|DEFAULT}]
+	 *     [STORAGE {DISK|MEMORY|DEFAULT}]
+	 *     [reference_definition]
+	 *
 	 * @test
-	 * data_type [NOT NULL | NULL] [DEFAULT default_value]
-	 * [AUTO_INCREMENT] [UNIQUE [KEY] | [PRIMARY] KEY]
-	 * [COMMENT 'string']
-	 * [COLUMN_FORMAT {FIXED|DYNAMIC|DEFAULT}]
-	 * [STORAGE {DISK|MEMORY|DEFAULT}]
-	 * [reference_definition]
 	 */
 	public function column_definitions() {
-		$def1 = Column::get_column_definition('test_name', 'text_short');
-		$this->assertEquals('`test_name` VARCHAR(50) NULL DEFAULT NULL', $def1);
+		$def1 = Column::get_column_definition( 'test_name', 'text_short' );
+		$this->assertEquals( '`test_name` VARCHAR(50) NULL DEFAULT NULL', $def1 );
 
-		$def2 = Column::get_column_definition('test_name', 'text_short', 40, false);
-		$this->assertEquals('`test_name` VARCHAR(40) NOT NULL', $def2);
+		$def2 = Column::get_column_definition( 'test_name', 'text_short', 40, false );
+		$this->assertEquals( '`test_name` VARCHAR(40) NOT NULL', $def2 );
 
 		// No default allowed for TEXT columns.
-		$def3 = Column::get_column_definition('test_name', 'text_long', null, true, 'Test');
-		$this->assertEquals("`test_name` TEXT NULL", $def3);
+		$def3 = Column::get_column_definition( 'test_name', 'text_long', null, true, 'Test' );
+		$this->assertEquals( "`test_name` TEXT NULL", $def3 );
 
-		$def4 = Column::get_column_definition('ident', 'integer', 5, false, '', true, true, true, 'The Ident');
-		$this->assertEquals("`ident` INT(5) NOT NULL AUTO_INCREMENT UNIQUE COMMENT 'The Ident'", $def4);
+		$def4 = Column::get_column_definition( 'ident', 'integer', 5, false, '', true, true, 'The Ident' );
+		$this->assertEquals( "`ident` INT(5) NOT NULL AUTO_INCREMENT UNIQUE COMMENT 'The Ident'", $def4 );
 
-		$def5 = Column::get_column_definition('can_do', 'boolean', 5, false, '', true, false, true, 'Can it do this thing?');
-		$this->assertEquals("`can_do` TINYINT(1) NOT NULL COMMENT 'Can it do this thing?'", $def5);
+		$def5 = Column::get_column_definition( 'can_do', 'boolean', 5, false, '', true, false, 'Can it do this thing?' );
+		$this->assertEquals( "`can_do` TINYINT(1) NOT NULL COMMENT 'Can it do this thing?'", $def5 );
 	}
 
 	/**
-	 * @testdox Alter a column.
+	 * Alter a column.
+	 *
 	 * @test
 	 */
 	public function alter_column_name() {
@@ -122,10 +141,12 @@ class SchemaEditingTest extends TestBase {
 		// Check the initial state of the table.
 		$this->assertContains( 'id', array_keys( $table->get_columns() ) );
 		$id_col = $table->get_column( 'id' );
+		$old_def = $id_col->get_current_column_definition();
 		$this->assertEquals( 'integer', $id_col->get_xtype()['name'] );
 		$this->assertEquals( 10, $id_col->get_size() );
 		$this->assertTrue( $id_col->is_primary_key() );
 		$this->assertTrue( $id_col->is_auto_increment() );
+		$this->assertEquals( $old_def, $id_col->get_current_column_definition() );
 
 		// Make a change.
 		$table->get_column( 'id' )->alter( 'identifier' );
@@ -142,7 +163,8 @@ class SchemaEditingTest extends TestBase {
 	}
 
 	/**
-	 * @testdox A column's type can be changed.
+	 * A column's type can be changed.
+	 *
 	 * @test
 	 */
 	public function alter_column_type() {
@@ -154,26 +176,28 @@ class SchemaEditingTest extends TestBase {
 		// Make sure the column starts as we expect.
 		$this->assertEquals( 'INT', $col->get_xtype()['type'] );
 		$this->assertEquals( 20, $col->get_size() );
-		$rec = $table->get_record(1);
+		$rec = $table->get_record( 1 );
 		$this->assertEquals( '99', $rec->info() );
 
 		// Change it to a decimal.
 		$col->alter( null, 'decimal', '5,2' );
 		$this->assertEquals( 'DECIMAL', $col->get_xtype()['type'] );
 		$this->assertEquals( '5,2', $col->get_size() );
-		$rec2 = $table->get_record(1);
+		$rec2 = $table->get_record( 1 );
 		$this->assertEquals( '99.00', $rec2->info() );
 
 		// Change the decimal's scale.
 		$col->alter( null, 'decimal', '6,3' );
 		$this->assertEquals( 'DECIMAL', $col->get_xtype()['type'] );
 		$this->assertEquals( '6,3', $col->get_size() );
-		$rec3 = $table->get_record(1);
+		$rec3 = $table->get_record( 1 );
 		$this->assertEquals( '99.000', $rec3->info() );
 	}
 
 	/**
-	 * 
+	 * Columns can be re-ordered, including into first place.
+	 *
+	 * @test
 	 */
 	public function reorder_columns() {
 		$table = $this->db->create_table( 'new_table' );
@@ -181,15 +205,16 @@ class SchemaEditingTest extends TestBase {
 		$table->add_column( 'title', 'text_long' );
 		$this->assertEquals( array( 'id', 'title' ), array_keys( $table->get_columns() ) );
 		// Change the column's position.
-		$table->get_column( 'title' )->alter( null, null, null, null, null, null, null, null, null, null, 'FIRST' );
+		$table->get_column( 'title' )->alter( null, null, null, null, null, null, null, null, null, 'FIRST' );
 		$this->assertEquals( array( 'title', 'id' ), array_keys( $table->get_columns() ) );
 		// Insert a third column.
-		$table->add_column( 'size', 'decimal', null, null, null, null, null, null, null, null, 'title' );
+		$table->add_column( 'size', 'decimal', null, null, null, null, null, null, null, 'title' );
 		$this->assertEquals( array( 'title', 'size', 'id' ), array_keys( $table->get_columns() ) );
 	}
 
 	/**
-	 * @testdox A column can be changed and then back again, to leave the structure the same.
+	 * A column can be changed and then back again, to leave the structure the same.
+	 *
 	 * @test
 	 */
 	public function is_column_change_idempotent() {
@@ -222,7 +247,8 @@ class SchemaEditingTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Alter a column's comment.
+	 * Alter a column's comment.
+	 *
 	 * @test
 	 */
 	public function add_column() {
@@ -231,7 +257,7 @@ class SchemaEditingTest extends TestBase {
 		$this->assertEquals( array( 'id' ), array_keys( $table->get_columns() ) );
 
 		// Add a column.
-		$table->add_column( 'title', 'text_short', 80, false, null, false, true, false, 'A comment', false, 'FIRST' );
+		$table->add_column( 'title', 'text_short', 80, false, null, false, true, 'A comment', false, 'FIRST' );
 
 		// Check the change.
 		$this->assertCount( 2, $table->get_columns() );
@@ -240,14 +266,15 @@ class SchemaEditingTest extends TestBase {
 		$this->assertTrue( $table->get_column( 'title' )->is_unique() );
 
 		// Add a unique column.
-		$table->add_column('birthday', 'date', null, null, null, false, true );
+		$table->add_column( 'birthday', 'date', null, null, null, false, true );
 		$this->assertCount( 3, $table->get_columns() );
 		$this->assertEquals( array( 'title', 'id', 'birthday' ), array_keys( $table->get_columns() ) );
 		$this->assertTrue( $table->get_column( 'birthday' )->is_unique() );
 	}
 
 	/**
-	 * @testdox Change a column's type.
+	 * Change a column's type.
+	 *
 	 * @test
 	 */
 	public function change_column_type() {
@@ -266,13 +293,14 @@ class SchemaEditingTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Making a column unique should only add a new index if it's not already unique.
+	 * Making a column unique should only add a new index if it's not already unique.
+	 *
 	 * @test
 	 */
 	public function make_column_unique() {
 		$table = $this->db->create_table( 'new_table' );
 		$wpdb = $table->get_database()->get_wpdb();
-		
+
 		// Make sure there's only 1 index (the PK).
 		$sql = "SHOW INDEXES FROM `new_table`";
 		$this->assertCount( 1, $wpdb->get_results( $sql ) );
@@ -295,7 +323,8 @@ class SchemaEditingTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Tables can be deleted.
+	 * Tables can be deleted.
+	 *
 	 * @test
 	 */
 	public function drop_table() {
@@ -315,7 +344,8 @@ class SchemaEditingTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Table comments can be changed.
+	 * Table comments can be changed.
+	 *
 	 * @test
 	 */
 	public function table_comment() {
@@ -326,7 +356,8 @@ class SchemaEditingTest extends TestBase {
 	}
 
 	/**
-	 * @testdox A column can be made UNIQUE twice without it creating duplicate indexes.
+	 * A column can be made UNIQUE twice without it creating duplicate indexes.
+	 *
 	 * @test
 	 */
 	public function double_unique_column() {
@@ -348,17 +379,25 @@ class SchemaEditingTest extends TestBase {
 	}
 
 	/**
-	 * @testdox A column can be a foreign key.
+	 * A column can be a foreign key.
+	 *
 	 * @test
 	 */
 	public function foreign_keys() {
 		$widgets = $this->db->create_table( 'widgets' );
 		$types = $this->db->create_table( 'types' );
-		$widgets->add_column( 'type', 'fk', null, null, null, null, null, null, null, $types );
+		$widgets->add_column( 'type', 'fk', null, null, null, null, null, null, $types );
 		$type_col = $widgets->get_column( 'type' );
 		$this->assertTrue( $type_col->is_foreign_key() );
 		$this->assertEquals( $widgets->get_pk_column()->get_type(), $type_col->get_type() );
 		$this->assertEquals( $widgets->get_pk_column()->get_size(), $type_col->get_size() );
 		$this->assertEquals( $widgets->get_pk_column()->is_unsigned(), $type_col->is_unsigned() );
+
+		// It's also possible to alter a column after it's a FK.
+		$type_col->alter( 'the_type' );
+		$this->assertEquals( 'the_type', $type_col->get_name() );
+		$this->assertTrue( $type_col->is_foreign_key() );
+		$this->assertEquals( 'types', $type_col->get_referenced_table()->get_name() );
+		$this->assertArrayHasKey( 'widgets.the_type', $types->get_referencing_tables() );
 	}
 }

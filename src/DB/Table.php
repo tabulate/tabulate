@@ -703,6 +703,7 @@ class Table {
 	 * them to be re-read from the databaes when next required.
 	 */
 	public function reset() {
+		$this->referenced_tables = false;
 		$this->columns = array();
 		$this->comment = false;
 		$this->defining_sql = false;

@@ -43,7 +43,7 @@
 					</a>
 				</td>
 				<td class="primary-key">
-					<input type="radio" name="primary_key" {% if col.get_name == table.get_pk_column.get_name %}checked{% endif %} />
+					{% if col.get_name == table.get_pk_column.get_name %}<span class="dashicons dashicons-yes"></span>{% endif %}
 				</td>
 				<td class="auto-increment">
 					<input type="radio" name="auto_increment" value="{{col.get_name}}" {% if col.is_auto_increment %}checked{% endif %} />

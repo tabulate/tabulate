@@ -1,4 +1,10 @@
 <?php
+/**
+ * This file contains only one class.
+ *
+ * @package Tabulate
+ * @file
+ */
 
 namespace WordPress\Tabulate\Controllers;
 
@@ -7,8 +13,17 @@ use \WordPress\Tabulate\DB\Table;
 use \WordPress\Tabulate\DB\Column;
 use \WordPress\Tabulate\Template;
 
+/**
+ * This controller handles creating, modifying, and deleting tables in the database.
+ */
 class SchemaController extends ControllerBase {
 
+	/**
+	 * View and edit the structure of the given table.
+	 *
+	 * @param string[] $args The request arguments.
+	 * @return string
+	 */
 	public function index( $args ) {
 		$template = new Template( 'table/schema.html' );
 		if ( ! current_user_can( 'promote_users' ) ) {
@@ -26,6 +41,11 @@ class SchemaController extends ControllerBase {
 		return $template->render();
 	}
 
+	/**
+	 * Add a new table and redirect to its schema-editing page.
+	 *
+	 * @param string[] $args The request arguments.
+	 */
 	public function newtable( $args ) {
 		// Create table.
 		$db = new Database( $this->wpdb );
@@ -39,6 +59,11 @@ class SchemaController extends ControllerBase {
 		exit;
 	}
 
+	/**
+	 * Save modifications to a table's schema.
+	 *
+	 * @param string[] $args The request arguments.
+	 */
 	public function save( $args ) {
 		if ( ! isset( $args['table'] ) || ! current_user_can( 'promote_users' ) ) {
 			$url = admin_url( 'admin.php?page=tabulate' );
@@ -104,7 +129,8 @@ class SchemaController extends ControllerBase {
 
 	/**
 	 * Delete (drop) a table.
-	 * @param string[] $args
+	 *
+	 * @param string[] $args The request arguments.
 	 */
 	public function delete( $args ) {
 		$template = new Template( 'table/delete.html' );

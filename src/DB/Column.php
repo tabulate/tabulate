@@ -86,7 +86,7 @@ class Column {
 		}
 
 		// Unique key
-		$this->is_unique = ( strtoupper( $info->Key ) === 'UNI' );
+		$this->is_unique = ( 'UNI' === strtoupper( $info->Key ) );
 
 		// Comment
 		$this->comment = $info->Comment;
@@ -95,12 +95,12 @@ class Column {
 		$this->collation = $info->Collation;
 
 		// NULL?
-		$this->nullable = ($info->Null == 'YES');
+		$this->nullable = ( 'YES' === $info->Null );
 
 		// Is this a foreign key?
-		if ( in_array( $this->get_name(), $this->get_table()->get_foreign_key_names() ) ) {
-			$referencedTables = $this->get_table()->get_referenced_tables( false );
-			$this->references = $referencedTables[ $this->get_name() ];
+		if ( in_array( $this->get_name(), $this->get_table()->get_foreign_key_names(), true ) ) {
+			$referenced_tables = $this->get_table()->get_referenced_tables( false );
+			$this->references = $referenced_tables[ $this->get_name() ];
 		}
 
 	}
@@ -139,6 +139,11 @@ class Column {
 		return $this->type;
 	}
 
+	/**
+	 * Get the definitive list of xtypes.
+	 *
+	 * @return string[] The xtypes.
+	 */
 	public static function get_xtypes() {
 		return array(
 			'text_short' => array(
@@ -153,7 +158,7 @@ class Column {
 				'title' => 'Text (long)',
 				'type' => 'TEXT',
 				'sizes' => 0,
-				'options' => array('autop', 'html', 'md', 'rst', 'plain'),
+				'options' => array( 'autop', 'html', 'md', 'rst', 'plain' ),
 			),
 			'integer' => array(
 				'name' => 'integer',
@@ -216,7 +221,8 @@ class Column {
 
 	/**
 	 * Get the X-Type of this column.
-	 * @return string
+	 *
+	 * @return string[] An array containing details of the xtype: name, title, type, sizes, and options.
 	 */
 	public function get_xtype() {
 		$xtypes = self::get_xtypes();
@@ -228,7 +234,7 @@ class Column {
 		}
 		// Otherwise fall back on the first xtype with a matching type.
 		foreach ( $xtypes as $xtype ) {
-			if ( strtoupper( $this->get_type() ) == $xtype['type'] ) {
+			if ( strtoupper( $this->get_type() ) === $xtype['type'] ) {
 				return $xtype;
 			}
 		}
@@ -237,7 +243,8 @@ class Column {
 
 	/**
 	 * Set the X-Type of this column.
-	 * @param string $type
+	 *
+	 * @param string $type The name of the type.
 	 */
 	public function set_xtype( $type ) {
 		$option_name = TABULATE_SLUG . '_xtypes';
@@ -266,7 +273,7 @@ class Column {
 	 * @return mixed
 	 */
 	public function get_default() {
-		if ( $this->default_value == 'CURRENT_TIMESTAMP' ) {
+		if ( 'CURRENT_TIMESTAMP' === $this->default_value ) {
 			return date( 'Y-m-d h:i:s' );
 		}
 		return $this->default_value;
@@ -294,7 +301,7 @@ class Column {
 	 * @return boolean
 	 */
 	public function is_required() {
-		$has_default = ( $this->get_default() != null || $this->is_auto_increment() );
+		$has_default = ( $this->get_default() !== null || $this->is_auto_increment() );
 		return ( ! $this->nullable() && ! $has_default );
 	}
 
@@ -327,6 +334,7 @@ class Column {
 
 	/**
 	 * Whether or not this column is allowed to have NULL values.
+	 *
 	 * @return boolean
 	 */
 	public function nullable() {
@@ -335,11 +343,13 @@ class Column {
 
 	/**
 	 * Only NOT NULL text fields are allowed to have empty strings.
+	 *
 	 * @return boolean
 	 */
 	public function allows_empty_string() {
-		$textTypes = array( 'text', 'varchar', 'char' );
-		return ( ! $this->nullable() ) && in_array( $this->get_type(), $textTypes );
+		$text_types = array( 'text', 'varchar', 'char' );
+		$is_text_type = in_array( $this->get_type(), $text_types, true );
+		return ( ! $this->nullable() ) && $is_text_type;
 	}
 
 	/**
@@ -351,11 +361,12 @@ class Column {
 	 * @return boolean
 	 */
 	public function is_boolean() {
-		return $this->get_type() == 'tinyint' && $this->get_size() === 1;
+		return $this->get_type() === 'tinyint' && $this->get_size() === 1;
 	}
 
 	/**
 	 * Whether this column is an unsigned number.
+	 *
 	 * @return boolean
 	 */
 	public function is_unsigned() {
@@ -366,10 +377,10 @@ class Column {
 	 * Whether or not this column is an integer, float, or decimal column.
 	 */
 	public function is_numeric() {
-		$isInt = substr( $this->get_type(), 0, 3 ) == 'int';
-		$isDecimal = substr( $this->get_type(), 0, 7 ) == 'decimal';
-		$isFloat = substr( $this->get_type(), 0, 5 ) == 'float';
-		return $isInt || $isDecimal || $isFloat;
+		$is_int = substr( $this->get_type(), 0, 3 ) === 'int';
+		$is_decimal = substr( $this->get_type(), 0, 7 ) === 'decimal';
+		$is_float = substr( $this->get_type(), 0, 5 ) === 'float';
+		return $is_int || $is_decimal || $is_float;
 	}
 
 	/**
@@ -378,7 +389,7 @@ class Column {
 	 * @return boolean True if $this->_references is not empty, otherwise false.
 	 */
 	public function is_foreign_key() {
-		return !empty( $this->references );
+		return ! empty( $this->references );
 	}
 
 	/**
@@ -401,10 +412,11 @@ class Column {
 	}
 
 	/**
+	 * Take an SQL string and parse out column information.
 	 *
-	 * @param <type> $type_string
+	 * @param string $type_string The SQL.
 	 */
-	private function parse_type($type_string) {
+	private function parse_type( $type_string ) {
 
 		$this->unsigned = ( false !== stripos( $type_string, 'unsigned' ) );
 
@@ -412,7 +424,6 @@ class Column {
 		$decimal_pattern = '/^decimal\((\d+),(\d+)\)/';
 		$float_pattern = '/^float\((\d+),(\d+)\)/';
 		$integer_pattern = '/^((?:big|medium|small|tiny)?int|year)\(?(\d+)\)?/';
-		//$integer_pattern = '/.*?(int|year)\(+(\d+)\)/';
 		$enum_pattern = '/^(enum|set)\(\'(.*?)\'\)/';
 
 		$this->type = $type_string;
@@ -441,6 +452,11 @@ class Column {
 		}
 	}
 
+	/**
+	 * Get a human-readable string representation of this column.
+	 *
+	 * @return string
+	 */
 	public function __toString() {
 		$pk = ($this->is_primary_key) ? ' PK' : '';
 		$auto = ($this->is_auto_increment) ? ' AI' : '';
@@ -454,32 +470,56 @@ class Column {
 	}
 
 	/**
-	 * Alter this column.
-	 * @param string $new_name
-	 * @param string $xtype
-	 * @param string $size Either a single integer, or a x,y string of two integers.
-	 * @param boolean $nullable
-	 * @param boolean $default
-	 * @param boolean $auto_increment
-	 * @param boolean $unique
-	 * @param boolean $primary
-	 * @param string $comment
-	 * @param \WordPress\Tabulate\DB\Table $target_table
-	 * @param string $after
+	 * Get the defining SQL for this column.
+	 *
+	 * @return string
 	 */
-	public function alter( $new_name = null, $xtype_name = null, $size = null, $nullable = null, $default = null, $auto_increment = null, $unique = null, $primary = null, $comment = null, $target_table = null, $after = null ) {
+	public function get_current_column_definition() {
+		return self::get_column_definition(
+			$this->get_name(),
+			$this->get_xtype()['name'],
+			$this->get_size(),
+			$this->nullable(),
+			$this->get_default(),
+			$this->is_auto_increment(),
+			$this->is_unique(),
+			$this->is_primary_key(),
+			$this->get_comment(),
+			$this->get_referenced_table()
+		);
+	}
+
+	/**
+	 * Alter this column.
+	 *
+	 * @param string                       $new_name The column name.
+	 * @param string                       $xtype_name The x-type name. Must exist.
+	 * @param string                       $size Either a single integer, or a x,y string of two integers.
+	 * @param boolean                      $nullable Whether to allow NULl values.
+	 * @param string                       $default The default value.
+	 * @param boolean                      $auto_increment Auto-increment or not.
+	 * @param boolean                      $unique Whether a unique constraint should apply.
+	 * @param string                       $comment The column's comment. Default empty.
+	 * @param \WordPress\Tabulate\DB\Table $target_table The target table for a foreign key.
+	 * @param string                       $after The column that this one will be after.
+	 * @throws Exception If unable to alter the table.
+	 */
+	public function alter( $new_name = null, $xtype_name = null, $size = null, $nullable = null, $default = null, $auto_increment = null, $unique = null, $comment = null, $target_table = null, $after = null ) {
 		// Any that have not been set explicitely should be unchanged.
-		$new_name = ! is_null($new_name) ? (string) $new_name : $this->get_name();
-		$xtype_name = ! is_null($xtype_name) ? (string) $xtype_name : $this->get_xtype()['name'];
-		$size = ! is_null($size) ? $size : $this->get_size();
-		$nullable = ! is_null($nullable) ? (boolean) $nullable : $this->nullable();
-		$default = ! is_null($default) ? (string) $default : $this->get_default();
-		$auto_increment = ! is_null($auto_increment) ? (boolean) $auto_increment : $this->is_auto_increment();
-		$unique = ! is_null($unique) ? (boolean) $unique : $this->is_unique();
-		$primary = ! is_null($primary) ? (boolean) $primary : $this->is_primary_key();
-		$comment = ! is_null($comment) ? (string) $comment : $this->get_comment();
-		if ( $this->get_referenced_table() instanceof Table ) {
-			$target_table = ! is_null($target_table) ? (string) $target_table : $this->get_referenced_table()->get_name();
+		$new_name = ! is_null( $new_name ) ? (string) $new_name : $this->get_name();
+		$xtype_name = ! is_null( $xtype_name ) ? (string) $xtype_name : $this->get_xtype()['name'];
+		$size = ! is_null( $size ) ? $size : $this->get_size();
+		$nullable = ! is_null( $nullable ) ? (boolean) $nullable : $this->nullable();
+		$default = ! is_null( $default ) ? (string) $default : $this->get_default();
+		$auto_increment = ! is_null( $auto_increment ) ? (boolean) $auto_increment : $this->is_auto_increment();
+		$unique = ! is_null( $unique ) ? (boolean) $unique : $this->is_unique();
+		$comment = ! is_null( $comment ) ? (string) $comment : $this->get_comment();
+		$target_table = ! is_null( $target_table ) ? $target_table : $this->get_referenced_table();
+
+		// Check the current column definition.
+		$col_def = self::get_column_definition( $new_name, $xtype_name, $size, $nullable, $default, $auto_increment, $unique, $comment, $target_table, $after );
+		if ( $this->get_current_column_definition() === $col_def ) {
+			return;
 		}
 
 		// Drop the unique key if it exists; it'll be re-created after.
@@ -487,48 +527,63 @@ class Column {
 		$wpdb = $table->get_database()->get_wpdb();
 		if ( $this->is_unique() ) {
 			$sql = 'SHOW INDEXES FROM `' . $table->get_name() .'` WHERE Column_name LIKE "' . $this->get_name() . '"';
-			foreach ( $wpdb->get_results( $sql ) as $index ) {
-				$sql = "DROP INDEX `" . $index->Key_name . "` ON `" . $table->get_name() . "`";
+			foreach ( $wpdb->get_results( $sql, ARRAY_A ) as $index ) {
+				$sql = "DROP INDEX `" . $index['Key_name'] . "` ON `" . $table->get_name() . "`";
 				$wpdb->query( $sql );
 			}
 		}
 
+		// Drop the FK if it exists; it'll be re-created after.
+		if ( $this->is_foreign_key() ) {
+			$fks_sql = 'SELECT CONSTRAINT_NAME AS fk_name FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS '
+				. ' WHERE TABLE_SCHEMA = SCHEMA() '
+				. ' AND TABLE_NAME = "' . $table->get_name() . '" '
+				. ' AND CONSTRAINT_TYPE = "FOREIGN KEY" ';
+			$fks = $wpdb->get_results( $fks_sql );
+			foreach ( $fks as $key ) {
+				$sql = 'ALTER TABLE `' . $table->get_name() .'` DROP FOREIGN KEY `' . $key->fk_name . '`';
+				$wpdb->query( $sql );
+			}
+			$this->references = false;
+		}
+
 		// Alter the column.
-		$col_def = self::get_column_definition($new_name, $xtype_name, $size, $nullable, $default, $auto_increment, $unique, $primary, $comment, $target_table, $after);
 		$sql = "ALTER TABLE `".$table->get_name()."` CHANGE COLUMN `".$this->get_name()."` $col_def";
 		$wpdb->hide_errors();
 		$altered = $wpdb->query( $sql );
-		if ( $altered === false ) {
+		if ( false === $altered ) {
 			$err = "Unable to alter '" . $table->get_name() . "." . $this->get_name() . "' "
 				. " &mdash; $wpdb->last_error &mdash; <code>$sql</code>";
 			throw new Exception( $err );
 		}
 		$wpdb->show_errors();
 
-		// Reset this object's data.
+		// Reset the Column and Table objects' data.
+		$table->reset();
 		$sql = "SHOW FULL COLUMNS FROM `" . $table->get_name() . "` LIKE '$new_name'";
 		$column_info = $table->get_database()->get_wpdb()->get_row( $sql );
 		$this->parse_info( $column_info );
-		$table->reset();
-
+		if ( $this->is_foreign_key() ) {
+			$this->get_referenced_table()->reset();
+		}
 	}
 
 	/**
-	 * 
-	 * @param string $name
-	 * @param string $xtype_name
-	 * @param string $size
-	 * @param boolean $nullable
-	 * @param string $default
-	 * @param boolean $auto_increment
-	 * @param boolean $unique
-	 * @param boolean $primary
-	 * @param string $comment
-	 * @param \WordPress\Tabulate\DB\Table $target_table
-	 * @param string $after
+	 * Get an SQL column definition.
+	 *
+	 * @param string                       $name The column name.
+	 * @param string                       $xtype_name The x-type name. Must exist.
+	 * @param string                       $size Either a single integer, or a x,y string of two integers.
+	 * @param boolean                      $nullable Whether to allow NULl values.
+	 * @param string                       $default The default value.
+	 * @param boolean                      $auto_increment Auto-increment or not.
+	 * @param boolean                      $unique Whether a unique constraint should apply.
+	 * @param string                       $comment The column's comment. Default empty.
+	 * @param \WordPress\Tabulate\DB\Table $target_table The target table for a foreign key.
+	 * @param string                       $after The column that this one will be after.
 	 * @return string
 	 */
-	public static function get_column_definition( $name , $xtype_name = null, $size = null, $nullable = true, $default = null, $auto_increment = null, $unique = null, $primary = null, $comment = null, $target_table = null, $after = null ) {
+	public static function get_column_definition( $name, $xtype_name = null, $size = null, $nullable = true, $default = null, $auto_increment = null, $unique = null, $comment = null, $target_table = null, $after = null ) {
 		// Type.
 		$xtypes = self::get_xtypes();
 		$xtype = ( isset( $xtypes[ $xtype_name ] ) ) ? $xtypes[ $xtype_name ] : $xtypes['text_short'];
@@ -538,21 +593,20 @@ class Column {
 		if ( $xtype['sizes'] > 0 ) {
 			$size_str = '(' . ( $size ? : 50 ) . ')';
 		}
-		if ( $xtype_name === 'boolean' ) {
+		if ( 'boolean' === $xtype_name ) {
 			$size_str = '(1)';
 		}
 		$null_str = $nullable ? 'NULL' : 'NOT NULL';
 		$default_str = '';
-		if ( $xtype_name != 'text_long' ) {
+		if ( 'text_long' !== $xtype_name ) {
 			$default_str = ! empty( $default ) ? "DEFAULT '$default'" : ( $nullable ? 'DEFAULT NULL' : '' );
 		}
 		$auto_increment_str = '';
-		if ( $auto_increment && $xtype['name'] == 'integer' ) {
+		if ( $auto_increment && 'integer' === $xtype['name'] ) {
 			$auto_increment_str = 'AUTO_INCREMENT';
 		}
 		$unique_str = $unique ? 'UNIQUE' : '';
-		//$primary_str = $primary ? 'PRIMARY KEY' : '';
-		$comment_str = ! is_null($comment) ? "COMMENT '$comment'" : '';
+		$comment_str = ! is_null( $comment ) ? "COMMENT '$comment'" : '';
 
 		$after_str = ( ! empty( $after ) ) ? "AFTER `$after`" : '';
 		if ( strtoupper( $after ) === 'FIRST' ) {
@@ -576,13 +630,5 @@ class Column {
 		$col_def = "`$name` $type_str$size_str $sign_str $null_str $default_str $auto_increment_str $unique_str $comment_str $after_str $ref_str";
 		return preg_replace( '/ +/', ' ', trim( $col_def ) );
 
-	}
-
-	public static function get_reference_definition( $name, $target_table ) {
-		$pk_col = $target_table->get_pk_column();
-		$ref_str = 'CONSTRAINT `' . $name . '_fk_to_' . $target_table->get_name() . '` FOREIGN KEY (`' . $name . '`) '
-			. ' REFERENCES `' . $target_table->get_name() . '` '
-			. ' (`'.$pk_col->get_name().'`)';
-		return $ref_str;
 	}
 }

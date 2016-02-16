@@ -8,10 +8,15 @@
 
 use WordPress\Tabulate\DB\Grants;
 
+/**
+ * Test the abilities to query schema structure.
+ */
 class SchemaTest extends TestBase {
 
 	/**
-	 * @testdox Tabulate lists all tables in the database (by default, only for users with the 'promote_users' capability).
+	 * Tabulate lists all tables in the database (by default, only for users
+	 * with the 'promote_users' capability).
+	 *
 	 * @test
 	 */
 	public function no_access() {
@@ -33,7 +38,8 @@ class SchemaTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Tables can be linked to each other; one is the referenced table, the other the referencing.
+	 * Tables can be linked to each other; one is the referenced table, the other the referencing.
+	 *
 	 * @test
 	 */
 	public function references() {
@@ -43,11 +49,11 @@ class SchemaTest extends TestBase {
 		$grants = new Grants();
 		$grants->set(
 			array(
-				'test_table' => array( Grants::READ => array( 'administrator' ), ),
+				'test_table' => array( Grants::READ => array( 'administrator' ) ),
 			)
 		);
 
-		// That test_table references test_types
+		// That test_table references test_types.
 		$test_table = $this->db->get_table( 'test_table' );
 		$referenced_tables = $test_table->get_referenced_tables( true );
 		$referenced_table = array_pop( $referenced_tables );
@@ -57,11 +63,13 @@ class SchemaTest extends TestBase {
 		$type_table = $this->db->get_table( 'test_types' );
 		$referencing_tables = $type_table->get_referencing_tables();
 		$referencing_table = array_pop( $referencing_tables );
-		$this->assertEquals( 'test_table', $referencing_table[ 'table' ]->get_name() );
+		$this->assertEquals( 'test_table', $referencing_table['table']->get_name() );
 	}
 
 	/**
-	 * @testdox More than one table can reference a table, and even a single table can reference a table more than once.
+	 * More than one table can reference a table, and even a single table can
+	 * reference a table more than once.
+	 *
 	 * @test
 	 */
 	public function multiple_references() {
@@ -95,20 +103,21 @@ class SchemaTest extends TestBase {
 		$table = $db->get_table( 'test_widgets' );
 
 		// Check references from Widgets to Types.
-		$referencedTables = $table->get_referenced_tables();
-		$this->assertCount( 3, $referencedTables );
-		$this->assertArrayHasKey( 'type_1_a', $referencedTables );
-		$this->assertArrayHasKey( 'type_1_b', $referencedTables );
-		$this->assertArrayHasKey( 'type_2', $referencedTables );
+		$referenced_tables = $table->get_referenced_tables();
+		$this->assertCount( 3, $referenced_tables );
+		$this->assertArrayHasKey( 'type_1_a', $referenced_tables );
+		$this->assertArrayHasKey( 'type_1_b', $referenced_tables );
+		$this->assertArrayHasKey( 'type_2', $referenced_tables );
 
 		// Check references from Types to Widgets.
 		$type1 = $db->get_table( 'test_widget_types_1' );
-		$referencingTables = $type1->get_referencing_tables();
-		$this->assertCount( 2, $referencingTables );
+		$referencing_tables = $type1->get_referencing_tables();
+		$this->assertCount( 2, $referencing_tables );
 	}
 
 	/**
-	 * @testdox A not-null column "is required" but if it has a default value then no value need be set when saving.
+	 * A not-null column "is required" but if it has a default value then no value need be set when saving.
+	 *
 	 * @test
 	 */
 	public function required_columns() {
@@ -121,9 +130,7 @@ class SchemaTest extends TestBase {
 		$this->assertTrue( $title_col->is_required() );
 
 		// Create a basic record.
-		$widget = array(
-			'title' => 'Test Item'
-		);
+		$widget = array( 'title' => 'Test Item' );
 		$test_table->save_record( $widget );
 		$this->assertEquals( 1, $test_table->count_records() );
 		$widget_records = $test_table->get_records();
@@ -132,7 +139,8 @@ class SchemaTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Null values can be inserted, and existing values can be updated to be null.
+	 * Null values can be inserted, and existing values can be updated to be null.
+	 *
 	 * @test
 	 */
 	public function null_values() {
@@ -165,7 +173,8 @@ class SchemaTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Only NOT NULL text fields are allowed to have empty strings.
+	 * Only NOT NULL text fields are allowed to have empty strings.
+	 *
 	 * @test
 	 */
 	public function empty_string() {
@@ -186,7 +195,8 @@ class SchemaTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Date and time values are saved correctly.
+	 * Date and time values are saved correctly.
+	 *
 	 * @test
 	 */
 	public function date_and_time() {
@@ -195,13 +205,14 @@ class SchemaTest extends TestBase {
 			'title' => 'Test',
 			'a_date' => '1980-01-01',
 			'a_year' => '1980',
-			) );
+		) );
 		$this->assertEquals( '1980-01-01', $rec->a_date() );
 		$this->assertEquals( '1980', $rec->a_year() );
 	}
 
 	/**
-	 * @testdox VARCHAR columns can be used as Primary Keys.
+	 * VARCHAR columns can be used as Primary Keys.
+	 *
 	 * @test
 	 */
 	public function varchar_pk() {
@@ -219,7 +230,8 @@ class SchemaTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Numeric and Decimal columns.
+	 * Numeric and Decimal columns.
+	 *
 	 * @test
 	 */
 	public function decimal() {
@@ -227,14 +239,15 @@ class SchemaTest extends TestBase {
 		$rec = $test_table->save_record( array(
 			'title' => 'Decimal Test',
 			'a_numeric' => '123.4',
-			) );
+		) );
 		$this->assertEquals( '123.40', $rec->a_numeric() );
 		$comment = $test_table->get_column( 'a_numeric' )->get_comment();
 		$this->assertEquals( 'NUMERIC is the same as DECIMAL.', $comment );
 	}
 
 	/**
-	 * @testdox Values for boolean columns can be entered in a variety of ways.
+	 * Values for boolean columns can be entered in a variety of ways.
+	 *
 	 * @test
 	 */
 	public function boolean() {
@@ -244,54 +257,39 @@ class SchemaTest extends TestBase {
 
 		// Default is 'true' and the column IS nullable.
 		$this->assertTrue( $rec->active() );
-		$this->assertTrue( $test_table->get_column('active')->is_boolean() );
-		$this->assertTrue( $test_table->get_column('active')->nullable() );
+		$this->assertTrue( $test_table->get_column( 'active' )->is_boolean() );
+		$this->assertTrue( $test_table->get_column( 'active' )->nullable() );
 
 		// One and zero.
-		$rec2 = $test_table->save_record(array('active' => 1), $rec->id());
+		$rec2 = $test_table->save_record( array( 'active' => 1 ), $rec->id() );
 		$this->assertTrue( $rec2->active() );
-		$rec3 = $test_table->save_record(array('active' => '1'), $rec->id());
+		$rec3 = $test_table->save_record( array( 'active' => '1' ), $rec->id() );
 		$this->assertTrue( $rec3->active() );
-		$rec4 = $test_table->save_record(array('active' => 0), $rec->id());
+		$rec4 = $test_table->save_record( array( 'active' => 0 ), $rec->id() );
 		$this->assertFalse( $rec4->active() );
-		$rec5 = $test_table->save_record(array('active' => '0'), $rec->id());
+		$rec5 = $test_table->save_record( array( 'active' => '0' ), $rec->id() );
 		$this->assertFalse( $rec5->active() );
 
 		// Yes and No.
-		$rec6 = $test_table->save_record(array('active' => 'Yes'), $rec->id());
+		$rec6 = $test_table->save_record( array( 'active' => 'Yes' ), $rec->id() );
 		$this->assertTrue( $rec6->active() );
-		$rec7 = $test_table->save_record(array('active' => 'No'), $rec->id());
+		$rec7 = $test_table->save_record( array( 'active' => 'No' ), $rec->id() );
 		$this->assertFalse( $rec7->active() );
 
-		// True and false.
-		$rec8 = $test_table->save_record(array('active' => 'TRUE'), $rec->id());
+		// True and false. WPCS OK.
+		$rec8 = $test_table->save_record( array( 'active' => 'TRUE' ), $rec->id() );
 		$this->assertTrue( $rec8->active() );
-		$rec9 = $test_table->save_record(array('active' => 'false'), $rec->id());
+		$rec9 = $test_table->save_record( array( 'active' => 'false' ), $rec->id() );
 		$this->assertFalse( $rec9->active() );
 
 		// Empty equals null.
-		$rec10 = $test_table->save_record(array('active' => ''), $rec->id());
+		$rec10 = $test_table->save_record( array( 'active' => '' ), $rec->id() );
 		$this->assertNull( $rec10->active() );
 	}
 
 	/**
-	 * @testdox A table can have a multi-column primary key.
-	 * @test
-	 */
-	/* public function multicol_primary_key() {
-	  $this->wpdb->query( 'DROP TABLE IF EXISTS `test_multicol_primary_key`' );
-	  $this->wpdb->query( 'CREATE TABLE `test_multicol_primary_key` ('
-	  . ' ident_a VARCHAR(10),'
-	  . ' ident_b VARCHAR(10),'
-	  . ' PRIMARY KEY (ident_a, ident_b)'
-	  . ');'
-	  );
-	  $db = new WordPress\Tabulate\DB\Database( $this->wpdb );
-	  $tbl = $db->get_table( 'test_multicol_primary_key' );
-	  var_dump($tbl->get_pk_column()->get_name());
-	  } */
-
-	/**
+	 * Custom test for a user-submitted problem.
+	 *
 	 * @link https://github.com/tabulate/tabulate/issues/21
 	 * @test
 	 */
@@ -330,7 +328,8 @@ class SchemaTest extends TestBase {
 	}
 
 	/**
-	 * @testdox It should be possible to provide a value for a (non-autoincrementing) PK.
+	 * It should be possible to provide a value for a (non-autoincrementing) PK.
+	 *
 	 * @test
 	 */
 	public function provided_pk() {
@@ -342,12 +341,13 @@ class SchemaTest extends TestBase {
 		$this->wpdb->query( $sql );
 		$db = new WordPress\Tabulate\DB\Database( $this->wpdb );
 		$tbl = $db->get_table( 'provided_pk' );
-		$rec = $tbl->save_record( array( 'code' => 'TEST') );
+		$rec = $tbl->save_record( array( 'code' => 'TEST' ) );
 		$this->assertEquals( 'TEST', $rec->get_primary_key() );
 	}
 
 	/**
-	 * @testdox It is possible to list base-tables and views separately.
+	 * It is possible to list base-tables and views separately.
+	 *
 	 * @test
 	 */
 	public function views() {

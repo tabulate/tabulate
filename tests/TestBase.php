@@ -13,18 +13,21 @@ abstract class TestBase extends WP_UnitTestCase {
 
 	/**
 	 * The Database.
+	 *
 	 * @var WordPress\Tabulate\DB\Database
 	 */
 	protected $db;
 
 	/**
 	 * The global wpdb object.
+	 *
 	 * @var wpdb
 	 */
 	protected $wpdb;
 
 	/**
 	 * Set up everything common to all Tabulate tests.
+	 *
 	 * @global \wpdb $wpdb
 	 */
 	public function setUp() {
