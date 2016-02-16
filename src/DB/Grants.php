@@ -1,4 +1,10 @@
 <?php
+/**
+ * This file contains only a single class.
+ *
+ * @file
+ * @package Tabulate
+ */
 
 namespace WordPress\Tabulate\DB;
 
@@ -14,16 +20,28 @@ class Grants {
 	const DELETE = 'delete';
 	const IMPORT = 'import';
 
-	/** @const The name of the "anonymous user" role. */
+	/**
+	 * The name of the "anonymous user" role.
+	 *
+	 * @var string
+	 */
 	const ANON_ROLE = 'anon';
 
 	private $option_name;
 
+	/**
+	 * Set up the Grants system (including creating a WP Option).
+	 */
 	public function __construct() {
 		$this->option_name = TABULATE_SLUG . '_grants';
 		add_option( $this->option_name, '', null, false );
 	}
 
+	/**
+	 * Get all Tabulate capabilities.
+	 *
+	 * @return string[]
+	 */
 	public function get_capabilities() {
 		return array(
 			self::READ,
@@ -34,10 +52,15 @@ class Grants {
 		);
 	}
 
+	/**
+	 * Get a list of all roles, including Tabulate's special anonymous one.
+	 *
+	 * @return string[]
+	 */
 	public function get_roles() {
 		$roles = array( self::ANON_ROLE => 'Anonymous User' );
 		foreach ( wp_roles()->roles as $role_name => $role ) {
-			$roles[ $role_name ] = $role[ 'name' ];
+			$roles[ $role_name ] = $role['name'];
 		}
 		return $roles;
 	}
@@ -49,18 +72,26 @@ class Grants {
 	 * @param string $table A database table name.
 	 * @return array
 	 */
-	public function get($table = null) {
+	public function get( $table = null ) {
 		$options = get_option( $this->option_name, array() );
-		if ( ! is_null($table) && isset($options[$table] ) ) {
-			return $options[$table];
+		if ( ! is_null( $table ) && isset( $options[ $table ] ) ) {
+			return $options[ $table ];
 		}
 		return $options;
 	}
 
-	public function set($grants) {
+	/**
+	 * Set all grants.
+	 *
+	 * @param string[] $grants The grants array.
+	 */
+	public function set( $grants ) {
 		update_option( $this->option_name, $grants );
 	}
 
+	/**
+	 * Delete all grants (i.e. remove the WP Option entirely).
+	 */
 	public function delete() {
 		delete_option( $this->option_name );
 	}
@@ -71,14 +102,13 @@ class Grants {
 	 * @param array $all_capabilities The full list of capabilities granted (to add to).
 	 * @param array $caps The capabilities being checked.
 	 * @param array $args Values being passed in by `current_user_can()`.
-	 *
 	 * @return array
 	 */
 	public static function check( $all_capabilities, $caps, $args ) {
 
 		// See if it's one of our capabilities being checked.
 		$cap_full_name = array_shift( $caps );
-		if ( stripos( $cap_full_name, TABULATE_SLUG ) === false) {
+		if ( false === stripos( $cap_full_name, TABULATE_SLUG ) ) {
 			return $all_capabilities;
 		}
 		// Strip the leading 'tabulate_' from the capability name.
@@ -95,7 +125,7 @@ class Grants {
 
 		// Table has no grants, or doesn't have this one.
 		$table_grants = $grants->get( $table_name );
-		if ( ! $table_grants || ! isset( $table_grants[$cap] ) ) {
+		if ( ! $table_grants || ! isset( $table_grants[ $cap ] ) ) {
 			return $all_capabilities;
 		}
 
@@ -103,7 +133,7 @@ class Grants {
 		// of the roles with this capability. Everyone is also an 'anonymous user'.
 		$user = wp_get_current_user();
 		$roles = array_merge( $user->roles, array( self::ANON_ROLE ) );
-		$intersect = array_intersect( $table_grants[$cap], $roles );
+		$intersect = array_intersect( $table_grants[ $cap ], $roles );
 		if ( count( $intersect ) > 0 ) {
 			$all_capabilities[ $cap_full_name ] = true;
 		}
@@ -114,7 +144,8 @@ class Grants {
 
 	/**
 	 * Find out whether the current user can perform $grant on $table.
-	 * @param string $grant On of the constants defined in this class.
+	 *
+	 * @param string       $grant On of the constants defined in this class.
 	 * @param string|Table $table_name The Table or name of the table.
 	 * @return type
 	 */
@@ -125,5 +156,4 @@ class Grants {
 		$capability = TABULATE_SLUG . '_' . $grant;
 		return current_user_can( $capability, $table_name );
 	}
-
 }

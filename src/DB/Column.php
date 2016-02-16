@@ -1,62 +1,136 @@
 <?php
+/**
+ * This file contains only a single class.
+ *
+ * @file
+ * @package Tabulate
+ */
 
 namespace WordPress\Tabulate\DB;
 
+/**
+ * The column class represents a single column in a single table in the database.
+ */
 class Column {
 
 	/**
-	 * @var Table The table to which this column belongs.
+	 * The table to which this column belongs.
+	 *
+	 * @var Table
 	 */
 	private $table;
 
-	/** @var string The name of this column. */
+	/**
+	 * The name of this column.
+	 *
+	 * @var string
+	 */
 	private $name;
 
-	/** @var string The type of this column. */
+	/**
+	 * The type of this column.
+	 *
+	 * @var string
+	 */
 	private $type;
 
-	/** @var integer The size, or length, of this column. */
+	/**
+	 * The size, or length, of this column.
+	 *
+	 * @var integer
+	 */
 	private $size;
 
-	/** @var string This column's collation. */
+	/**
+	 * This column's collation.
+	 *
+	 * @var string
+	 */
 	private $collation;
 
-	/** @var integer The total number of digits in a DECIMAL column. */
+	/**
+	 * The total number of digits in a DECIMAL column.
+	 *
+	 * @var integer
+	 */
 	private $precision;
 
-	/** @var integer The number of digits after the decimal point in a DECIMAL column. */
+	/**
+	 * The number of digits after the decimal point in a DECIMAL column.
+	 *
+	 * @var integer
+	 */
 	private $scale;
 
-	/** @var boolean Whether or not this column is the Primary Key. */
+	/**
+	 * Whether or not this column is the Primary Key.
+	 *
+	 * @var boolean
+	 */
 	private $is_primary_key = false;
 
-	/** @var boolean Whether or not this column is a Unique Key. */
+	/**
+	 * Whether or not this column is a Unique Key.
+	 *
+	 * @var boolean
+	 */
 	private $is_unique = false;
 
-	/** @var mixed The default value for this column. */
+	/**
+	 * The default value for this column.
+	 *
+	 * @var mixed
+	 */
 	private $default_value;
 
-	/** @var boolean Whether or not this column is auto-incrementing. */
+	/**
+	 * Whether or not this column is auto-incrementing.
+	 *
+	 * @var boolean
+	 */
 	private $is_auto_increment = false;
 
-	/** @var boolean Whether NULL values are allowed for this column. */
+	/**
+	 * Whether NULL values are allowed for this column.
+	 *
+	 * @var boolean
+	 */
 	private $nullable;
 
-	/** @var boolean Is this an unsigned number? */
+	/**
+	 * Is this an unsigned number?
+	 *
+	 * @var boolean
+	 */
 	private $unsigned = false;
 
-	/** @var string[] ENUM options. */
+	/**
+	 * ENUM options.
+	 *
+	 * @var string[]
+	 */
 	private $options;
 
-	/** @var string The comment attached to this column. */
+	/**
+	 * The comment attached to this column.
+	 *
+	 * @var string
+	 */
 	private $comment;
 
 	/**
-	 * @var Table|false The table that this column refers to, or
-	 * false if it is not a foreign key.
+	 * The table that this column refers to, or false if it is not a foreign key.
+	 *
+	 * @var Table|false
 	 */
 	private $references = false;
 
+	/**
+	 * Create a column of a given table and based on given info.
+	 *
+	 * @param \WordPress\Tabulate\DB\Table $table The table that this column belongs to.
+	 * @param string[]                     $info The output of a SHOW COLUMNS query.
+	 */
 	public function __construct( Table $table, $info = false ) {
 		$this->table = $table;
 		$this->parse_info( $info );
@@ -64,37 +138,38 @@ class Column {
 
 	/**
 	 * Take the output of SHOW COLUMNS and populate this object's data.
-	 * @param string[] $info
+	 *
+	 * @param string[] $info The output of a SHOW COLUMNS query.
 	 */
 	protected function parse_info( $info ) {
 
-		// Name
+		// Name.
 		$this->name = $info->Field;
 
-		// Type
+		// Type.
 		$this->parse_type( $info->Type );
 
-		// Default
+		// Default.
 		$this->default_value = $info->Default;
 
-		// Primary key
-		if ( strtoupper( $info->Key ) == 'PRI' ) {
+		// Primary key.
+		if ( strtoupper( $info->Key ) === 'PRI' ) {
 			$this->is_primary_key = true;
-			if ( $info->Extra == 'auto_increment' ) {
+			if ( 'auto_increment' === $info->Extra ) {
 				$this->is_auto_increment = true;
 			}
 		}
 
-		// Unique key
+		// Unique key.
 		$this->is_unique = ( 'UNI' === strtoupper( $info->Key ) );
 
-		// Comment
+		// Comment.
 		$this->comment = $info->Comment;
 
-		// Collation
+		// Collation.
 		$this->collation = $info->Collation;
 
-		// NULL?
+		// Is this column NULL?
 		$this->nullable = ( 'YES' === $info->Null );
 
 		// Is this a foreign key?

@@ -1,6 +1,7 @@
 <?php
 /**
  * The Table class.
+ *
  * @file
  * @package Tabulate
  */
@@ -26,47 +27,93 @@ class Table {
 
 	/**
 	 * The database to which this table belongs.
+	 *
 	 * @var \WordPress\Tabulate\DB\Database
 	 */
 	protected $database;
 
-	/** @var string The name of this table. */
+	/**
+	 * The name of this table.
+	 *
+	 * @var string
+	 */
 	protected $name;
 
-	/** @var string This table's comment. False until initialised. */
+	/**
+	 * This table's comment. False until initialised.
+	 *
+	 * @var string
+	 */
 	protected $comment = false;
 
-	/** @var string Either self::TYPE_TABLE or self::TYPE_VIEW. */
+	/**
+	 * Either self::TYPE_TABLE or self::TYPE_VIEW.
+	 *
+	 * @var string
+	 */
 	protected $type;
 
-	/** @var string The SQL statement used to create this table. */
+	/**
+	 * The SQL statement used to create this table.
+	 *
+	 * @var string
+	 */
 	protected $defining_sql;
 
-	/** @var string The SQL statement most recently saved by $this->get_records() */
+	/**
+	 * The SQL statement most recently saved by $this->get_records()
+	 *
+	 * @var string
+	 */
 	protected $saved_sql;
 
-	/** @var string[] The statement parameters most recently saved by $this->get_records() */
+	/**
+	 * The statement parameters most recently saved by $this->get_records()
+	 *
+	 * @var string[]
+	 */
 	protected $saved_parameters;
 
-	/** @var \WordPress\Tabulate\DB\Table[] Array of tables referred to by columns in this one. */
+	/**
+	 * Array of tables referred to by columns in this one.
+	 *
+	 * @var \WordPress\Tabulate\DB\Table[]
+	 */
 	protected $referenced_tables;
 
-	/** @var string[] The names (only) of tables referenced by columns in this one. */
+	/**
+	 * The names (only) of tables referenced by columns in this one.
+	 *
+	 * @var string[]
+	 */
 	protected $referenced_table_names;
 
-	/** @var int Each joined table gets a unique alias, based on this. */
+	/**
+	 * Each joined table gets a unique alias, based on this.
+	 *
+	 * @var int
+	 */
 	protected $alias_count = 1;
 
 	/**
-	 * @var \WordPress\Tabulate\DB\Column[] Array of column names and objects for all of the
-	 * columns in this table.
+	 * Array of column names and objects for all of the columns in this table.
+	 *
+	 * @var \WordPress\Tabulate\DB\Column[]
 	 */
 	protected $columns = array();
 
-	/** @var array */
+	/**
+	 * The filters to be applied.
+	 *
+	 * @var array
+	 */
 	protected $filters = array();
 
-	/** @var array Permitted operators. */
+	/**
+	 * Permitted operators and their names.
+	 *
+	 * @var array
+	 */
 	protected $operators = array(
 		'like' => 'contains',
 		'not like' => 'does not contain',
@@ -79,32 +126,50 @@ class Table {
 		'>=' => 'is greater than or equal to',
 		'>' => 'is greater than',
 		'<=' => 'is less than or equal to',
-		'<' => 'is less than'
+		'<' => 'is less than',
 	);
 
 	/**
-	 * @var string|false The name of the column by which to order, or false if
-	 * no column has been set.
+	 * The name of the column by which to order, or false if no column has been
+	 * set.
+	 *
+	 * @var string|false
 	 */
 	protected $order_by = false;
 
-	/** @var string The direction in which results should be ordered. */
+	/**
+	 * The direction in which results should be ordered. Either ASC or DESC.
+	 *
+	 * @var string
+	 */
 	protected $order_dir = 'ASC';
 
-	/** @var RecordCounter */
+	/**
+	 * The RecordCounter.
+	 *
+	 * @var RecordCounter
+	 */
 	protected $record_counter;
 
-	/** @var integer The current page number. */
+	/**
+	 * The current page number.
+	 *
+	 * @var integer
+	 */
 	protected $current_page_num = 1;
 
-	/** @var integer The number of records to show on each page. */
+	/**
+	 * The number of records to show on each page.
+	 *
+	 * @var integer
+	 */
 	protected $records_per_page = 30;
 
 	/**
 	 * Create a new database table object.
 	 *
 	 * @param \WordPress\Tabulate\DB\Database $database The database to which this table belongs.
-	 * @param string $name The name of the table.
+	 * @param string                          $name The name of the table.
 	 */
 	public function __construct( $database, $name ) {
 		$this->database = $database;
@@ -116,9 +181,10 @@ class Table {
 	 * Add a filter.
 	 *
 	 * @param string|\WordPress\Tabulate\DB\Column $column Column name or object.
-	 * @param string $operator
-	 * @param string $value
-	 * @param boolean $force Whether to transform the value, for FKs.
+	 * @param string                               $operator The operator.
+	 * @param string                               $value The value or values.
+	 * @param boolean                              $force Whether to transform the value, for FKs.
+	 * @throws Exception If there's anything wrong with the filter.
 	 */
 	public function add_filter( $column, $operator, $value, $force = false ) {
 		// Allow Column objects to be passed in.
@@ -1120,7 +1186,7 @@ class Table {
 			unset( $data[ $pk_name ] );
 		}
 
-		$change_tracker->before_save( $this, $data, $pk_value );
+		$change_tracker->before_save( $this, $pk_value );
 		if ( ! empty( $pk_value ) ) {
 			/*
 			 * Update?

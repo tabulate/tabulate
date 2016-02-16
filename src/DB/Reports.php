@@ -1,24 +1,56 @@
 <?php
+/**
+ * This file contains only a single class.
+ *
+ * @file
+ * @package Tabulate
+ */
 
 namespace WordPress\Tabulate\DB;
 
+/**
+ * This class handles everything to do with Reports.
+ */
 class Reports {
 
-	/** @const The ID of the primary report. */
+	/**
+	 * The ID of the primary report.
+	 */
 	const DEFAULT_REPORT_ID = 1;
 
-	/** @var \WordPress\Tabulate\DB\Database */
+	/**
+	 * The database.
+	 *
+	 * @var \WordPress\Tabulate\DB\Database
+	 */
 	protected $db;
 
+	/**
+	 * Create a Reports object based on a given Database.
+	 *
+	 * @param \WordPress\Tabulate\DB\Database $db The database object.
+	 */
 	public function __construct( Database $db ) {
 		$this->db = $db;
 	}
 
+	/**
+	 * Get the name of the 'reports' database table.
+	 *
+	 * @global \wpdb $wpdb
+	 * @return string
+	 */
 	public static function reports_table_name() {
 		global $wpdb;
 		return $wpdb->prefix . TABULATE_SLUG . '_reports';
 	}
 
+	/**
+	 * Get the name of the 'report_sources' database table.
+	 *
+	 * @global \wpdb $wpdb
+	 * @return string
+	 */
 	public static function report_sources_table_name() {
 		global $wpdb;
 		return $wpdb->prefix . TABULATE_SLUG . '_report_sources';
@@ -27,15 +59,17 @@ class Reports {
 	/**
 	 * Get a Template instance based on a given report's template string and
 	 * populated with all of the report's source queries.
-	 * @param int $report_id
+	 *
+	 * @param int $report_id The report ID.
 	 * @return \WordPress\Tabulate\Template
+	 * @throws Exception If the requested report could not be found.
 	 */
 	public function get_template( $report_id ) {
 		// Find the report.
 		$reports = $this->db->get_table( self::reports_table_name() );
 		$report = $reports->get_record( $report_id );
-		if ( ! $report) {
-			throw new \Exception("Report $report_id not found.");
+		if ( ! $report ) {
+			throw new Exception( "Report $report_id not found." );
 		}
 		$template = new \WordPress\Tabulate\Template( false, $report->template() );
 		$template->title = $report->title();
@@ -54,6 +88,11 @@ class Reports {
 		return $template;
 	}
 
+	/**
+	 * On plugin activation, create the required database tables.
+	 *
+	 * @global \wpdb $wpdb
+	 */
 	public static function activate() {
 		global $wpdb;
 		$db = new Database( $wpdb );
@@ -81,7 +120,7 @@ class Reports {
 			$wpdb->query( $sql );
 		}
 
-		if ( 0 == $wpdb->get_var( "SELECT COUNT(*) FROM `" . self::reports_table_name() . "`" ) ) {
+		if ( '0' === $wpdb->get_var( "SELECT COUNT(*) FROM `" . self::reports_table_name() . "`" ) ) {
 			// Create the default report, to list all reports.
 			$template_string = "<dl>\n"
 			. "{% for report in reports %}\n"
@@ -105,5 +144,4 @@ class Reports {
 		}
 
 	}
-
 }

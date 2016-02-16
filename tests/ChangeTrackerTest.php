@@ -9,8 +9,16 @@
 use WordPress\Tabulate\DB\ChangeTracker;
 use WordPress\Tabulate\DB\Grants;
 
+/**
+ * Test the change-tracking mechanism.
+ */
 class ChangeTrackerTest extends TestBase {
 
+	/**
+	 * Make sure the current user can do everything.
+	 *
+	 * @global WP_User $current_user
+	 */
 	public function setUp() {
 		parent::setUp();
 		// Let the current user do anything.
@@ -19,7 +27,8 @@ class ChangeTrackerTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Two changeset tables are created on activation.
+	 * Two changeset tables are created on activation.
+	 *
 	 * @test
 	 */
 	public function activate() {
@@ -30,11 +39,11 @@ class ChangeTrackerTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Saving a new record creates a changeset and some changes.
+	 * Saving a new record creates a changeset and some changes.
+	 *
 	 * @test
 	 */
 	public function basic() {
-		// test_table: { id, title }
 		$test_table = $this->db->get_table( 'test_types' );
 		$rec = $test_table->save_record( array( 'title' => 'One' ) );
 
@@ -58,7 +67,8 @@ class ChangeTrackerTest extends TestBase {
 	}
 
 	/**
-	 * @testdox A changeset can have an associated comment.
+	 * A changeset can have an associated comment.
+	 *
 	 * @test
 	 */
 	public function changeset_comment() {
@@ -70,7 +80,10 @@ class ChangeTrackerTest extends TestBase {
 	}
 
 	/**
-	 * @testdox A user who can only create records in one table can still use the change-tracker (i.e. creating changesets is not influenced by standard grants).
+	 * A user who can only create records in one table can still use the
+	 * change-tracker (i.e. creating changesets is not influenced by standard
+	 * grants).
+	 *
 	 * @test
 	 */
 	public function minimal_grants() {
@@ -97,7 +110,8 @@ class ChangeTrackerTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Foreign Keys are tracked by their titles (not their PKs).
+	 * Foreign Keys are tracked by their titles (not their PKs).
+	 *
 	 * @test
 	 */
 	public function fk_titles() {
@@ -108,13 +122,15 @@ class ChangeTrackerTest extends TestBase {
 		$rec = $test_table->save_record( array( 'title' => 'A Record', 'type_id' => $type->id() ) );
 		// Test.
 		$changes = $rec->get_changes();
-		$change = $changes[ 3 ];
+		$change = $changes[3];
 		$this->assertEquals( "type_id", $change->column_name );
 		$this->assertEquals( "The Type", $change->new_value );
 	}
 
 	/**
-	 * @testdox A record can be deleted, and it's history along with it.
+	 * A record can be deleted, and it's history along with it.
+	 *
+	 * @test
 	 */
 	public function delete() {
 		// Create two, to make sure only one is deleted.
@@ -127,5 +143,4 @@ class ChangeTrackerTest extends TestBase {
 		$changesets = $this->db->get_table( ChangeTracker::changesets_name() );
 		$this->assertEquals( 1, $changesets->count_records() );
 	}
-
 }

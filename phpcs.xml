@@ -31,5 +31,6 @@
 		<exclude name="WordPress.VIP.DirectDatabaseQuery.NoCaching" />
 		<exclude name="WordPress.VIP.DirectDatabaseQuery.DirectQuery" />
 		<exclude name="WordPress.VIP.FileSystemWritesDisallow.FileWriteDetected" />
+		<exclude name="WordPress.VIP.RestrictedFunctions.file_get_contents" />
 	</rule>
 </ruleset>

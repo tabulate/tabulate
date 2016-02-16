@@ -1,23 +1,51 @@
 <?php
+/**
+ * This file contains only a single class.
+ *
+ * @file
+ * @package Tabulate
+ */
 
 namespace WordPress\Tabulate\DB;
 
+/**
+ * The database class represents the entire MySQL database that WordPress uses.
+ */
 class Database {
 
-	/** @var \wpdb */
+	/**
+	 * The global wpdb object.
+	 *
+	 * @var \wpdb
+	 */
 	protected $wpdb;
 
-	/** @var array|string */
+	/**
+	 * A list of all table names.
+	 *
+	 * @var string[]
+	 */
 	protected $table_names;
 
-	/** @var Table|array */
+	/**
+	 * The list of all tables that the user can read.
+	 *
+	 * @var Table[]
+	 */
 	protected $tables;
 
+	/**
+	 * Create a new Database object based on the given wpdb object.
+	 *
+	 * @param \wpdb $wpdb The global wpdb object.
+	 */
 	public function __construct( $wpdb ) {
 		$this->wpdb = $wpdb;
 	}
 
 	/**
+	 * Get the global wpdb object.
+	 *
 	 * @return \wpdb
 	 */
 	public function get_wpdb() {
@@ -26,6 +54,7 @@ class Database {
 
 	/**
 	 * Get a list of tables and views that the current user can read.
+	 *
 	 * @return string[] The table names.
 	 */
 	public function get_table_names() {
@@ -43,11 +72,11 @@ class Database {
 	/**
 	 * Get a table from the database.
 	 *
-	 * @param string $name
+	 * @param string $name The name of the desired table.
 	 * @return \WordPress\Tabulate\DB\Table|false The table, or false if it's not available.
 	 */
 	public function get_table( $name ) {
-		if ( ! in_array( $name, $this->get_table_names() ) ) {
+		if ( ! in_array( $name, $this->get_table_names(), true ) ) {
 			return false;
 		}
 		if ( ! isset( $this->tables[ $name ] ) ) {
@@ -68,6 +97,7 @@ class Database {
 	/**
 	 * Get all tables in this database.
 	 *
+	 * @param boolean $exclude_views Whether to exclude database views from the returned list.
 	 * @return Table[] An array of all Tables.
 	 */
 	public function get_tables( $exclude_views = true ) {
@@ -103,6 +133,7 @@ class Database {
 
 	/**
 	 * Create a new table.
+	 *
 	 * @param string $name The name of the new table.
 	 * @param string $comment The table comment.
 	 * @throws Exception If the current user cannot 'promote_users'.
@@ -122,6 +153,7 @@ class Database {
 	/**
 	 * A wrapper around wpdb::prepare() and wpdb::query()
 	 * that also checks wpdb::$last_error and throws up on occasion of badness.
+	 *
 	 * @param string   $sql The SQL statement to execute.
 	 * @param string[] $params Parameters to pass to wpdb::prepare().
 	 * @param string   $error_message What to tell the user if this query fails.

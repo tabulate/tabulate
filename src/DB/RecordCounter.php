@@ -16,18 +16,21 @@ class RecordCounter {
 
 	/**
 	 * The table.
+	 *
 	 * @var \WordPress\Tabulate\DB\Table
 	 */
 	protected $table;
 
 	/**
 	 * The time-to-live of the cached record count, in seconds.
+	 *
 	 * @var integer
 	 */
 	protected $transient_expiration;
 
 	/**
 	 * Create a new RecordCounter.
+	 *
 	 * @param \WordPress\Tabulate\DB\Table $table The table to count.
 	 */
 	public function __construct( \WordPress\Tabulate\DB\Table $table ) {
@@ -38,6 +41,7 @@ class RecordCounter {
 	/**
 	 * Get the record count of this table. Will use a cached value only for base
 	 * tables and where there are no filters.
+	 *
 	 * @return integer The record count.
 	 */
 	public function get_count() {
@@ -46,7 +50,7 @@ class RecordCounter {
 
 		if ( $can_cache ) {
 			$count = get_transient( $this->transient_name() );
-			if ( $count !== false ) {
+			if ( false !== $count ) {
 				return $count;
 			}
 		}
@@ -72,7 +76,6 @@ class RecordCounter {
 
 	/**
 	 * Empty the cached record count for this table.
-	 * @return void
 	 */
 	public function clear() {
 		delete_transient( $this->transient_name() );
@@ -81,10 +84,10 @@ class RecordCounter {
 	/**
 	 * Get the name of the transient under which this table's record count is
 	 * stored. All Tabulate transients start with TABULATE_SLUG.
+	 *
 	 * @return string
 	 */
 	public function transient_name() {
 		return TABULATE_SLUG . '_' . $this->table->get_name() . '_count';
 	}
-
 }

@@ -6,8 +6,16 @@
  * @package Tabulate
  */
 
+/**
+ * Test single-record functionality.
+ */
 class RecordsTest extends TestBase {
 
+	/**
+	 * Make sure the current user can do everything.
+	 *
+	 * @global WP_User $current_user
+	 */
 	public function setUp() {
 		parent::setUp();
 		// Let the current user do anything.
@@ -16,22 +24,24 @@ class RecordsTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Getting the *FKTITLE() variant of a foreign key returns the title of the foreign record.
+	 * Getting the *FKTITLE() variant of a foreign key returns the title of the foreign record.
+	 *
 	 * @test
 	 */
 	public function related() {
 		$test_table = $this->db->get_table( 'test_table' );
-		$typeRec = $this->db->get_table( 'test_types' )->save_record( array( 'title' => 'Type 1' ) );
-		$dataRec = $test_table->save_record( array( 'title' => 'Rec 1', 'type_id' => $typeRec->id() ) );
-		$this->assertEquals( 'Type 1', $dataRec->type_idFKTITLE() );
-		$referecingRecs = $typeRec->get_referencing_records( $test_table, 'type_id' );
-		$this->assertCount( 1, $referecingRecs );
-		$referecingRec = array_pop( $referecingRecs );
-		$this->assertEquals( 'Rec 1', $referecingRec->title() );
+		$type_rec = $this->db->get_table( 'test_types' )->save_record( array( 'title' => 'Type 1' ) );
+		$data_rec = $test_table->save_record( array( 'title' => 'Rec 1', 'type_id' => $type_rec->id() ) );
+		$this->assertEquals( 'Type 1', $data_rec->type_idFKTITLE() );
+		$referecing_recs = $type_rec->get_referencing_records( $test_table, 'type_id' );
+		$this->assertCount( 1, $referecing_recs );
+		$referecing_rec = array_pop( $referecing_recs );
+		$this->assertEquals( 'Rec 1', $referecing_rec->title() );
 	}
 
 	/**
-	 * @testdox Where there is no unique column, the 'title' is just the foreign key.
+	 * Where there is no unique column, the 'title' is just the foreign key.
+	 *
 	 * @test
 	 */
 	public function titles() {
@@ -43,7 +53,8 @@ class RecordsTest extends TestBase {
 	}
 
 	/**
-	 * @testdox
+	 * Count records in various circumstances.
+	 *
 	 * @test
 	 */
 	public function record_counts() {
@@ -87,7 +98,8 @@ class RecordsTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Cache the record counts for base tables which have no filters applied.
+	 * Cache the record counts for base tables which have no filters applied.
+	 *
 	 * @test
 	 */
 	public function count_store_some() {
@@ -109,6 +121,7 @@ class RecordsTest extends TestBase {
 	 * Bug description: when editing a record, and a filter has been applied to
 	 * a referenced table, the count is the *filtered* count (and thus
 	 * incorrect).
+	 *
 	 * @test
 	 */
 	public function count_related() {
@@ -141,7 +154,8 @@ class RecordsTest extends TestBase {
 	}
 
 	/**
-	 * @testdox It is possible to provide multiple filter values, one per line.
+	 * It is possible to provide multiple filter values, one per line.
+	 *
 	 * @test
 	 */
 	public function multiple_filter_values() {
@@ -153,33 +167,18 @@ class RecordsTest extends TestBase {
 		$types->save_record( array( 'title' => "Four", 'description' => ' ' ) );
 
 		// Search for 'One' and get 2 records.
-		$types->add_filter('description', 'in', "One\nTwo");
+		$types->add_filter( 'description', 'in', "One\nTwo" );
 		$this->assertEquals( 2, $types->count_records() );
 
 		// Make sure empty lines are ignored in filter value.
 		$types->reset_filters();
-		$types->add_filter('description', 'in', "One\n\nTwo\n");
+		$types->add_filter( 'description', 'in', "One\n\nTwo\n" );
 		$this->assertEquals( 2, $types->count_records() );
 	}
 
 	/**
-	 * @testdox When searching for multiple filter values, the not-found values can be reported upon.
-	 * @test
-	 */
-	public function multiple_filters_not_found() {
-		/*
-		// Create 10 types.
-		$types = $this->db->get_table( 'test_types' );
-		for ( $i = 0; $i < 10; $i ++ ) {
-			$types->save_record( array( 'title' => "T$i" ) );
-		}
-		$not_found = $types->get_not_found( 'title', "T1\nT2.0\nT3\nT4\nNot5\nT6" );
-		$this->assertEquals( array( 'T2.0', 'Not5' ), $not_found );
-		*/
-	}
-
-	/**
-	 * @testdox Empty values can be saved (where a field permits it).
+	 * Empty values can be saved (where a field permits it).
+	 *
 	 * @test
 	 */
 	public function save_null_values() {
@@ -198,7 +197,7 @@ class RecordsTest extends TestBase {
 		$this->assertEquals( null, $rec1b->description() );
 
 		// Now repeat that, but with a nullable foreign key.
-		$this->db->get_table( 'test_types' )->save_record( [ 'title' => 'A type'] );
+		$this->db->get_table( 'test_types' )->save_record( [ 'title' => 'A type' ] );
 		$rec2a = $test_table->save_record( array( 'title' => 'Test Two', 'type_id' => 1 ) );
 		$this->assertEquals( 2, $rec2a->id() );
 		$this->assertEquals( 'Test Two', $rec2a->title() );

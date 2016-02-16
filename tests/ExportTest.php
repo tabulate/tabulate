@@ -3,14 +3,17 @@
  * This file contains only a single class.
  *
  * @file
- * @package WordPress
- * @subpackage Tabulate
+ * @package Tabulate
  */
 
+/**
+ * Test the export functions.
+ */
 class ExportTest extends TestBase {
 
 	/**
-	 * @testdox A table can be exported to CSV.
+	 * A table can be exported to CSV.
+	 *
 	 * @test
 	 */
 	public function basic_export() {
@@ -31,7 +34,8 @@ class ExportTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Point colums are exported as WKT.
+	 * Point colums are exported as WKT.
+	 *
 	 * @test
 	 */
 	public function point_wkt() {
@@ -60,5 +64,4 @@ class ExportTest extends TestBase {
 			. '"2","Test 2",""' . "\r\n";
 		$this->assertEquals( $csv2, file_get_contents( $filename2 ) );
 	}
-
 }

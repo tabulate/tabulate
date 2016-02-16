@@ -1,4 +1,10 @@
 <?php
+/**
+ * This file contains only a single class.
+ *
+ * @file
+ * @package Tabulate
+ */
 
 namespace WordPress\Tabulate\DB;
 
@@ -6,21 +12,52 @@ use WordPress\Tabulate\DB\Database;
 use WordPress\Tabulate\DB\Table;
 use WordPress\Tabulate\DB\Record;
 
+/**
+ * The Change Tracker keeps a log of every data modification made through Tabulate.
+ */
 class ChangeTracker {
 
-	/** @var \wpdb */
+	/**
+	 * The global wpdb object.
+	 *
+	 * @var \wpdb
+	 */
 	protected $wpdb;
 
+	/**
+	 * The ID of the currently-open changeset.
+	 *
+	 * @var integer
+	 */
 	private static $current_changeset_id = false;
 
+	/**
+	 * The user comment on the currently-open changeset.
+	 *
+	 * @var string
+	 */
 	private $current_changeset_comment = null;
 
-	/** @var \WordPress\Tabulate\DB\Record|false */
+	/**
+	 * The record prior to modification.
+	 *
+	 * @var \WordPress\Tabulate\DB\Record|false
+	 */
 	private $old_record = false;
 
-	/** @var boolean Whether the changeset should be closed after the first after_save() call. */
+	/**
+	 * Whether the changeset should be closed after the first after_save() call.
+	 *
+	 * @var boolean
+	 */
 	private static $keep_changeset_open = false;
 
+	/**
+	 * Create a new change tracker.
+	 *
+	 * @param \WordPress\Tabulate\DB\wpdb $wpdb The global wpdb object.
+	 * @param string                      $comment The user's comment about the change.
+	 */
 	public function __construct( $wpdb, $comment = null ) {
 		$this->wpdb = $wpdb;
 		$this->current_changeset_comment = $comment;
@@ -38,9 +75,11 @@ class ChangeTracker {
 
 	/**
 	 * Open a new changeset. If one is already open, this does nothing.
+	 *
 	 * @global \WP_User $current_user
-	 * @param string $comment
+	 * @param string  $comment The user's comment on the changeset.
 	 * @param boolean $keep_open Whether the changeset should be kept open (and manually closed) after after_save() is called.
+	 * @throws Exception If the changeset row could not be saved.
 	 */
 	public function open_changeset( $comment, $keep_open = null ) {
 		global $current_user;
@@ -54,7 +93,7 @@ class ChangeTracker {
 				'comment' => $comment,
 			);
 			$ret = $this->wpdb->insert( self::changesets_name(), $data );
-			if ( $ret === false ) {
+			if ( false === $ret ) {
 				throw new Exception( $this->wpdb->last_error . ' -- Unable to open changeset' );
 			}
 			self::$current_changeset_id = $this->wpdb->insert_id;
@@ -63,6 +102,7 @@ class ChangeTracker {
 
 	/**
 	 * Close the current changeset.
+	 *
 	 * @return void
 	 */
 	public function close_changeset() {
@@ -70,9 +110,17 @@ class ChangeTracker {
 		$this->current_changeset_comment = null;
 	}
 
-	public function before_save( Table $table, $data, $pk_value ) {
+	/**
+	 * This method is called prior to a record being saved, and will open a new
+	 * changeset if required, and save the old record for later use.
+	 *
+	 * @param Table $table The table into which the record is being saved.
+	 * @param type  $pk_value The primary key of the record being saved. May be null.
+	 * @return boolean
+	 */
+	public function before_save( Table $table, $pk_value ) {
 		// Don't save changes to the changes tables.
-		if ( in_array( $table->get_name(), $this->table_names() ) ) {
+		if ( in_array( $table->get_name(), $this->table_names(), true ) ) {
 			return false;
 		}
 
@@ -83,9 +131,17 @@ class ChangeTracker {
 		$this->old_record = $table->get_record( $pk_value );
 	}
 
+	/**
+	 * This method is called after a record has been saved, and is responsible
+	 * for creating the actual change-tracking rows in the database.
+	 *
+	 * @param Table  $table The table the record is being saved in.
+	 * @param Record $new_record The record, after being saved.
+	 * @return boolean
+	 */
 	public function after_save( Table $table, Record $new_record ) {
 		// Don't save changes to the changes tables.
-		if ( in_array( $table->get_name(), self::table_names() ) ) {
+		if ( in_array( $table->get_name(), self::table_names(), true ) ) {
 			return false;
 		}
 
@@ -94,7 +150,7 @@ class ChangeTracker {
 			$col_name = ( $column->is_foreign_key() ) ? $column->get_name().Record::FKTITLE : $column->get_name();
 			$old_val = ( is_callable( array( $this->old_record, $col_name ) ) ) ? $this->old_record->$col_name() : null;
 			$new_val = $new_record->$col_name();
-			if ($new_val == $old_val ) {
+			if ( $new_val === $old_val ) {
 				// Ignore unchanged columns.
 				continue;
 			}
@@ -105,12 +161,12 @@ class ChangeTracker {
 				'column_name' => $column->get_name(),
 				'record_ident' => $new_record->get_primary_key(),
 			);
-			// Daft workaround for https://core.trac.wordpress.org/ticket/15158
+			// Daft workaround for https://core.trac.wordpress.org/ticket/15158 .
 			if ( ! is_null( $old_val ) ) {
-				$data[ 'old_value' ] = $old_val;
+				$data['old_value'] = $old_val;
 			}
 			if ( ! is_null( $new_val ) ) {
-				$data[ 'new_value' ] = $new_val;
+				$data['new_value'] = $new_val;
 			}
 			// Save the change record.
 			$this->wpdb->insert( $this->changes_name(), $data );
@@ -122,6 +178,11 @@ class ChangeTracker {
 		}
 	}
 
+	/**
+	 * On plugin activation, create two new database tables.
+	 *
+	 * @global \WordPress\Tabulate\DB\wpdb $wpdb
+	 */
 	public static function activate() {
 		global $wpdb;
 		$db = new Database( $wpdb );
@@ -151,11 +212,23 @@ class ChangeTracker {
 		}
 	}
 
+	/**
+	 * Get the name of the changesets table.
+	 *
+	 * @global \WordPress\Tabulate\DB\wpdb $wpdb
+	 * @return string
+	 */
 	public static function changesets_name() {
 		global $wpdb;
 		return $wpdb->prefix . TABULATE_SLUG . '_changesets';
 	}
 
+	/**
+	 * Get the name of the changes table.
+	 *
+	 * @global \WordPress\Tabulate\DB\wpdb $wpdb
+	 * @return string
+	 */
 	public static function changes_name() {
 		global $wpdb;
 		return $wpdb->prefix . TABULATE_SLUG . '_changes';
@@ -163,11 +236,11 @@ class ChangeTracker {
 
 	/**
 	 * Get a list of the names used by the change-tracking subsystem.
+	 *
 	 * @global wpdb $wpdb
 	 * @return array|string
 	 */
 	public static function table_names() {
 		return array( self::changesets_name(), self::changes_name() );
 	}
-
 }

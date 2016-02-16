@@ -9,8 +9,16 @@
 use WordPress\Tabulate\CSV;
 use WordPress\Tabulate\DB\ChangeTracker;
 
+/**
+ * Test the importing function.
+ */
 class ImportTest extends TestBase {
 
+	/**
+	 * Make sure the current user can do everything.
+	 *
+	 * @global WP_User $current_user
+	 */
 	public function setUp() {
 		parent::setUp();
 		// Let the current user do anything.
@@ -20,6 +28,7 @@ class ImportTest extends TestBase {
 
 	/**
 	 * Save some CSV data to a file, and create a quasi-$_FILES entry for it.
+	 *
 	 * @param string $data The CSV string to save.
 	 * @return string[] With two keys: 'type' and 'file'.
 	 */
@@ -34,7 +43,8 @@ class ImportTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Rows can be imported from CSV.
+	 * Rows can be imported from CSV.
+	 *
 	 * @test
 	 */
 	public function basic_import() {
@@ -60,7 +70,8 @@ class ImportTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Import rows that specify an existing PK will update existing records.
+	 * Import rows that specify an existing PK will update existing records.
+	 *
 	 * @test
 	 */
 	public function primary_key() {
@@ -98,7 +109,8 @@ class ImportTest extends TestBase {
 	}
 
 	/**
-	 * @testdox Importing a nullable FK removes the value from that field.
+	 * Importing a nullable FK removes the value from that field.
+	 *
 	 * @test
 	 */
 	public function nullable_foreign_keys() {
