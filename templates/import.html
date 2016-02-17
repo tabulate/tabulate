@@ -23,6 +23,7 @@
 <!-- Stage 1: Choose File -------------------------------------------------- -->
 {% if stage == 'choose_file' %}
 <form action="{{form_action}}" enctype="multipart/form-data" method="post">
+	{{wp_nonce_field('import-upload')|raw}}
 	<fieldset>
 		<p>
 			<label>Choose a CSV file (with column headers) to import:</label><br />
@@ -41,6 +42,7 @@
 <!-- Stage 2: Match Fields ------------------------------------------------- -->
 {% elseif stage == 'match_fields' %}
 <form action="{{form_action}}" method="post">
+	{{wp_nonce_field('import-preview')|raw}}
 	<fieldset>
 		<p>
 			Your file contains {{file.row_count|number_format}} rows.
@@ -89,6 +91,7 @@
 <!-- Stage 3: Preview ------------------------------------------------------ -->
 {% elseif stage == 'preview' %}
 <form action="{{form_action}}" method="post">
+	{{wp_nonce_field('import-finish')|raw}}
 	<fieldset>
 		{% if errors %}
 			<p>

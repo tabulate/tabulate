@@ -123,7 +123,7 @@ class RecordController extends ControllerBase {
 		}
 		// Redirect back to the edit form.
 		$return_to = ( ! empty( $_REQUEST['return_to'] ) ) ? $_REQUEST['return_to'] : $template->record->get_url();
-		wp_redirect( $return_to );
+		wp_safe_redirect( $return_to );
 		exit;
 	}
 
@@ -138,7 +138,7 @@ class RecordController extends ControllerBase {
 		$table = $db->get_table( $args['table'] );
 		$record_ident = isset( $args['ident'] ) ? $args['ident'] : false;
 		if ( ! $record_ident ) {
-			wp_redirect( $table->get_url() );
+			wp_safe_redirect( $table->get_url() );
 			exit;
 		}
 		check_admin_referer( 'tabulate-record-' . $record_ident );
@@ -163,7 +163,7 @@ class RecordController extends ControllerBase {
 			return $template->render();
 		}
 
-		wp_redirect( $table->get_url() );
+		wp_safe_redirect( $table->get_url() );
 		exit;
 	}
 }

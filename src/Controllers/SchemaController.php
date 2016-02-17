@@ -55,7 +55,7 @@ class SchemaController extends ControllerBase {
 		$template = new Template( 'table/schema.html' );
 		$template->add_notice( 'updated', 'New table created' );
 		$url = 'admin.php?page=tabulate&controller=schema&table='.$table->get_name();
-		wp_redirect( admin_url( $url ) );
+		wp_safe_redirect( admin_url( $url ) );
 		exit;
 	}
 
@@ -67,13 +67,13 @@ class SchemaController extends ControllerBase {
 	public function save( $args ) {
 		if ( ! isset( $args['table'] ) || ! current_user_can( 'promote_users' ) ) {
 			$url = admin_url( 'admin.php?page=tabulate' );
-			wp_redirect( $url );
+			wp_safe_redirect( $url );
 			exit;
 		}
 		$db = new Database( $this->wpdb );
 		$table = $db->get_table( $args['table'] );
 		if ( isset( $args['delete'] ) ) {
-			wp_redirect( $table->get_url( 'delete', null, 'schema' ) );
+			wp_safe_redirect( $table->get_url( 'delete', null, 'schema' ) );
 			exit;
 		}
 
@@ -123,7 +123,7 @@ class SchemaController extends ControllerBase {
 		$template = new Template( 'table/schema.html' );
 		$template->add_notice( 'updated', 'Schema updated.' );
 		$url = admin_url( 'admin.php?page=tabulate&controller=schema&table=' . $new_name );
-		wp_redirect( $url );
+		wp_safe_redirect( $url );
 		exit;
 	}
 
@@ -146,7 +146,7 @@ class SchemaController extends ControllerBase {
 		// Carry out deletion.
 		$table->drop();
 		$template->add_notice( 'updated', 'Table dropped.' );
-		wp_redirect( admin_url( 'admin.php?page=tabulate' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=tabulate' ) );
 		exit;
 	}
 }

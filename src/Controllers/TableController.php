@@ -1,25 +1,36 @@
 <?php
+/**
+ * This file contains only a single class.
+ *
+ * @file
+ * @package Tabulate
+ */
 
 namespace WordPress\Tabulate\Controllers;
 
-use WordPress\Tabulate\Util;
+use \WordPress\Tabulate\Util;
 use \WordPress\Tabulate\DB\Grants;
 use \WordPress\Tabulate\DB\Database;
 use \WordPress\Tabulate\DB\Table;
+use \WordPress\Tabulate\CSV;
 
+/**
+ * The table controller handles viewing, exporting, and importing table data.
+ */
 class TableController extends ControllerBase {
 
 	/**
 	 * Get a Table object for a given table, or an error message and the
 	 * Tabulate overview page.
-	 * @param string $table_name
+	 *
+	 * @param string $table_name The name of the table to get.
 	 */
 	protected function get_table( $table_name ) {
 		$db = new Database( $this->wpdb );
 		$table = $db->get_table( $table_name );
 		if ( ! $table ) {
-			add_action( 'admin_notices', function($table_name) use ($table_name) {
-				$err = __('Table "%s" not found.', 'tabulate');
+			add_action( 'admin_notices', function( $table_name ) use ( $table_name ) {
+				$err = __( 'Table "%s" not found.', 'tabulate' );
 				echo "<div class='error'><p>" . sprintf( $err, $table_name ) . "</p></div>";
 			} );
 			$home = new HomeController( $this->wpdb );
@@ -28,6 +39,12 @@ class TableController extends ControllerBase {
 		return $table;
 	}
 
+	/**
+	 * View and search a table's data.
+	 *
+	 * @param string[] $args The request arguments.
+	 * @return string
+	 */
 	public function index( $args ) {
 		$table = $this->get_table( $args['table'] );
 		if ( ! $table instanceof Table ) {
@@ -38,7 +55,7 @@ class TableController extends ControllerBase {
 		$page_num = (isset( $args['p'] ) && is_numeric( $args['p'] ) ) ? abs( $args['p'] ) : 1;
 		$table->set_current_page_num( $page_num );
 		if ( isset( $args['psize'] ) ) {
-			$table->set_records_per_page( $args[ 'psize' ] );
+			$table->set_records_per_page( $args['psize'] );
 		}
 
 		// Ordering.
@@ -50,7 +67,7 @@ class TableController extends ControllerBase {
 		}
 
 		// Filters.
-		$filter_param = (isset( $args[ 'filter' ] )) ? $args[ 'filter' ] : array();
+		$filter_param = (isset( $args['filter'] )) ? $args['filter'] : array();
 		$table->add_filters( $filter_param );
 
 		// Give it all to the template.
@@ -84,10 +101,11 @@ class TableController extends ControllerBase {
 	 *    If a column is not present in the import the database will (obviously) use the default value if there is one;
 	 *    this will be shown in the preview.
 	 * 4. When the user accepts the preview, the actual **import** of data is carried out.
-	 *    Rows are saved to the database using the usual [WebDB_DBMS_Table::save()](api/Webdb_DBMS_Table#save_row),
+	 *    Rows are saved to the database using the usual Table::save() method
 	 *    and a message presented to the user to indicate successful completion.
 	 *
-	 * @return void
+	 * @param string[] $args The request parameters.
+	 * @return string
 	 */
 	public function import( $args ) {
 		$template = new \WordPress\Tabulate\Template( 'import.html' );
@@ -105,7 +123,7 @@ class TableController extends ControllerBase {
 		$template->record = $table->get_default_record();
 		$template->action = 'import';
 		$template->table = $table;
-		$template->maxsize = size_format(wp_max_upload_size());
+		$template->maxsize = size_format( wp_max_upload_size() );
 		if ( ! Grants::current_user_can( Grants::IMPORT, $table->get_name() ) ) {
 			$template->add_notice( 'error', 'You do not have permission to import data into this table.' );
 			return $template->render();
@@ -114,33 +132,39 @@ class TableController extends ControllerBase {
 		/*
 		 * Stage 1 of 4: Uploading.
 		 */
+		require_once ABSPATH.'/wp-admin/includes/file.php';
 		$template->form_action = $table->get_url( 'import' );
 		try {
-			$hash = isset( $_GET[ 'hash' ] ) ? $_GET[ 'hash' ] : false;
-			$uploaded = isset( $_FILES['file'] ) ? wp_handle_upload( $_FILES['file'], array( 'action' => $template->action ) ) : false;
-			$csv_file = new \WordPress\Tabulate\CSV( $hash, $uploaded );
+			$hash = isset( $_GET['hash'] ) ? $_GET['hash'] : false;
+			$uploaded = false;
+			if ( isset( $_FILES['file'] ) ) {
+				check_admin_referer( 'import-upload' );
+				$uploaded = wp_handle_upload( $_FILES['file'], array( 'action' => $template->action ) );
+			}
+			$csv_file = new CSV( $hash, $uploaded );
 		} catch ( \Exception $e ) {
 			$template->add_notice( 'error', $e->getMessage() );
 			return $template->render();
 		}
 
 		/*
-		 * Stage 2 of 4: Matching fields
+		 * Stage 2 of 4: Matching fields.
 		 */
 		if ( $csv_file->loaded() ) {
 			$template->file = $csv_file;
-			$template->stage = $template->stages[ 1 ];
+			$template->stage = $template->stages[1];
 			$template->form_action .= "&hash=" . $csv_file->hash;
 		}
 
 		/*
-		 * Stage 3 of 4: Previewing
+		 * Stage 3 of 4: Previewing.
 		 */
-		if ( $csv_file->loaded() AND isset( $_POST[ 'preview' ] ) ) {
-			$template->stage = $template->stages[ 2 ];
-			$template->columns = serialize( $_POST[ 'columns' ] );
+		if ( $csv_file->loaded() && isset( $_POST['preview'] ) ) {
+			check_admin_referer( 'import-preview' );
+			$template->stage = $template->stages[2];
+			$template->columns = serialize( $_POST['columns'] );
 			$errors = array();
-			// Make sure all required columns are selected
+			// Make sure all required columns are selected.
 			foreach ( $table->get_columns() as $col ) {
 				// Handle missing columns separately; other column errors are
 				// done in the CSV class. Missing columns don't matter if importing
@@ -161,10 +185,11 @@ class TableController extends ControllerBase {
 		}
 
 		/*
-		 * Stage 4 of 4: Import
+		 * Stage 4 of 4: Import.
 		 */
-		if ( $csv_file->loaded() AND isset( $_POST['import'] ) ) {
-			$template->stage = $template->stages[ 3 ];
+		if ( $csv_file->loaded() && isset( $_POST['import'] ) ) {
+			check_admin_referer( 'import-finish' );
+			$template->stage = $template->stages[3];
 			$this->wpdb->query( 'BEGIN' );
 			$result = $csv_file->import_data( $table, unserialize( wp_unslash( $_POST['columns'] ) ) );
 			$this->wpdb->query( 'COMMIT' );
@@ -174,10 +199,16 @@ class TableController extends ControllerBase {
 		return $template->render();
 	}
 
+	/**
+	 * A calendar for tables with a date column.
+	 *
+	 * @param string[] $args The request parameters.
+	 * @return type
+	 */
 	public function calendar( $args ) {
 		// @todo Validate args.
-		$yearNum = (isset( $args['year'] )) ? $args['year'] : date( 'Y' );
-		$monthNum = (isset( $args['month'] )) ? $args['month'] : date( 'm' );
+		$year_num = (isset( $args['year'] )) ? $args['year'] : date( 'Y' );
+		$month_num = (isset( $args['month'] )) ? $args['month'] : date( 'm' );
 
 		$template = new \WordPress\Tabulate\Template( 'calendar.html' );
 		$table = $this->get_table( $args['table'] );
@@ -188,26 +219,26 @@ class TableController extends ControllerBase {
 
 		$factory = new \CalendR\Calendar();
 		$template->weekdays = $factory->getWeek( new \DateTime( 'Monday this week' ) );
-		$month = $factory->getMonth( new \DateTime( $yearNum . '-' . $monthNum . '-01' ) );
+		$month = $factory->getMonth( new \DateTime( $year_num . '-' . $month_num . '-01' ) );
 		$template->month = $month;
 		$records = array();
-		foreach ( $table->get_columns( 'date' ) as $dateCol ) {
-			$dateColName = $dateCol->get_name();
+		foreach ( $table->get_columns( 'date' ) as $date_col ) {
+			$date_col_name = $date_col->get_name();
 			// Filter to the just the requested month.
-			$table->add_filter( $dateColName, '>=', $month->getBegin()->format( 'Y-m-d' ) );
-			$table->add_filter( $dateColName, '<=', $month->getEnd()->format( 'Y-m-d' ) );
+			$table->add_filter( $date_col_name, '>=', $month->getBegin()->format( 'Y-m-d' ) );
+			$table->add_filter( $date_col_name, '<=', $month->getEnd()->format( 'Y-m-d' ) );
 			foreach ( $table->get_records() as $rec ) {
-				$dateVal = $rec->$dateColName();
+				$date_val = $rec->$date_col_name();
 				// Initialise the day's list of records.
-				if ( ! isset( $records[ $dateVal ] ) ) {
-					$records[ $dateVal ] = array();
+				if ( ! isset( $records[ $date_val ] ) ) {
+					$records[ $date_val ] = array();
 				}
 				// Add this record to the day's list.
-				$records[ $dateVal ][] = $rec;
+				$records[ $date_val ][] = $rec;
 			}
 		}
 		// $records is grouped by date, with each item in a single date being
-		// an array like: ['record'=>Record, 'column'=>$name_of_date_column]
+		// an array with 'record' and 'column' keys.
 		$template->records = $records;
 
 		return $template->render();
@@ -217,10 +248,10 @@ class TableController extends ControllerBase {
 	 * Export the current table with the current filters applied.
 	 * Filters are passed as request parameters, just as for the index action.
 	 *
+	 * @param string[] $args The request parameters.
 	 * @return void
 	 */
-	public function export( $args )
-	{
+	public function export( $args ) {
 		// Get table.
 		$table = $this->get_table( $args['table'] );
 
@@ -241,6 +272,7 @@ class TableController extends ControllerBase {
 
 	/**
 	 * Download a CSV of given titles that could not be found in this table.
+	 *
 	 * @param string[] $args The request parameters.
 	 */
 	public function notfound( $args ) {
@@ -263,7 +295,7 @@ class TableController extends ControllerBase {
 		$recs = $table->get_records( false );
 		foreach ( $recs as $rec ) {
 			$key = array_search( $rec->get_title(), $values );
-			if ( $key !== false ) {
+			if ( false !== $key ) {
 				unset( $values[ $key ] );
 			}
 		}
@@ -277,6 +309,12 @@ class TableController extends ControllerBase {
 		exit;
 	}
 
+	/**
+	 * Display a horizontal timeline of any table with a date field.
+	 *
+	 * @param string[] $args Request arguments.
+	 * @return string
+	 */
 	public function timeline( $args ) {
 		$table = $this->get_table( $args['table'] );
 		$template = new \WordPress\Tabulate\Template( 'timeline.html' );
@@ -286,17 +324,17 @@ class TableController extends ControllerBase {
 		$end_date_arg = (isset( $args['end_date'] )) ? $args['end_date'] : date( 'Y-m-d' );
 		$start_date = new \DateTime( $start_date_arg );
 		$end_date = new \DateTime( $end_date_arg );
-		if ($start_date->diff($end_date, true)->d < 7) {
+		if ( $start_date->diff( $end_date, true )->d < 7 ) {
 			// Add two weeks to the end date.
-			$end_date->add(new \DateInterval('P14D'));
+			$end_date->add( new \DateInterval( 'P14D' ) );
 		}
-		$date_period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date);
-		$template->start_date = $start_date->format('Y-m-d');
-		$template->end_date = $end_date->format('Y-m-d');
+		$date_period = new \DatePeriod( $start_date, new \DateInterval( 'P1D' ), $end_date );
+		$template->start_date = $start_date->format( 'Y-m-d' );
+		$template->end_date = $end_date->format( 'Y-m-d' );
 		$template->date_period = $date_period;
 		$data = array();
-		foreach ($table->get_records(false) as $record) {
-			if ( ! isset( $data[ $record->get_title() ] )) {
+		foreach ( $table->get_records( false ) as $record ) {
+			if ( ! isset( $data[ $record->get_title() ] ) ) {
 				$data[ $record->get_title() ] = array();
 			}
 			$data[ $record->get_title() ][] = $record;
@@ -304,5 +342,4 @@ class TableController extends ControllerBase {
 		$template->data = $data;
 		return $template->render();
 	}
-
 }

@@ -36,7 +36,7 @@ class GrantsController extends ControllerBase {
 		parent::__construct( $wpdb );
 		if ( ! current_user_can( 'promote_users' ) ) {
 			$url = admin_url( 'admin.php?page=tabulate' );
-			wp_redirect( $url );
+			wp_safe_redirect( $url );
 			exit;
 		}
 		$db = new \WordPress\Tabulate\DB\Database( $this->wpdb );
@@ -82,7 +82,7 @@ class GrantsController extends ControllerBase {
 		// Save the grants and return to the granting table.
 		$grants->set( $new_grants );
 		$this->template->add_notice( 'updated', 'Grants saved.' );
-		wp_redirect( $this->get_url( 'index' ) );
+		wp_safe_redirect( $this->get_url( 'index' ) );
 		exit;
 	}
 
