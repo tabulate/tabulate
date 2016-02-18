@@ -30,7 +30,7 @@ class GrantsController extends ControllerBase {
 	 * Prevent non-admin users from doing anything here (i.e. redirect and exit
 	 * instead). Otherwise, setup the list of tables and the template.
 	 *
-	 * @param wpdb $wpdb The global wpdb object.
+	 * @param \wpdb $wpdb The global wpdb object.
 	 */
 	public function __construct( $wpdb ) {
 		parent::__construct( $wpdb );

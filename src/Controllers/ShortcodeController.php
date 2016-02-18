@@ -28,7 +28,7 @@ class ShortcodeController extends ControllerBase {
 	/**
 	 * Create the controller and dequeue scripts.
 	 *
-	 * @param wpdb $wpdb The global wpdb object.
+	 * @param \wpdb $wpdb The global wpdb object.
 	 */
 	public function __construct( $wpdb ) {
 		parent::__construct( $wpdb );
