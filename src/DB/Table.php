@@ -785,7 +785,7 @@ class Table {
 		if ( empty( $this->columns ) ) {
 			$this->columns = array();
 			$sql = "SHOW FULL COLUMNS FROM `" . $this->get_name() . "`";
-			$columns = $this->get_database()->get_wpdb()->get_results( $sql );
+			$columns = $this->get_database()->get_wpdb()->get_results( $sql, ARRAY_A );
 			foreach ( $columns as $column_info ) {
 				$column = new Column( $this, $column_info );
 				$this->columns[ $column->get_name() ] = $column;

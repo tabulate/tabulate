@@ -1,9 +1,24 @@
 <?php
+/**
+ * This file contains only a single file.
+ *
+ * @file
+ * @package Tabulate
+ */
 
 namespace WordPress\Tabulate\Controllers;
 
+/**
+ * The home controller displays a dashboard
+ * that lists all tables, views, and reports.
+ */
 class HomeController extends ControllerBase {
 
+	/**
+	 * The Tabulate dashboard.
+	 *
+	 * @return string
+	 */
 	public function index() {
 		$template = new \WordPress\Tabulate\Template( 'home.html' );
 		$template->title = 'Tabulate';

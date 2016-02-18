@@ -129,7 +129,7 @@ class Column {
 	 * Create a column of a given table and based on given info.
 	 *
 	 * @param \WordPress\Tabulate\DB\Table $table The table that this column belongs to.
-	 * @param string[]                     $info The output of a SHOW COLUMNS query.
+	 * @param string[]                     $info The output array of a SHOW COLUMNS query.
 	 */
 	public function __construct( Table $table, $info = false ) {
 		$this->table = $table;
@@ -139,38 +139,38 @@ class Column {
 	/**
 	 * Take the output of SHOW COLUMNS and populate this object's data.
 	 *
-	 * @param string[] $info The output of a SHOW COLUMNS query.
+	 * @param string[] $info The output array of a SHOW COLUMNS query.
 	 */
 	protected function parse_info( $info ) {
 
 		// Name.
-		$this->name = $info->Field;
+		$this->name = $info['Field'];
 
 		// Type.
-		$this->parse_type( $info->Type );
+		$this->parse_type( $info['Type'] );
 
 		// Default.
-		$this->default_value = $info->Default;
+		$this->default_value = $info['Default'];
 
 		// Primary key.
-		if ( strtoupper( $info->Key ) === 'PRI' ) {
+		if ( strtoupper( $info['Key'] ) === 'PRI' ) {
 			$this->is_primary_key = true;
-			if ( 'auto_increment' === $info->Extra ) {
+			if ( 'auto_increment' === $info['Extra'] ) {
 				$this->is_auto_increment = true;
 			}
 		}
 
 		// Unique key.
-		$this->is_unique = ( 'UNI' === strtoupper( $info->Key ) );
+		$this->is_unique = ( 'UNI' === strtoupper( $info['Key'] ) );
 
 		// Comment.
-		$this->comment = $info->Comment;
+		$this->comment = $info['Comment'];
 
 		// Collation.
-		$this->collation = $info->Collation;
+		$this->collation = $info['Collation'];
 
 		// Is this column NULL?
-		$this->nullable = ( 'YES' === $info->Null );
+		$this->nullable = ( 'YES' === $info['Null'] );
 
 		// Is this a foreign key?
 		if ( in_array( $this->get_name(), $this->get_table()->get_foreign_key_names(), true ) ) {
@@ -636,7 +636,7 @@ class Column {
 		// Reset the Column and Table objects' data.
 		$table->reset();
 		$sql = "SHOW FULL COLUMNS FROM `" . $table->get_name() . "` LIKE '$new_name'";
-		$column_info = $table->get_database()->get_wpdb()->get_row( $sql );
+		$column_info = $table->get_database()->get_wpdb()->get_row( $sql, ARRAY_A );
 		$this->parse_info( $column_info );
 		if ( $this->is_foreign_key() ) {
 			$this->get_referenced_table()->reset();

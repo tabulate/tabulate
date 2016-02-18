@@ -1,17 +1,41 @@
 <?php
+/**
+ * This file contains only a single class.
+ *
+ * @file
+ * @package Tabulate
+ */
 
 namespace WordPress\Tabulate\Controllers;
 
 use WordPress\Tabulate\DB\Database;
 
+/**
+ * The map controller handles display exporting of geographic data.
+ */
 class MapController extends ControllerBase {
 
-	/** @var string The name of the POINT column. */
+	/**
+	 * The name of the POINT column.
+	 *
+	 * @var string
+	 */
 	protected $point_col_name;
 
-	/** @var \WordPress\Tabulate\DB\Table */
+	/**
+	 * The table (should contain a POINT column).
+	 *
+	 * @var \WordPress\Tabulate\DB\Table
+	 */
 	protected $table;
 
+	/**
+	 * Set up common parts of the exports.
+	 * This is run for each of the public actions.
+	 *
+	 * @param string[] $args The request arguments.
+	 * @return null If the table doesn't contain any POINT column.
+	 */
 	protected function set_up( $args ) {
 		$db = new Database( $this->wpdb );
 		$this->table = $db->get_table( $args['table'] );
@@ -31,10 +55,20 @@ class MapController extends ControllerBase {
 		$this->table->add_filter( $this->point_col_name, 'not empty', '' );
 	}
 
+	/**
+	 * Get the Tabulate 'by line' for inclusion in exports.
+	 *
+	 * @return string
+	 */
 	protected function byline() {
 		return 'Tabulate ' . TABULATE_VERSION . ' (WordPress plugin)';
 	}
 
+	/**
+	 * Export to OSM format.
+	 *
+	 * @param string[] $args The request arguments.
+	 */
 	public function osm( $args ) {
 		$this->set_up( $args );
 
@@ -52,7 +86,7 @@ class MapController extends ControllerBase {
 			$node->addAttribute( 'lon', $geom->getX() );
 			$node->addAttribute( 'visible', 'true' ); // Required attribute.
 			foreach ( $this->table->get_columns() as $col ) {
-				if ( $col->get_name() == $this->point_col_name ) {
+				if ( $col->get_name() === $this->point_col_name ) {
 					// Don't include the geometry column.
 					// @todo Exclude other spatial columns?
 					continue;
@@ -69,6 +103,11 @@ class MapController extends ControllerBase {
 		$this->send_file( 'osm', 'application/xml', $osm->asXML() );
 	}
 
+	/**
+	 * Export to KML format.
+	 *
+	 * @param string[] $args The request arguments.
+	 */
 	public function kml( $args ) {
 		$this->set_up( $args );
 
@@ -89,6 +128,11 @@ class MapController extends ControllerBase {
 		$this->send_file( 'kml', 'application/vnd.google-earth.kml+xml', $kml->asXML() );
 	}
 
+	/**
+	 * Export to GPX format.
+	 *
+	 * @param string[] $args The request arguments.
+	 */
 	public function gpx( $args ) {
 		$this->set_up( $args );
 
@@ -108,7 +152,7 @@ class MapController extends ControllerBase {
 			$waypoint_extension = $extensions->addChild( 'gpxx:WaypointExtension', '', 'gpxx' );
 			$categories = $waypoint_extension->addChild( 'gpxx:Categories', '', 'gpxx' );
 			foreach ( $this->table->get_columns() as $col ) {
-				if ( $col->get_name() == $this->point_col_name ) {
+				if ( $col->get_name() === $this->point_col_name ) {
 					// Don't include the geometry column.
 					continue;
 				}
@@ -123,9 +167,16 @@ class MapController extends ControllerBase {
 		$this->send_file( 'gpx', 'application/gpx+xml', $gpx->asXML() );
 	}
 
+	/**
+	 * Send a file to the client for download.
+	 *
+	 * @param string $ext The file extension.
+	 * @param string $mime The mime type.
+	 * @param string $content File contents.
+	 * @param string $download_name The name of the downloaded file.
+	 */
 	protected function send_file( $ext, $mime, $content, $download_name = false ) {
 		$download_name = date( 'Y-m-d' ) . '_' . $this->table->get_name();
 		parent::send_file( $ext, $mime, $content, $download_name );
 	}
-
 }

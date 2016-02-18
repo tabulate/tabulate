@@ -133,14 +133,13 @@ htmlhelp_basename = 'Tabulatedoc'
 latex_elements = {
 	'papersize': 'a4paper',
 	#'preamble': '',
-	'maketitle' : """\\makeatletter
-		\\py@TitleColor\\py@HeaderFamily\\maketitle
-		\\makeatother""",
+	#'maketitle' : """\\makeatletter
+	#	\\py@TitleColor\\py@HeaderFamily\\maketitle
+	#	\\makeatother""",
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title,
-#  author, documentclass [howto, manual, or own class]).
+# (source start file, target name, title, author, documentclass [howto, manual, or own class]).
 latex_documents = [
 	('index', 'Tabulate.tex', u'Tabulate Documentation', u'Sam Wilson', 'article'),
 ]
