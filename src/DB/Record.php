@@ -226,7 +226,7 @@ class Record {
 			'action' => $action,
 			'table' => $this->table->get_name(),
 		);
-		if ( $include_ident && $this->get_primary_key() !== false ) {
+		if ( $include_ident && false !== $this->get_primary_key() ) {
 			$params['ident'] = $this->get_primary_key();
 		}
 		if ( is_array( $extra_params ) ) {

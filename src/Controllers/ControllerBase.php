@@ -30,7 +30,7 @@ abstract class ControllerBase {
 	/**
 	 * Create the controller, with the global database and query string.
 	 *
-	 * @param \wpdb     $wpdb The global wpdb object.
+	 * @param \wpdb    $wpdb The global wpdb object.
 	 * @param string[] $get The $_GET array.
 	 */
 	public function __construct( $wpdb, $get = array() ) {

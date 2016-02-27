@@ -28,6 +28,7 @@
 		<exclude name="WordPress.VIP.SuperGlobalInputUsage.AccessDetected" />
 		<exclude name="WordPress.VIP.ValidatedSanitizedInput.MissingUnslash" />
 		<exclude name="WordPress.VIP.ValidatedSanitizedInput.InputNotSanitized" />
+		<exclude name="WordPress.VIP.DirectDatabaseQuery" />
 		<exclude name="WordPress.VIP.DirectDatabaseQuery.NoCaching" />
 		<exclude name="WordPress.VIP.DirectDatabaseQuery.DirectQuery" />
 		<exclude name="WordPress.VIP.FileSystemWritesDisallow.FileWriteDetected" />

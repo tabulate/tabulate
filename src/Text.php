@@ -31,7 +31,6 @@ class Text {
 	 * @param 'html'|'latex' $format The desired output format.
 	 *
 	 * @return string A properly-typeset title.
-	 * @todo Get replacement strings from configuration file.
 	 */
 	public static function titlecase( $value, $format = 'html' ) {
 
