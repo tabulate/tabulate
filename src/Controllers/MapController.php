@@ -43,7 +43,6 @@ class MapController extends ControllerBase {
 		// Check that a point column exists.
 		$points = $this->table->get_columns( 'point' );
 		if ( empty( $points ) ) {
-			// @TODO Show error.
 			return;
 		}
 		$point_col = array_shift( $points );
@@ -88,7 +87,6 @@ class MapController extends ControllerBase {
 			foreach ( $this->table->get_columns() as $col ) {
 				if ( $col->get_name() === $this->point_col_name ) {
 					// Don't include the geometry column.
-					// @todo Exclude other spatial columns?
 					continue;
 				}
 				$tag = $node->addChild( 'tag' );

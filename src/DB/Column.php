@@ -153,7 +153,7 @@ class Column {
 		$this->default_value = $info['Default'];
 
 		// Primary key.
-		if ( strtoupper( $info['Key'] ) === 'PRI' ) {
+		if ( 'PRI' === strtoupper( $info['Key'] ) ) {
 			$this->is_primary_key = true;
 			if ( 'auto_increment' === $info['Extra'] ) {
 				$this->is_auto_increment = true;
@@ -328,7 +328,6 @@ class Column {
 		if ( ! is_array( $xtypes[ $table_name ] ) ) {
 			$xtypes[ $table_name ] = array();
 		}
-		// @TODO Validate type.
 		$xtypes[ $table_name ][ $this->get_name() ] = $type;
 		update_option( $option_name, $xtypes );
 	}
@@ -361,7 +360,7 @@ class Column {
 	 */
 	public function get_size() {
 		$size = $this->size;
-		if ( $this->get_type() === 'decimal' ) {
+		if ( 'decimal' === $this->get_type() ) {
 			$size = "$this->precision,$this->scale";
 		}
 		return $size;
@@ -684,7 +683,7 @@ class Column {
 		$comment_str = ! is_null( $comment ) ? "COMMENT '$comment'" : '';
 
 		$after_str = ( ! empty( $after ) ) ? "AFTER `$after`" : '';
-		if ( strtoupper( $after ) === 'FIRST' ) {
+		if ( 'FIRST' === strtoupper( $after ) ) {
 			$after_str = " FIRST ";
 		}
 

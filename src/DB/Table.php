@@ -626,7 +626,6 @@ class Table {
 	 * Whether this view is updatable. Always true for base tables. Currently
 	 * always false for all views.
 	 *
-	 * @todo Implement this.
 	 * @link https://dev.mysql.com/doc/refman/5.6/en/view-updatability.html
 	 */
 	public function is_updatable() {
@@ -702,12 +701,12 @@ class Table {
 				$col_join = $this->join_on( $col );
 				$column_name = $col_join['column_alias'];
 				$join_clause .= $col_join['join_clause'];
-			} elseif ( $col->get_type() === 'point' ) {
+			} elseif ( 'point' === $col->get_type() ) {
 				$columns[] = "IF(`$this->name`.`$col_name` IS NOT NULL, AsText(`$this->name`.`$col_name`), '') AS `$col_name`";
 			} else {
 				$column_name = "`$this->name`.`$col_name`";
 			}
-			if ( $col->get_type() !== 'point' && isset( $column_name ) ) {
+			if ( 'point' !== $col->get_type() && isset( $column_name ) ) {
 				$columns[] = "REPLACE(IFNULL($column_name, ''),CONCAT(CHAR(13),CHAR(10)),CHAR(10))"; // 13 = \r and 10 = \n
 			}
 			$column_headers[] = $col->get_title();
@@ -1153,7 +1152,7 @@ class Table {
 				$data[ $field ] = null;
 				$sql_values[ $field ] = 'NULL';
 
-			} elseif ( $column->get_type() === 'point' ) {
+			} elseif ( 'point' === $column->get_type() ) {
 				// POINT columns.
 				$sql_values[ $field ] = "GeomFromText('" . esc_sql( $value ) ."')";
 
@@ -1250,7 +1249,7 @@ class Table {
 			'table' => $this->get_name(),
 		);
 		if ( is_array( $extra_params ) ) {
-			$params = array_merge( $_GET, $params, $extra_params );
+			$params = array_merge( $_GET, $params, $extra_params ); // WPCS OK.
 		}
 		return admin_url( 'admin.php?' . http_build_query( $params ) );
 	}

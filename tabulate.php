@@ -7,14 +7,14 @@
  * License: GPL-2.0+
  * Text Domain: tabulate
  * Domain Path: /languages
- * Version: 2.7.4
+ * Version: 2.7.5
  */
-define( 'TABULATE_VERSION', '2.7.4' );
+define( 'TABULATE_VERSION', '2.7.5' );
 define( 'TABULATE_SLUG', 'tabulate' );
 
 // Load textdomain.
 add_action( 'plugins_loaded', function() {
-    load_plugin_textdomain( TABULATE_SLUG, FALSE, basename( __DIR__ ) . '/languages/' );
+	load_plugin_textdomain( TABULATE_SLUG, false, basename( __DIR__ ) . '/languages/' );
 } );
 
 // Make sure Composer has been set up (for installation from Git, mostly).

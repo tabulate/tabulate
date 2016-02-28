@@ -3,36 +3,31 @@
 	<!--
 	This file adapted from https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards#standards-subsets
 	Use this ruleset by running e.g. phpcs - - standard=phpcs.xml src
+	Run `phpcs` with the '-s' flag to see the names of the sniffs.
 	-->
 	<description>Sniffs for the coding standards of the Tabulate plugin</description>
+
+	<file>./</file>
+	<exclude-pattern>./vendor/*</exclude-pattern>
+	<exclude-pattern>./assets/*</exclude-pattern>
+	<file>./assets/scripts.js</file>
+	<file>./assets/style.css</file>
 
 	<rule ref="Squiz.PHP.CommentedOutCode" />
 	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace" />
 	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter" />
-	<rule ref="Generic.Commenting.Todo" />
 	<rule ref="Generic.ControlStructures.InlineControlStructure" />
 
 	<rule ref="WordPress">
-		<!--
-		We may want a middle ground though. The best way to do this is add the
-		entire ruleset, then rule by rule, remove ones that don't suit a project. We
-		can do this by running `phpcs` with the '-s' flag, to see the names of the
-		different Sniffs, as their rules are broken. From here, we can opt to
-		exclude problematic sniffs like so.
-		-->
 		<exclude name="Generic.Files.LowercasedFilename.NotFound" />
 		<exclude name="Generic.Strings.UnnecessaryStringConcat.Found" />
 		<exclude name="Squiz.Strings.DoubleQuoteUsage.NotRequired" />
-		<exclude name="WordPress.WP.PreparedSQL.NotPrepared" />
-		<exclude name="WordPress.XSS.EscapeOutput.OutputNotEscaped" />
-		<exclude name="WordPress.VIP.SuperGlobalInputUsage.AccessDetected" />
-		<exclude name="WordPress.VIP.ValidatedSanitizedInput.MissingUnslash" />
-		<exclude name="WordPress.VIP.ValidatedSanitizedInput.InputNotSanitized" />
-		<exclude name="WordPress.VIP.DirectDatabaseQuery" />
-		<exclude name="WordPress.VIP.DirectDatabaseQuery.NoCaching" />
-		<exclude name="WordPress.VIP.DirectDatabaseQuery.DirectQuery" />
-		<exclude name="WordPress.VIP.FileSystemWritesDisallow.FileWriteDetected" />
-		<exclude name="WordPress.VIP.RestrictedFunctions.file_get_contents" />
-		<exclude name="WordPress.VIP.DirectDatabaseQuery.SchemaChange" />
+		<exclude name="WordPress.XSS.EscapeOutput" />
+		<exclude name="WordPress.VIP" />
+	</rule>
+
+	<!-- Tests have a 'setUp' method, which is part of PHPUnit. -->
+	<rule ref="WordPress.NamingConventions.ValidFunctionName">
+		<exclude-pattern>./tests/*</exclude-pattern>
 	</rule>
 </ruleset>

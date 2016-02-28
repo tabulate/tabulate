@@ -143,7 +143,7 @@ class CSV {
 		foreach ( $column_map as $db_col_name => $csv_col_name ) {
 			foreach ( $this->headers as $head_num => $head_name ) {
 				// If the header has a name, and it matches that of the column.
-				if ( ! empty( $head_name ) && strcasecmp( $head_name, $csv_col_name ) === 0 ) {
+				if ( ! empty( $head_name ) && 0 === strcasecmp( $head_name, $csv_col_name ) ) {
 					$heads[ $head_num ] = $db_col_name;
 				}
 			}
@@ -207,10 +207,10 @@ class CSV {
 					}
 				}
 				// Dates.
-				if ( $column->get_type() === 'date' && ! empty( $value ) && preg_match( '/\d{4}-\d{2}-\d{2}/', $value ) !== 1 ) {
+				if ( 'date' === $column->get_type() && ! empty( $value ) && 1 !== preg_match( '/\d{4}-\d{2}-\d{2}/', $value ) ) {
 					$col_errors[] = 'Value (' . $value . ') not in date format';
 				}
-				if ( $column->get_type() === 'year' && ! empty( $value ) && ( $value < 1901 || $value > 2155 ) ) {
+				if ( 'year' === $column->get_type() && ! empty( $value ) && ( $value < 1901 || $value > 2155 ) ) {
 					$col_errors[] = 'Year values must be between 1901 and 2155 (' . $value . ' given)';
 				}
 
