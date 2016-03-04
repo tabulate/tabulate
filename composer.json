@@ -16,7 +16,7 @@
 		"phayes/geophp": "1.*"
 	},
 	"require-dev": {
-		"squizlabs/php_codesniffer": "2.*",
+		"squizlabs/php_codesniffer": "dev-master",
 		"wp-coding-standards/wpcs": "dev-master"
 	}
 }

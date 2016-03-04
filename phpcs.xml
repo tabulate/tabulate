@@ -6,22 +6,30 @@
 	Run `phpcs` with the '-s' flag to see the names of the sniffs.
 	-->
 	<description>Sniffs for the coding standards of the Tabulate plugin</description>
+	<config name="installed_paths" value="../../wp-coding-standards/wpcs/" />
 
+	<!-- What files should be sniffed. -->
 	<file>./</file>
 	<exclude-pattern>./vendor/*</exclude-pattern>
 	<exclude-pattern>./assets/*</exclude-pattern>
+	<exclude-pattern>./docs/*</exclude-pattern>
 	<file>./assets/scripts.js</file>
 	<file>./assets/style.css</file>
 
+	<!-- Some coding standards above and beyond WordPress. -->
 	<rule ref="Squiz.PHP.CommentedOutCode" />
 	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace" />
+	<!--rule ref="Squiz.Strings.ConcatenationSpacing" /-->
 	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter" />
 	<rule ref="Generic.ControlStructures.InlineControlStructure" />
 
+	<!-- Use *most* of WordPress' coding standards. -->
 	<rule ref="WordPress">
 		<exclude name="Generic.Files.LowercasedFilename.NotFound" />
 		<exclude name="Generic.Strings.UnnecessaryStringConcat.Found" />
 		<exclude name="Squiz.Strings.DoubleQuoteUsage.NotRequired" />
+		<exclude name="WordPress.CSRF.NonceVerification.NoNonceVerification" />
+		<exclude name="WordPress.WP.PreparedSQL.NotPrepared" />
 		<exclude name="WordPress.XSS.EscapeOutput" />
 		<exclude name="WordPress.VIP" />
 	</rule>
@@ -30,4 +38,10 @@
 	<rule ref="WordPress.NamingConventions.ValidFunctionName">
 		<exclude-pattern>./tests/*</exclude-pattern>
 	</rule>
+
+	<!-- The main plugin file has a special file-level docblock. -->
+	<rule ref="Squiz.Commenting.FileComment.MissingPackageTag">
+		<exclude-pattern>./tabulate.php</exclude-pattern>
+	</rule>
+
 </ruleset>
