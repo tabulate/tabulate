@@ -812,13 +812,12 @@ class Table {
 	 * @param string  $default The default value.
 	 * @param boolean $auto_increment Whether it shall be an auto-inrementing column.
 	 * @param boolean $unique Whether a unique constraint shall be applied.
-	 * @param boolean $primary Whether this is the Primary Key.
 	 * @param string  $comment The table comment.
 	 * @param Table   $target_table For 'cross-reference' types, the name of the foreign table.
 	 * @param string  $after The name of the column after which this one shall be added.
 	 * @throws Exception If the column already exists or is unable to be added.
 	 */
-	public function add_column( $name, $xtype_name, $size = null, $nullable = null, $default = null, $auto_increment = null, $unique = null, $primary = null, $comment = null, $target_table = null, $after = null ) {
+	public function add_column( $name, $xtype_name, $size = null, $nullable = null, $default = null, $auto_increment = null, $unique = null, $comment = null, $target_table = null, $after = null ) {
 		// Can it be done?
 		if ( ! current_user_can( 'promote_users' ) ) {
 			throw new Exception( 'Only administrators are allowed to add columns to tables' );
@@ -828,12 +827,12 @@ class Table {
 		}
 
 		// Build SQL statement.
-		$col_def = Column::get_column_definition( $name, $xtype_name, $size, $nullable, $default, $auto_increment, $unique, $primary, $comment, $target_table, $after );
+		$col_def = Column::get_column_definition( $name, $xtype_name, $size, $nullable, $default, $auto_increment, $unique, $comment, $target_table, $after );
 
 		$sql = "ALTER TABLE `".$this->get_name()."` ADD COLUMN $col_def";
 
 		// Execute the SQL and reset the cache.
-		$query = $this->get_database()->get_wpdb()->query( $sql );
+		$query = $this->get_database()->query( $sql );
 		if ( false === $query ) {
 			throw new Exception( "Unable to add column '$name'. SQL was: <code>$sql</code>" );
 		}
@@ -998,7 +997,7 @@ class Table {
 	/**
 	 * Get the database to which this table belongs.
 	 *
-	 * @return Database The database object.
+	 * @return \WordPress\Tabulate\DB\Database The database object.
 	 */
 	public function get_database() {
 		return $this->database;

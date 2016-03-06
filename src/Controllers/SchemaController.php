@@ -96,11 +96,10 @@ class SchemaController extends ControllerBase {
 			$new_col_name = isset( $col_info['new_name'] ) ? $col_info['new_name'] : null;
 			$xtype = isset( $col_info['xtype'] ) ? $col_info['xtype'] : null;
 			$size = isset( $col_info['size'] ) ? $col_info['size'] : null;
-			$nullable = isset( $col_info['nullable'] ) ? $col_info['nullable'] : null;
+			$nullable = isset( $col_info['nullable'] );
 			$default = isset( $col_info['default'] ) ? $col_info['default'] : null;
-			$auto_increment = $args['auto_increment'] === $old_col_name;
+			$auto_increment = isset( $args['auto_increment'] ) && $args['auto_increment'] === $old_col_name;
 			$unique = isset( $col_info['unique'] );
-			$primary = isset( $col_info['primary'] ) ? $col_info['primary'] : false;
 			$comment = isset( $col_info['comment'] ) ? $col_info['comment'] : null;
 			$target_table = isset( $col_info['target_table'] ) ? $db->get_table( $col_info['target_table'] ) : null;
 			$after = isset( $col_info['after'] ) ? $col_info['after'] : null;
@@ -110,12 +109,12 @@ class SchemaController extends ControllerBase {
 			if ( $old_col_name ) {
 				$col = $table->get_column( $col_info['old_name'] );
 				if ( $col instanceof Column ) {
-					$col->alter( $new_col_name, $xtype, $size, $nullable, $default, $auto_increment, $unique, $primary, $comment, $target_table, $after );
+					$col->alter( $new_col_name, $xtype, $size, $nullable, $default, $auto_increment, $unique, $comment, $target_table, $after );
 					$altered = true;
 				}
 			}
 			if ( ! $altered && ! empty( $new_col_name ) ) {
-				$table->add_column( $new_col_name, $xtype, $size, $nullable, $default, $auto_increment, $unique, $primary, $comment, $target_table, $after );
+				$table->add_column( $new_col_name, $xtype, $size, $nullable, $default, $auto_increment, $unique, $comment, $target_table, $after );
 			}
 		}
 

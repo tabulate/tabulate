@@ -670,7 +670,7 @@ class Column {
 		if ( 'boolean' === $xtype_name ) {
 			$size_str = '(1)';
 		}
-		$null_str = $nullable ? 'NULL' : 'NOT NULL';
+		$null_str = (true === $nullable) ? 'NULL' : 'NOT NULL';
 		$default_str = '';
 		if ( 'text_long' !== $xtype_name ) {
 			$default_str = ! empty( $default ) ? "DEFAULT '$default'" : ( $nullable ? 'DEFAULT NULL' : '' );
