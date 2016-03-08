@@ -177,10 +177,15 @@ class Template {
 		$twig = new \Twig_Environment( $loader );
 
 		// Add some useful functions to Twig.
-		$funcs = array( 'admin_url', '__', '_e', 'wp_nonce_field', 'wp_create_nonce' );
+		$funcs = array( 'admin_url', '__', '_e', 'wp_create_nonce' );
 		foreach ( $funcs as $f ) {
 			$twig->addFunction( $f, new \Twig_SimpleFunction( $f, $f ) );
 		}
+		// Handle wp_nonce_field() differently in order to default it to returning the string.
+		$wp_nonce_field = new \Twig_SimpleFunction( 'wp_nonce_field', function ( $action = -1, $name = "_wpnonce", $referer = true, $echo = false ) {
+			return wp_nonce_field( $action, $name, $referer, $echo );
+		} );
+		$twig->addFunction( $wp_nonce_field );
 
 		// Add titlecase filter.
 		$titlecase_filter = new \Twig_SimpleFilter( 'titlecase', '\\WordPress\\Tabulate\\Text::titlecase' );

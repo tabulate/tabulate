@@ -3,7 +3,7 @@
 {% block content %}
 
 <form method="post" action="{{record.get_url('save')}}" class="tabulate-record">
-	<input type="hidden" name="_wpnonce" value="{{wp_create_nonce('tabulate-record-'~record.get_primary_key())}}" />
+	{{wp_nonce_field('tabulate-record-'~record.get_primary_key())|raw}}
 	<table>
 
 		{% for column in table.get_columns %}
