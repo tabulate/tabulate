@@ -28,12 +28,13 @@
 		<exclude name="Generic.Files.LowercasedFilename.NotFound" />
 		<exclude name="Generic.Strings.UnnecessaryStringConcat.Found" />
 		<exclude name="Squiz.Strings.DoubleQuoteUsage.NotRequired" />
-		<exclude name="Squiz.Commenting.FunctionComment.ScalarTypeHintMissing" />
 		<exclude name="WordPress.CSRF.NonceVerification.NoNonceVerification" />
 		<exclude name="WordPress.WP.PreparedSQL.NotPrepared" />
 		<exclude name="WordPress.XSS.EscapeOutput" />
 		<exclude name="WordPress.VIP" />
 	</rule>
+
+	<exclude name="Squiz.Commenting.FunctionComment.ScalarTypeHintMissing"/>
 
 	<!-- Tests have a 'setUp' method, which is part of PHPUnit. -->
 	<rule ref="WordPress.NamingConventions.ValidFunctionName">
