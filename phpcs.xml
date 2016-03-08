@@ -34,7 +34,10 @@
 		<exclude name="WordPress.VIP" />
 	</rule>
 
-	<exclude name="Squiz.Commenting.FunctionComment.ScalarTypeHintMissing"/>
+	<!-- For some reason, this isn't excluded when added under the WordPress rule. -->
+	<rule ref="Squiz.Commenting.FunctionComment.ScalarTypeHintMissing">
+		<severity>0</severity>
+	</rule>
 
 	<!-- Tests have a 'setUp' method, which is part of PHPUnit. -->
 	<rule ref="WordPress.NamingConventions.ValidFunctionName">
