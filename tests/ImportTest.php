@@ -63,9 +63,9 @@ class ImportTest extends TestBase {
 		$this->assertEquals( 'One', $rec1->title() );
 		// And that 1 changeset was created, with 4 changes.
 		$change_tracker = new ChangeTracker( $this->wpdb );
-		$sql = "SELECT COUNT(id) FROM ".$change_tracker->changesets_name();
+		$sql = "SELECT COUNT(id) FROM " . $change_tracker->changesets_name();
 		$this->assertEquals( 1, $this->wpdb->get_var( $sql ) );
-		$sql = "SELECT COUNT(id) FROM ".$change_tracker->changes_name();
+		$sql = "SELECT COUNT(id) FROM " . $change_tracker->changes_name();
 		$this->assertEquals( 4, $this->wpdb->get_var( $sql ) );
 	}
 

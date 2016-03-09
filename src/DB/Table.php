@@ -730,7 +730,7 @@ class Table {
 		// Build the final SQL, appending the column headers in a UNION.
 		$sql = 'SELECT "' . join( '", "', $column_headers ) . '"'
 			. ' UNION ' . $sql
-			. ' INTO OUTFILE "' . $filename.'" '
+			. ' INTO OUTFILE "' . $filename . '" '
 			. ' FIELDS TERMINATED BY ","'
 			. ' ENCLOSED BY \'"\''
 			. ' ESCAPED BY \'"\''
@@ -829,7 +829,7 @@ class Table {
 		// Build SQL statement.
 		$col_def = Column::get_column_definition( $name, $xtype_name, $size, $nullable, $default, $auto_increment, $unique, $comment, $target_table, $after );
 
-		$sql = "ALTER TABLE `".$this->get_name()."` ADD COLUMN $col_def";
+		$sql = "ALTER TABLE `" . $this->get_name() . "` ADD COLUMN $col_def";
 
 		// Execute the SQL and reset the cache.
 		$query = $this->get_database()->query( $sql );
@@ -1018,7 +1018,7 @@ class Table {
 		foreach ( $this->get_columns() as $column ) {
 			$out .= "| $column \n";
 		}
-		$out .= '+-----------------------------------------+'."\n\n";
+		$out .= '+-----------------------------------------+' . "\n\n";
 		return $out;
 	}
 
@@ -1153,7 +1153,7 @@ class Table {
 
 			} elseif ( 'point' === $column->get_type() ) {
 				// POINT columns.
-				$sql_values[ $field ] = "GeomFromText('" . esc_sql( $value ) ."')";
+				$sql_values[ $field ] = "GeomFromText('" . esc_sql( $value ) . "')";
 
 			} elseif ( $column->is_numeric() ) {
 				// Numeric values.
@@ -1161,7 +1161,7 @@ class Table {
 
 			} else {
 				// Everything else.
-				$sql_values[ $field ] = "'" . esc_sql( $value ) ."'";
+				$sql_values[ $field ] = "'" . esc_sql( $value ) . "'";
 
 			}
 		}
@@ -1276,7 +1276,7 @@ class Table {
 			throw new Exception( "Table '$old_name' was not renamed to '$new_name'" );
 		}
 		$this->name = $new->get_name();
-		$sql = "UPDATE `".ChangeTracker::changes_name() . "`"
+		$sql = "UPDATE `" . ChangeTracker::changes_name() . "`"
 			. " SET `table_name` = '$new_name' "
 			. " WHERE `table_name` = '$old_name';";
 		$wpdb->query( $sql );

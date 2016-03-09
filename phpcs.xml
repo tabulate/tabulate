@@ -19,7 +19,6 @@
 	<!-- Some coding standards above and beyond WordPress. -->
 	<rule ref="Squiz.PHP.CommentedOutCode" />
 	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace" />
-	<!--rule ref="Squiz.Strings.ConcatenationSpacing" /-->
 	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter" />
 	<rule ref="Generic.ControlStructures.InlineControlStructure" />
 

@@ -54,7 +54,7 @@ class SchemaController extends ControllerBase {
 		// Redirect user with message.
 		$template = new Template( 'table/schema.html' );
 		$template->add_notice( 'updated', 'New table created' );
-		$url = 'admin.php?page=tabulate&controller=schema&table='.$table->get_name();
+		$url = 'admin.php?page=tabulate&controller=schema&table=' . $table->get_name();
 		wp_safe_redirect( admin_url( $url ) );
 		exit;
 	}

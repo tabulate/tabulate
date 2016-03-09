@@ -63,7 +63,7 @@ class ShortcodeController extends ControllerBase {
 			}
 			return $this->error();
 		}
-		$format_method = $attrs['format'].'_format';
+		$format_method = $attrs['format'] . '_format';
 		if ( is_callable( array( $this, $format_method ) ) ) {
 			wp_enqueue_script( 'tabulate-scripts' );
 			return $this->$format_method( $table, $attrs, $_REQUEST );
@@ -140,7 +140,7 @@ class ShortcodeController extends ControllerBase {
 	 */
 	protected function count_format( Table $table ) {
 		$count = number_format( $table->count_records() );
-		return '<span class="tabulate count-format">'.$count.'</span>';
+		return '<span class="tabulate count-format">' . $count . '</span>';
 	}
 
 	/**

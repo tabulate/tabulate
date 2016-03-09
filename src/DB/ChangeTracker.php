@@ -147,7 +147,7 @@ class ChangeTracker {
 
 		// Save a change for each changed column.
 		foreach ( $table->get_columns() as $column ) {
-			$col_name = ( $column->is_foreign_key() ) ? $column->get_name().Record::FKTITLE : $column->get_name();
+			$col_name = ( $column->is_foreign_key() ) ? $column->get_name() . Record::FKTITLE : $column->get_name();
 			$old_val = ( is_callable( array( $this->old_record, $col_name ) ) ) ? $this->old_record->$col_name() : null;
 			$new_val = $new_record->$col_name();
 			if ( $new_val === $old_val ) {
