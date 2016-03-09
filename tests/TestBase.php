@@ -79,6 +79,7 @@ abstract class TestBase extends WP_UnitTestCase {
 			. ' REFERENCES `test_types` (`id`)'
 			. ' ON DELETE CASCADE ON UPDATE CASCADE;'
 		);
+		$this->wpdb->query( 'SET FOREIGN_KEY_CHECKS=1' );
 		$this->db = new WordPress\Tabulate\DB\Database( $this->wpdb );
 	}
 

@@ -1081,15 +1081,22 @@ class Table {
 		$wpdb = $this->database->get_wpdb();
 		$wpdb->hide_errors();
 		$del = $wpdb->delete( $this->get_name(), array( $this->get_pk_column()->get_name() => $pk_value ) );
-		if ( ! $del ) {
+		if ( false === $del ) {
 			throw new Exception( $wpdb->last_error );
 		}
 		foreach ( $rec->get_changes() as $change ) {
 			$where_1 = array( 'table_name' => $this->get_name(), 'record_ident' => $pk_value );
-			$wpdb->delete( ChangeTracker::changes_name(), $where_1 );
+			$del_changes = $wpdb->delete( ChangeTracker::changes_name(), $where_1 );
+			if ( false === $del_changes ) {
+				throw new Exception( $wpdb->last_error );
+			}
 			$where_2 = array( 'id' => $change->changeset_id );
-			$wpdb->delete( ChangeTracker::changesets_name(), $where_2 );
+			$del_changesets = $wpdb->delete( ChangeTracker::changesets_name(), $where_2 );
+			if ( false === $del_changesets ) {
+				throw new Exception( $wpdb->last_error );
+			}
 		}
+		$wpdb->show_errors();
 		$this->record_counter->clear();
 	}
 
