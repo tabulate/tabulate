@@ -153,9 +153,9 @@ class RecordController extends ControllerBase {
 		// Delete the record.
 		check_admin_referer( 'tabulate-record-delete-' . $record_ident );
 		try {
-			//$this->wpdb->query( 'BEGIN' );
+			$this->wpdb->query( 'BEGIN' );
 			$table->delete_record( $record_ident );
-			//$this->wpdb->query( 'COMMIT' );
+			$this->wpdb->query( 'COMMIT' );
 		} catch ( \Exception $e ) {
 			$template = $this->get_template( $table );
 			$template->record = $table->get_record( $record_ident );

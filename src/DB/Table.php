@@ -772,6 +772,7 @@ class Table {
 		$this->columns = array();
 		$this->comment = false;
 		$this->defining_sql = false;
+		$this->record_counter->clear();
 	}
 
 	/**
@@ -1085,7 +1086,7 @@ class Table {
 			throw new Exception( $wpdb->last_error );
 		}
 		foreach ( $rec->get_changes() as $change ) {
-			$where_1 = array( 'table_name' => $this->get_name(), 'record_ident' => $pk_value );
+			$where_1 = array( 'changeset_id' => $change->changeset_id );
 			$del_changes = $wpdb->delete( ChangeTracker::changes_name(), $where_1 );
 			if ( false === $del_changes ) {
 				throw new Exception( $wpdb->last_error );

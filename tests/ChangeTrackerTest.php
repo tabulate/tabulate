@@ -142,5 +142,15 @@ class ChangeTrackerTest extends TestBase {
 		$this->assertEquals( 1, $test_types->count_records() );
 		$changesets = $this->db->get_table( ChangeTracker::changesets_name() );
 		$this->assertEquals( 1, $changesets->count_records() );
+
+		// Create another record, and delete it.
+		$rec3 = $test_types->save_record( array( 'title' => 'Third Type' ) );
+		$this->assertEquals( 2, $test_types->count_records() );
+		$changesets->reset();
+		$this->assertEquals( 2, $changesets->count_records() );
+		$test_types->delete_record( $rec3->get_primary_key() );
+		$changesets->reset();
+		$this->assertEquals( 1, $changesets->count_records() );
+
 	}
 }
