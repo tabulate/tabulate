@@ -1140,6 +1140,9 @@ class Table {
 					// Null.
 					$data[ $field ] = null;
 					$sql_values[ $field ] = 'NULL';
+				} elseif ( ! $column->nullable() && ( is_null( $value ) || '' === $value ) ) {
+					// Not nullable, set to default (don't set $sql_values item).
+					$data[ $field ] = null;
 				} elseif ( false === $value || $val_is_falseish ) {
 					// False.
 					$data[ $field ] = false;

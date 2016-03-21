@@ -7,7 +7,7 @@
 	<table>
 
 		{% for column in table.get_columns %}
-		<tr>
+		<tr class="column-type-{{column.get_type}}">
 			<th class="column-title">
 				<label for="{{column.get_name}}" class="right inline">{{column.get_title}}
 				{% if column.is_required and not column.is_auto_increment %}*{% endif %}
