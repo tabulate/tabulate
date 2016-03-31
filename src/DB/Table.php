@@ -1225,12 +1225,12 @@ class Table {
 				$new_pk_value = $data[ $pk_name ];
 			} else {
 				// If neither of those work, how can we find out the new PK value?
-				throw new Exception( "Unable to determine the value of the new record's prmary key." );
+				throw new Exception( "Unable to determine the value of the new record's prmary key. SQL was <code>$sql</code>" );
 			}
 		}
 		$new_record = $this->get_record( $new_pk_value );
 		if ( ! $new_record instanceof Record ) {
-			throw new Exception( "Unable to fetch record with PK of: <code>$new_pk_value</code>" );
+			throw new Exception( "Unable to fetch record with PK of: <code>$new_pk_value</code>. SQL was <code>$sql</code>" );
 		}
 
 		// Save the changes.
