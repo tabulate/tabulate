@@ -207,4 +207,33 @@ class RecordsTest extends TestBase {
 		$this->assertEquals( 'Test Two', $rec2b->title() );
 		$this->assertEquals( null, $rec2b->type_idFKTITLE() );
 	}
+
+	/**
+	 * Not sure what's happening yet.
+	 *
+	 * @test
+	 */
+	public function boolean_notnull() {
+		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_booleans`' );
+		$create_table = "CREATE TABLE `test_booleans` (
+			`id` int(10) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			`a_bool_no_default` tinyint(1) NOT NULL,
+			`a_bool_with_default` tinyint(1) NOT NULL DEFAULT '0'
+			)";
+		$this->wpdb->query( $create_table );
+		$db = new WordPress\Tabulate\DB\Database( $this->wpdb );
+		$tbl = $db->get_table( 'test_booleans' );
+		$this->assertSame( null, $tbl->get_column( 'a_bool_no_default' )->get_default() );
+		$this->assertSame( "0", $tbl->get_column( 'a_bool_with_default' )->get_default() );
+
+		// Save a record, relying on the default.
+		$rec1 = $tbl->save_record( array( 'a_bool_no_default' => 'Yes' ) );
+		$this->assertSame( true, $rec1->a_bool_no_default() );
+		$this->assertSame( false, $rec1->a_bool_with_default() );
+
+		// Save a record, providing the same as the default.
+		$rec2 = $tbl->save_record( array( 'a_bool_no_default' => '0', 'a_bool_with_default' => '' ) );
+		$this->assertSame( false, $rec2->a_bool_no_default() );
+		$this->assertSame( false, $rec2->a_bool_with_default() );
+	}
 }

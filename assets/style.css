@@ -20,6 +20,7 @@ form.tabulate-record .foreign-key label { text-align:left }
 form.tabulate-record .foreign-key input.form-control { width:83% }
 form.tabulate-record .foreign-key span.input-group-addon { color:#555 }
 form.tabulate-record .point-column .map { width:450px; height:200px; border:1px solid #ddd }
+form.tabulate-record tr.column-type-tinyint td.form-field label { display:inline-block; margin-right:1em }
 
 .tabulate .postbox-container.record-meta { float:none }
 .tabulate .postbox-container .related-records .hndle { cursor:pointer }

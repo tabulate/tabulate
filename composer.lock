@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "de0592ebd09cb544d92cd36b54dd3d5c",
-    "content-hash": "41be848064d665b97122b203d789dff8",
+    "hash": "7d3282556c8ed13557be6b4dcf53ca09",
+    "content-hash": "4bdcd2796a4e61ad234e5bd0e9ad21c2",
     "packages": [
         {
             "name": "phayes/geophp",
@@ -298,16 +298,16 @@
         },
         {
             "name": "wp-coding-standards/wpcs",
-            "version": "dev-master",
+            "version": "dev-develop",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards.git",
-                "reference": "b415094aa5fd24da6eba2295323bcff840902dd3"
+                "reference": "35d4359b4c93c52b8f0e9de8e98783fed652cd13"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress-Coding-Standards/WordPress-Coding-Standards/zipball/b415094aa5fd24da6eba2295323bcff840902dd3",
-                "reference": "b415094aa5fd24da6eba2295323bcff840902dd3",
+                "url": "https://api.github.com/repos/WordPress-Coding-Standards/WordPress-Coding-Standards/zipball/35d4359b4c93c52b8f0e9de8e98783fed652cd13",
+                "reference": "35d4359b4c93c52b8f0e9de8e98783fed652cd13",
                 "shasum": ""
             },
             "require": {
@@ -330,7 +330,7 @@
                 "standards",
                 "wordpress"
             ],
-            "time": "2016-02-01 16:14:59"
+            "time": "2016-03-09 02:03:25"
         }
     ],
     "aliases": [],

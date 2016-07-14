@@ -19,7 +19,6 @@
 	<!-- Some coding standards above and beyond WordPress. -->
 	<rule ref="Squiz.PHP.CommentedOutCode" />
 	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace" />
-	<!--rule ref="Squiz.Strings.ConcatenationSpacing" /-->
 	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter" />
 	<rule ref="Generic.ControlStructures.InlineControlStructure" />
 
@@ -28,11 +27,15 @@
 		<exclude name="Generic.Files.LowercasedFilename.NotFound" />
 		<exclude name="Generic.Strings.UnnecessaryStringConcat.Found" />
 		<exclude name="Squiz.Strings.DoubleQuoteUsage.NotRequired" />
-		<exclude name="Squiz.Commenting.FunctionComment.ScalarTypeHintMissing" />
 		<exclude name="WordPress.CSRF.NonceVerification.NoNonceVerification" />
 		<exclude name="WordPress.WP.PreparedSQL.NotPrepared" />
 		<exclude name="WordPress.XSS.EscapeOutput" />
 		<exclude name="WordPress.VIP" />
+	</rule>
+
+	<!-- For some reason, this isn't excluded when added under the WordPress rule. -->
+	<rule ref="Squiz.Commenting.FunctionComment.ScalarTypeHintMissing">
+		<severity>0</severity>
 	</rule>
 
 	<!-- Tests have a 'setUp' method, which is part of PHPUnit. -->

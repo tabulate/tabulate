@@ -66,10 +66,10 @@ class Menus {
 
 		// Add submenu pages.
 		if ( Util::is_plugin_active( 'tfo-graphviz/tfo-graphviz.php' ) ) {
-			add_submenu_page( TABULATE_SLUG, 'Tabulate ERD', 'ERD', 'read', TABULATE_SLUG.'_erd', $dispatch_callback );
+			add_submenu_page( TABULATE_SLUG, 'Tabulate ERD', 'ERD', 'read', TABULATE_SLUG . '_erd', $dispatch_callback );
 		}
-		add_submenu_page( TABULATE_SLUG, 'Tabulate Reports', 'Reports', 'promote_users', TABULATE_SLUG.'_reports', $dispatch_callback );
-		add_submenu_page( TABULATE_SLUG, 'Tabulate Grants', 'Grants', 'promote_users', TABULATE_SLUG.'_grants', $dispatch_callback );
+		add_submenu_page( TABULATE_SLUG, 'Tabulate Reports', 'Reports', 'promote_users', TABULATE_SLUG . '_reports', $dispatch_callback );
+		add_submenu_page( TABULATE_SLUG, 'Tabulate Grants', 'Grants', 'promote_users', TABULATE_SLUG . '_grants', $dispatch_callback );
 	}
 
 	/**
@@ -139,7 +139,7 @@ class Menus {
 		try {
 			$this->output = $controller->$action( $request );
 		} catch ( \Exception $e ) {
-			$this->output = '<h1>An error occured</h1><div class="error"><p>'.$e->getMessage().'</p></div>';
+			$this->output = '<h1>An error occured</h1><div class="error"><p>' . $e->getMessage() . '</p></div>';
 			if ( WP_DEBUG ) {
 				$this->output .= '<h2>Stack trace</h2><pre>' . $e->getTraceAsString() . '</pre>';
 			}

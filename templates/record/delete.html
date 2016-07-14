@@ -9,6 +9,7 @@
 </dl>
 
 <form action="{{record.get_url('delete')}}" method="post">
+	{{wp_nonce_field('tabulate-record-delete-'~record.get_primary_key())|raw}}
 	<p>
 		<input type="hidden" name="confirm_deletion" value="yes" />
 		<input type="submit" value="Yes, I'm sure" class="button" />

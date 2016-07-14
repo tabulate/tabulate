@@ -174,10 +174,10 @@ class Record {
 		} else {
 			$title_parts = array();
 			foreach ( $this->table->get_columns() as $col ) {
-				$col_name = $col->get_name().self::FKTITLE;
+				$col_name = $col->get_name() . self::FKTITLE;
 				$title_parts[] = $this->$col_name();
 			}
-			return '[ ' . join( ' | ', $title_parts ) .' ]';
+			return '[ ' . join( ' | ', $title_parts ) . ' ]';
 		}
 	}
 

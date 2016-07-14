@@ -132,7 +132,7 @@ class TableController extends ControllerBase {
 		/*
 		 * Stage 1 of 4: Uploading.
 		 */
-		require_once ABSPATH.'/wp-admin/includes/file.php';
+		require_once ABSPATH . '/wp-admin/includes/file.php';
 		$template->form_action = $table->get_url( 'import' );
 		try {
 			$hash = isset( $_GET['hash'] ) ? $_GET['hash'] : false;

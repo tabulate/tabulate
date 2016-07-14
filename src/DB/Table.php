@@ -730,7 +730,7 @@ class Table {
 		// Build the final SQL, appending the column headers in a UNION.
 		$sql = 'SELECT "' . join( '", "', $column_headers ) . '"'
 			. ' UNION ' . $sql
-			. ' INTO OUTFILE "' . $filename.'" '
+			. ' INTO OUTFILE "' . $filename . '" '
 			. ' FIELDS TERMINATED BY ","'
 			. ' ENCLOSED BY \'"\''
 			. ' ESCAPED BY \'"\''
@@ -773,6 +773,7 @@ class Table {
 		$this->columns = array();
 		$this->comment = false;
 		$this->defining_sql = false;
+		$this->record_counter->clear();
 	}
 
 	/**
@@ -830,7 +831,7 @@ class Table {
 		// Build SQL statement.
 		$col_def = Column::get_column_definition( $name, $xtype_name, $size, $nullable, $default, $auto_increment, $unique, $comment, $target_table, $after );
 
-		$sql = "ALTER TABLE `".$this->get_name()."` ADD COLUMN $col_def";
+		$sql = "ALTER TABLE `" . $this->get_name() . "` ADD COLUMN $col_def";
 
 		// Execute the SQL and reset the cache.
 		$query = $this->get_database()->query( $sql );
@@ -1019,7 +1020,7 @@ class Table {
 		foreach ( $this->get_columns() as $column ) {
 			$out .= "| $column \n";
 		}
-		$out .= '+-----------------------------------------+'."\n\n";
+		$out .= '+-----------------------------------------+' . "\n\n";
 		return $out;
 	}
 
@@ -1082,15 +1083,22 @@ class Table {
 		$wpdb = $this->database->get_wpdb();
 		$wpdb->hide_errors();
 		$del = $wpdb->delete( $this->get_name(), array( $this->get_pk_column()->get_name() => $pk_value ) );
-		if ( ! $del ) {
+		if ( false === $del ) {
 			throw new Exception( $wpdb->last_error );
 		}
 		foreach ( $rec->get_changes() as $change ) {
-			$where_1 = array( 'table_name' => $this->get_name(), 'record_ident' => $pk_value );
-			$wpdb->delete( ChangeTracker::changes_name(), $where_1 );
+			$where_1 = array( 'changeset_id' => $change->changeset_id );
+			$del_changes = $wpdb->delete( ChangeTracker::changes_name(), $where_1 );
+			if ( false === $del_changes ) {
+				throw new Exception( $wpdb->last_error );
+			}
 			$where_2 = array( 'id' => $change->changeset_id );
-			$wpdb->delete( ChangeTracker::changesets_name(), $where_2 );
+			$del_changesets = $wpdb->delete( ChangeTracker::changesets_name(), $where_2 );
+			if ( false === $del_changesets ) {
+				throw new Exception( $wpdb->last_error );
+			}
 		}
+		$wpdb->show_errors();
 		$this->record_counter->clear();
 	}
 
@@ -1133,6 +1141,9 @@ class Table {
 					// Null.
 					$data[ $field ] = null;
 					$sql_values[ $field ] = 'NULL';
+				} elseif ( ! $column->nullable() && ( is_null( $value ) || '' === $value ) ) {
+					// Not nullable, set to default (don't set $sql_values item).
+					$data[ $field ] = null;
 				} elseif ( false === $value || $val_is_falseish ) {
 					// False.
 					$data[ $field ] = false;
@@ -1154,7 +1165,7 @@ class Table {
 
 			} elseif ( 'point' === $column->get_type() ) {
 				// POINT columns.
-				$sql_values[ $field ] = "GeomFromText('" . esc_sql( $value ) ."')";
+				$sql_values[ $field ] = "GeomFromText('" . esc_sql( $value ) . "')";
 
 			} elseif ( $column->is_numeric() ) {
 				// Numeric values.
@@ -1162,7 +1173,7 @@ class Table {
 
 			} else {
 				// Everything else.
-				$sql_values[ $field ] = "'" . esc_sql( $value ) ."'";
+				$sql_values[ $field ] = "'" . esc_sql( $value ) . "'";
 
 			}
 		}
@@ -1215,12 +1226,12 @@ class Table {
 				$new_pk_value = $data[ $pk_name ];
 			} else {
 				// If neither of those work, how can we find out the new PK value?
-				throw new Exception( "Unable to determine the value of the new record's prmary key." );
+				throw new Exception( "Unable to determine the value of the new record's prmary key. SQL was <code>$sql</code>" );
 			}
 		}
 		$new_record = $this->get_record( $new_pk_value );
 		if ( ! $new_record instanceof Record ) {
-			throw new Exception( "Unable to fetch record with PK of: <code>$new_pk_value</code>" );
+			throw new Exception( "Unable to fetch record with PK of: <code>$new_pk_value</code>. SQL was <code>$sql</code>" );
 		}
 
 		// Save the changes.
@@ -1277,7 +1288,7 @@ class Table {
 			throw new Exception( "Table '$old_name' was not renamed to '$new_name'" );
 		}
 		$this->name = $new->get_name();
-		$sql = "UPDATE `".ChangeTracker::changes_name() . "`"
+		$sql = "UPDATE `" . ChangeTracker::changes_name() . "`"
 			. " SET `table_name` = '$new_name' "
 			. " WHERE `table_name` = '$old_name';";
 		$wpdb->query( $sql );

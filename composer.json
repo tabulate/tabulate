@@ -17,6 +17,6 @@
 	},
 	"require-dev": {
 		"squizlabs/php_codesniffer": "dev-master",
-		"wp-coding-standards/wpcs": "dev-master"
+		"wp-coding-standards/wpcs": "dev-develop"
 	}
 }

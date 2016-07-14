@@ -600,7 +600,7 @@ class Column {
 		$table = $this->get_table();
 		$wpdb = $table->get_database()->get_wpdb();
 		if ( $this->is_unique() ) {
-			$sql = 'SHOW INDEXES FROM `' . $table->get_name() .'` WHERE Column_name LIKE "' . $this->get_name() . '"';
+			$sql = 'SHOW INDEXES FROM `' . $table->get_name() . '` WHERE Column_name LIKE "' . $this->get_name() . '"';
 			foreach ( $wpdb->get_results( $sql, ARRAY_A ) as $index ) {
 				$sql = "DROP INDEX `" . $index['Key_name'] . "` ON `" . $table->get_name() . "`";
 				$wpdb->query( $sql );
@@ -615,14 +615,14 @@ class Column {
 				. ' AND CONSTRAINT_TYPE = "FOREIGN KEY" ';
 			$fks = $wpdb->get_results( $fks_sql );
 			foreach ( $fks as $key ) {
-				$sql = 'ALTER TABLE `' . $table->get_name() .'` DROP FOREIGN KEY `' . $key->fk_name . '`';
+				$sql = 'ALTER TABLE `' . $table->get_name() . '` DROP FOREIGN KEY `' . $key->fk_name . '`';
 				$wpdb->query( $sql );
 			}
 			$this->references = false;
 		}
 
 		// Alter the column.
-		$sql = "ALTER TABLE `".$table->get_name()."` CHANGE COLUMN `".$this->get_name()."` $col_def";
+		$sql = "ALTER TABLE `" . $table->get_name() . "` CHANGE COLUMN `" . $this->get_name() . "` $col_def";
 		$wpdb->hide_errors();
 		$altered = $wpdb->query( $sql );
 		if ( false === $altered ) {
@@ -694,9 +694,9 @@ class Column {
 			$ref_str = ', ADD CONSTRAINT `' . $name . '_fk_to_' . $target_table->get_name() . '`'
 				. ' FOREIGN KEY (`' . $name . '`) '
 				. ' REFERENCES `' . $target_table->get_name() . '` '
-				. ' (`'.$pk_col->get_name().'`)';
+				. ' (`' . $pk_col->get_name() . '`)';
 			$type_str = $pk_col->get_type();
-			$size_str = '('.$pk_col->get_size().')';
+			$size_str = '(' . $pk_col->get_size() . ')';
 			$sign_str = ($pk_col->is_unsigned()) ? 'UNSIGNED' : '';
 		}
 

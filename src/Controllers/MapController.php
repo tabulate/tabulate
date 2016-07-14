@@ -157,7 +157,7 @@ class MapController extends ControllerBase {
 				$fktitle = $col->get_name() . \WordPress\Tabulate\DB\Record::FKTITLE;
 				$value = $record->$fktitle();
 				$categories->addChild( 'gpxx:Categories', $col->get_title() . ": $value", 'gpxx' );
-				$waypoint_extension->addChild( 'gpxx:'.$col->get_name(), $value, 'gpxx' );
+				$waypoint_extension->addChild( 'gpxx:' . $col->get_name(), $value, 'gpxx' );
 			}
 		}
 

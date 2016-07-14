@@ -77,7 +77,7 @@ class Reports {
 		$template->mime_type = $report->mime_type();
 
 		// Populate with source data.
-		$sql = "SELECT * FROM `".self::report_sources_table_name()."` WHERE report = " . $report_id;
+		$sql = "SELECT * FROM `" . self::report_sources_table_name() . "` WHERE report = " . $report_id;
 		$sources = $this->db->get_wpdb()->get_results( $sql );
 		foreach ( $sources as $source ) {
 			$data = $this->db->get_wpdb()->get_results( $source->query );
@@ -129,15 +129,15 @@ class Reports {
 			. "{% endfor %}\n"
 			. "</dl>";
 			$sql1 = "INSERT INTO `" . self::reports_table_name() . "` SET"
-				. " id          = ".self::DEFAULT_REPORT_ID.", "
+				. " id          = " . self::DEFAULT_REPORT_ID . ", "
 				. " title       = 'Reports', "
 				. " description = 'List of all Reports.',"
 				. " template    = %s;";
 			$wpdb->query( $wpdb->prepare( $sql1, array( $template_string ) ) );
 			// And the query for the above report.
-			$query = "SELECT * FROM ".self::reports_table_name();
+			$query = "SELECT * FROM " . self::reports_table_name();
 			$sql2 = "INSERT INTO `" . self::report_sources_table_name() . "` SET "
-				. " report = ".self::DEFAULT_REPORT_ID.","
+				. " report = " . self::DEFAULT_REPORT_ID . ","
 				. " name   = 'reports',"
 				. " query  = %s;";
 			$wpdb->query( $wpdb->prepare( $sql2, array( $query ) ) );

@@ -141,7 +141,6 @@ class RecordController extends ControllerBase {
 			wp_safe_redirect( $table->get_url() );
 			exit;
 		}
-		check_admin_referer( 'tabulate-record-' . $record_ident );
 
 		// Ask for confirmation.
 		if ( ! isset( $_POST['confirm_deletion'] ) ) {
@@ -152,6 +151,7 @@ class RecordController extends ControllerBase {
 		}
 
 		// Delete the record.
+		check_admin_referer( 'tabulate-record-delete-' . $record_ident );
 		try {
 			$this->wpdb->query( 'BEGIN' );
 			$table->delete_record( $record_ident );

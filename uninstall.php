@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) || ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 }
 
 // Make sure all Tabulate classes are accessible.
-require __DIR__.'/vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
 // Clear Grants' option.
 $grants = new \WordPress\Tabulate\DB\Grants();
