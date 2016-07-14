@@ -15,7 +15,10 @@ php:
 
 # WordPress versions to be tested against.
 env:
-    - WP_VERSION=4.4.2
+    - WP_VERSION=4.2.9
+    - WP_VERSION=4.3.5
+    - WP_VERSION=4.4.4
+    - WP_VERSION=4.5.3
     - WP_VERSION=master
 
 # Clones WordPress and configures our testing environment.

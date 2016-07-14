@@ -8,8 +8,8 @@
 * License: GPLv2 or later
 * License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Manage relational tabular data within the WP admin area, using the full power of
-your MySQL database. CSV import/export; access-control; foreign-keys.
+Manage relational tabular data using the full power of your MySQL database.
+CSV import/export; access-control; foreign-keys; and lots more.
 
 ## Description
 
@@ -87,3 +87,15 @@ A full list of all changes can be found at https://github.com/tabulate/tabulate/
 
 Prior to version 1, no changes were listed here (there were too many of them, and
 nothing was stable yet).
+
+## Upgrade Notice
+
+No special action needs to be taken to upgrade. Tabulate can be deactivated and
+reactivated without losing any data; if uninstalled, it will remove everything
+that it's added (but you will be warned before this happens, don't worry).
+
+No custom database tables are modified during upgrade, activation, deactivation,
+or uninstallation.
+
+For more information, please see the user manual:
+http://tabulate.readthedocs.org/en/latest/install.html
