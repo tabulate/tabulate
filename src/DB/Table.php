@@ -194,7 +194,7 @@ class Table {
 		// Validate the column name.
 		$valid_columm = in_array( $column, array_keys( $this->get_columns() ), true );
 		if ( ! $valid_columm ) {
-			$msg = __( '"%s" is not a valid column of table "%s".', 'tabulate' );
+			$msg = __( '"%1$s" is not a valid column of table "%2$s".', 'tabulate' );
 			throw new Exception( sprintf( $msg, $column, $this->get_name() ) );
 		}
 		// Validate the operator.
