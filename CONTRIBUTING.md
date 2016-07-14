@@ -23,6 +23,19 @@ and the Travis build file `.travis.yml`.
 When updating scripts, the version numbers in `WordPress\Tabulate\Menus::admin_enqueue()`
 also need to be updated (or should these just be changed to also use `TABULATE_VERSION`?).
 
+## Documentation generation
+
+The main user manual at http://tabulate.readthedocs.io/ is built by the Sphinx documentation generator
+from ReStructureText files in the `tabulate/docs` directory.
+A [primer](http://www.sphinx-doc.org/en/stable/rest.html)  for the syntax is available on the Sphinx website
+
+To build the documentation locally, first make sure you've got Sphinx installed
+then change to the `docs/` directory to run `make html` (or `make.bat html` if you're on Windows).
+It will put the generated documentation in the `docs/_build/html/` directory.
+
+There are various links to the MySQL documentation that should be updated
+when new MySQL versions are released (we always link to the most recent version).
+
 ## Ideas for future development
 
 Some possibilities:

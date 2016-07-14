@@ -66,42 +66,7 @@ See http://tabulate.readthedocs.org/en/latest/install.html
 
 ## Frequently Asked Questions
 
-### Where is the documentation?
-
-Tabulate documentation is hosted on *Read The Docs* at http://tabulate.readthedocs.org/
-
-### Where should issues be reported?
-
-Please log all bugs, feature requests, and other issues in the GitHub issue
-tracker at https://github.com/tabulate/tabulate/issues
-
-### What modifications does Tabulate make to the database?
-
-Two database tables are created, and one [option](http://codex.wordpress.org/Option_Reference),
-all prefixed with `tabulate_`. When Tabulate is uninstalled, all of these are
-deleted (but custom tables are not touched).
-
-### Is row-level access control possible?
-
-This should be done by creating a [view](https://dev.mysql.com/doc/refman/5.1/en/create-view.html)
-(of one or more tables) and granting access to that.
-
-### What reasons exist for the 'failed to create *.csv' error?
-
-If you are getting an error like "Failed to create C:\Windows\Temp\tabulate_5593a4c432a67.csv"
-or "Failed to create /tmp/tabulate_5593a4c432a67.csv"
-then you should
-
-1. firstly check that your database user has the [FILE privilege](https://dev.mysql.com/doc/refman/5.7/en/privileges-provided.html#priv_file);
-2. then make sure your web server user has write-access to the system temp directory;
-3. and if those don't work, add the following to your `wp-config.php`:
-   `define( 'WP_TEMP_DIR', ABSPATH . 'wp-content/tmp/' );` and create the `wp-content/tmp/` directory.
-
-### Where is the developers' documentation?
-
-For information about the development of Tabulate or integrating other plugins
-with it please see
-[CONTRIBUTING.md](https://github.com/tabulate/tabulate/blob/master/CONTRIBUTING.md#contributing).
+See http://tabulate.readthedocs.org/en/latest/faq.html
 
 ## Screenshots
 
@@ -122,12 +87,3 @@ A full list of all changes can be found at https://github.com/tabulate/tabulate/
 
 Prior to version 1, no changes were listed here (there were too many of them, and
 nothing was stable yet).
-
-## Upgrade Notice
-
-No special action needs to be taken to upgrade. Tabulate can be deactivated and
-reactivated without losing any data; if uninstalled, it will remove everything
-that it's added (but you will be warned before this happens, don't worry).
-
-No custom database tables are modified during upgrade, activation, deactivation,
-or uninstallation.

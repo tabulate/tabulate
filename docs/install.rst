@@ -32,3 +32,10 @@ This will ensure that all required database updates are carried out
 
 After version 2.0.0 you must switch to version 2 of the REST API plugin (``rest-api``).
 Remove the older one (``json-rest-api``).
+
+Tabulate can be deactivated and reactivated without losing any data;
+if uninstalled, it will remove everything that it's added
+(but you will be warned before this happens, don't worry).
+
+None of your custom database tables are modified
+during upgrade, activation, deactivation, or uninstallation.

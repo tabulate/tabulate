@@ -172,4 +172,19 @@ class Database {
 			throw new Exception( $msg );
 		}
 	}
+
+    /**
+     * Get the name of the directory to which MySQL will write temporary export files.
+     * This is either the value of the 'secure_file_priv' server variable,
+     * or WordPress's normal temporary directory as returned by get_temp_dir().
+     * Always has a trailing slash.
+     *
+     * @return string Full path of the directory.
+     */
+    public function get_tmp_dir() {
+        $query = "SHOW VARIABLES LIKE 'secure_file_priv';";
+        $dir = $this->get_wpdb()->get_var($query, 1);
+        $out = (empty($dir)) ? get_temp_dir() : $dir;
+        return rtrim($out, '/').'/';
+    }
 }

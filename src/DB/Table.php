@@ -718,7 +718,7 @@ class Table {
 
 		$params = $this->apply_filters( $sql );
 
-		$filename = get_temp_dir() . uniqid( 'tabulate_' ) . '.csv';
+		$filename = $this->get_database()->get_tmp_dir() . uniqid( 'tabulate_' ) . '.csv';
 		if ( DIRECTORY_SEPARATOR === '\\' ) {
 			// Clean Windows slashes, for MySQL's benefit.
 			$filename = str_replace( '\\', '/', $filename );
@@ -744,6 +744,7 @@ class Table {
 		$wpdb->query( $sql );
 		// Make sure it exported.
 		if ( ! file_exists( $filename ) ) {
+			// Note that this error message is quoted in the documentation.
 			$msg = "Unable to create temporary export file:<br /><code>$filename</code>";
 			Exception::wp_die( $msg, 'Export failed', $wpdb->last_error, $sql ); // WPCS: XSS OK.
 		}

@@ -52,4 +52,4 @@ Contents
    intro
    install
    shortcode
-   reports
+   faq
