@@ -42,19 +42,24 @@ class ShortcodeController extends ControllerBase {
 	/**
 	 * Substitute the Shortcode with the relevant formatted output.
 	 *
-	 * @param string[] $atts The shortcode attributes.
+	 * @param string[] $raw_attrs The shortcode attributes.
 	 * @return string
 	 */
-	public function run( $atts ) {
+	public function run( $raw_attrs ) {
 		$defaults = array(
 			'format' => 'table',
 			'table' => null,
 			'ident' => null,
 			'search' => null,
 		);
-		$attrs = shortcode_atts( $defaults, $atts );
+		$attrs = shortcode_atts( $defaults, $raw_attrs );
 		if ( ! isset( $attrs['table'] ) ) {
-			return $this->error( "The 'table' attribute must be set." );
+			$msg = "The 'table' attribute must be set. Attributes found: [";
+			foreach ( $raw_attrs as $k => $v ) {
+				$msg .= ' ' . htmlentities2( $k ) .' = "' . htmlentities2( $v ) . '" ';
+			}
+			$msg .= "]";
+			return $this->error( $msg );
 		}
 		$table = $this->db->get_table( $attrs['table'] );
 		if ( ! $table ) {
@@ -73,13 +78,19 @@ class ShortcodeController extends ControllerBase {
 	}
 
 	/**
-	 * Get an error message, and dequeue scripts.
-	 * It's too late now to dequeue styles.
+	 * Get a formatted error message.
 	 *
 	 * @param string $message The error message to display.
+	 * @return string The error HTML.
 	 */
 	protected function error( $message = '' ) {
-		return "<div class='tabulate shortcode-error'>$message</div>";
+		$url = "http://tabulate.readthedocs.io/en/latest/shortcode.html";
+		return "<div class='tabulate shortcode-error'>"
+			. "<h3>Tabulate shortcode error:</h3> "
+			. "<p class='message'>$message</p>"
+			. "<p>For more information, please "
+			. "<a href='$url' target='_blank' title='Opens in new tab'>read the docs</a>."
+			. "</p></div>";
 	}
 
 	/**

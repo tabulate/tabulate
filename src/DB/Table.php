@@ -297,22 +297,22 @@ class Table {
 				$f_column = "`" . $this->get_name() . "`.`$f_column`";
 			}
 
-			// LIKE or NOT LIKE.
 			if ( 'like' === $filter['operator'] || 'not like' === $filter['operator'] ) {
+				// LIKE or NOT LIKE.
 				$where_clause .= " AND CONVERT($f_column, CHAR) " . strtoupper( $filter['operator'] ) . " %s ";
 				$params[ $param_name ] = '%' . trim( $filter['value'] ) . '%';
-			} // Equals or does-not-equal
-			elseif ( '=' === $filter['operator'] || '!=' === $filter['operator'] ) {
+			} elseif ( '=' === $filter['operator'] || '!=' === $filter['operator'] ) {
+				// Equals or does-not-equal.
 				$where_clause .= " AND $f_column " . $filter['operator'] . " %s ";
 				$params[ $param_name ] = trim( $filter['value'] );
-			} // IS EMPTY
-			elseif ( 'empty' === $filter['operator'] ) {
+			} elseif ( 'empty' === $filter['operator'] ) {
+				// IS EMPTY.
 				$where_clause .= " AND ($f_column IS NULL OR $f_column = '')";
-			} // IS NOT EMPTY
-			elseif ( 'not empty' === $filter['operator'] ) {
+			} elseif ( 'not empty' === $filter['operator'] ) {
+				// IS NOT EMPTY.
 				$where_clause .= " AND ($f_column IS NOT NULL AND $f_column != '')";
-			} // IN or NOT IN
-			elseif ( 'in' === $filter['operator'] || 'not in' === $filter['operator'] ) {
+			} elseif ( 'in' === $filter['operator'] || 'not in' === $filter['operator'] ) {
+				// IN or NOT IN.
 				$placeholders = array();
 				foreach ( Util::split_newline( $filter['value'] ) as $vid => $val ) {
 					$placeholders[] = "%s";
@@ -322,14 +322,14 @@ class Table {
 				}
 				$negate = ( 'not in' === $filter['operator'] ) ? 'NOT' : '';
 				$where_clause .= " AND ($f_column $negate IN (" . join( ", ", $placeholders ) . "))";
-			} // Other operators. They're already validated in self::addFilter().
-			else {
+			} else {
+				// Other operators. They're already validated in self::addFilter().
 				$where_clause .= " AND ($f_column " . $filter['operator'] . " %s)";
 				$params[ $param_name ] = trim( $filter['value'] );
-			}
+			} // End if().
 
 			$param_num++;
-		} // end foreach filter.
+		} // End foreach().
 
 		// Add clauses into SQL.
 		if ( ! empty( $where_clause ) ) {
@@ -1175,8 +1175,8 @@ class Table {
 				// Everything else.
 				$sql_values[ $field ] = "'" . esc_sql( $value ) . "'";
 
-			}
-		}
+			} // End if().
+		} // End foreach().
 
 		// Find the PK, and hide errors (for now).
 		$pk_name = $this->get_pk_column()->get_name();

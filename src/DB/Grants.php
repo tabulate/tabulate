@@ -27,6 +27,11 @@ class Grants {
 	 */
 	const ANON_ROLE = 'anon';
 
+	/**
+	 * The name of the option under which grants are saved. Is always 'tabulate_grants'.
+	 *
+	 * @var string
+	 */
 	private $option_name;
 
 	/**

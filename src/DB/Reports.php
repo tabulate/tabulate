@@ -67,8 +67,12 @@ class Reports {
 	public function get_template( $report_id ) {
 		// Find the report.
 		$reports = $this->db->get_table( self::reports_table_name() );
+		if ( false === $reports ) {
+			$msg = "Reports table not found. Please re-activate Tabulate to create it.";
+			throw new Exception( $msg );
+		}
 		$report = $reports->get_record( $report_id );
-		if ( ! $report ) {
+		if ( false === $report ) {
 			throw new Exception( "Report $report_id not found." );
 		}
 		$template = new \WordPress\Tabulate\Template( false, $report->template() );

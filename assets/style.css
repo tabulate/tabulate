@@ -71,3 +71,6 @@ form.tabulate-schema td.primary-key,
 form.tabulate-schema td.unique { text-align:center }
 form.tabulate-schema td.reorder { font-size:smaller; white-space:nowrap }
 form.tabulate-schema td.reorder a.move {  }
+
+.tabulate.shortcode-error { border:1px solid #ccc; padding:0.5em }
+.tabulate.shortcode-error .message { color:red }

@@ -10,7 +10,7 @@
  * Version: 2.7.13
  */
 
-define( 'TABULATE_VERSION', '2.7.13' );
+define( 'TABULATE_VERSION', '2.7.14' );
 define( 'TABULATE_SLUG', 'tabulate' );
 
 // Load textdomain.

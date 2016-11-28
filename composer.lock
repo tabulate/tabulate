@@ -45,16 +45,16 @@
         },
         {
             "name": "symfony/options-resolver",
-            "version": "v2.8.8",
+            "version": "v2.8.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/options-resolver.git",
-                "reference": "b6f982782a0624d37b5416c2c96fb99ce5ab74d5"
+                "reference": "4820e0d73b95b788986a5a61434a75aa2f87eb87"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/options-resolver/zipball/b6f982782a0624d37b5416c2c96fb99ce5ab74d5",
-                "reference": "b6f982782a0624d37b5416c2c96fb99ce5ab74d5",
+                "url": "https://api.github.com/repos/symfony/options-resolver/zipball/4820e0d73b95b788986a5a61434a75aa2f87eb87",
+                "reference": "4820e0d73b95b788986a5a61434a75aa2f87eb87",
                 "shasum": ""
             },
             "require": {
@@ -95,20 +95,20 @@
                 "configuration",
                 "options"
             ],
-            "time": "2016-06-29 05:29:29"
+            "time": "2016-10-18 04:28:30"
         },
         {
             "name": "twig/twig",
-            "version": "v1.24.1",
+            "version": "v1.28.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "3566d311a92aae4deec6e48682dc5a4528c4a512"
+                "reference": "b22ce0eb070e41f7cba65d78fe216de29726459c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/3566d311a92aae4deec6e48682dc5a4528c4a512",
-                "reference": "3566d311a92aae4deec6e48682dc5a4528c4a512",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/b22ce0eb070e41f7cba65d78fe216de29726459c",
+                "reference": "b22ce0eb070e41f7cba65d78fe216de29726459c",
                 "shasum": ""
             },
             "require": {
@@ -116,12 +116,12 @@
             },
             "require-dev": {
                 "symfony/debug": "~2.7",
-                "symfony/phpunit-bridge": "~2.7"
+                "symfony/phpunit-bridge": "~3.2@dev"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.24-dev"
+                    "dev-master": "1.28-dev"
                 }
             },
             "autoload": {
@@ -156,7 +156,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2016-05-30 09:11:59"
+            "time": "2016-11-23 18:41:40"
         },
         {
             "name": "yohang/calendr",
@@ -224,12 +224,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "4edb770cb853def6e60c93abb088ad5ac2010c83"
+                "reference": "158ee422085dea9b649107bca4e47eb9695e970c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/4edb770cb853def6e60c93abb088ad5ac2010c83",
-                "reference": "4edb770cb853def6e60c93abb088ad5ac2010c83",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/158ee422085dea9b649107bca4e47eb9695e970c",
+                "reference": "158ee422085dea9b649107bca4e47eb9695e970c",
                 "shasum": ""
             },
             "require": {
@@ -294,7 +294,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2016-07-13 23:29:13"
+            "time": "2016-11-24 00:31:56"
         },
         {
             "name": "wp-coding-standards/wpcs",
@@ -302,16 +302,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards.git",
-                "reference": "0a5973a06f905a05971efaa6783eb2450a5d2ebe"
+                "reference": "c76ad023afd934a88e3be06420834d32a66fc9f3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress-Coding-Standards/WordPress-Coding-Standards/zipball/0a5973a06f905a05971efaa6783eb2450a5d2ebe",
-                "reference": "0a5973a06f905a05971efaa6783eb2450a5d2ebe",
+                "url": "https://api.github.com/repos/WordPress-Coding-Standards/WordPress-Coding-Standards/zipball/c76ad023afd934a88e3be06420834d32a66fc9f3",
+                "reference": "c76ad023afd934a88e3be06420834d32a66fc9f3",
                 "shasum": ""
             },
             "require": {
-                "squizlabs/php_codesniffer": "~2.2"
+                "squizlabs/php_codesniffer": "^2.7"
             },
             "type": "library",
             "notification-url": "https://packagist.org/downloads/",
@@ -330,7 +330,7 @@
                 "standards",
                 "wordpress"
             ],
-            "time": "2016-07-11 18:51:15"
+            "time": "2016-11-21 22:42:56"
         }
     ],
     "aliases": [],
