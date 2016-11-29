@@ -3,14 +3,14 @@
  * Plugin Name: Tabulate
  * Description: Manage relational tabular data within the WP admin area, using the full power of your MySQL database.
  * Author: Sam Wilson
- * Author URI: http://samwilson.id.au/
+ * Author URI: https://samwilson.id.au/
  * License: GPL-2.0+
  * Text Domain: tabulate
  * Domain Path: /languages
- * Version: 2.7.13
+ * Version: 2.7.16
  */
 
-define( 'TABULATE_VERSION', '2.7.15' );
+define( 'TABULATE_VERSION', '2.7.16' );
 define( 'TABULATE_SLUG', 'tabulate' );
 
 // Load textdomain.
@@ -21,7 +21,7 @@ add_action( 'plugins_loaded', function() {
 // Make sure Composer has been set up (for installation from Git, mostly).
 if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	add_action( 'admin_notices', function() {
-		$msg = __( 'Please run <tt>composer install</tt> prior to using Tabulate.', 'tabulate' );
+		$msg = __( 'Please run <kbd>composer install</kbd> prior to using Tabulate.', 'tabulate' );
 		echo "<div class='error'><p>$msg</p></div>";
 	} );
 	return;
