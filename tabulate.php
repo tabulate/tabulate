@@ -7,10 +7,10 @@
  * License: GPL-2.0+
  * Text Domain: tabulate
  * Domain Path: /languages
- * Version: 2.7.17
+ * Version: 2.7.18
  */
 
-define( 'TABULATE_VERSION', '2.7.17' );
+define( 'TABULATE_VERSION', '2.7.18' );
 define( 'TABULATE_SLUG', 'tabulate' );
 
 // Load textdomain.

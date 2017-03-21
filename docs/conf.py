@@ -12,7 +12,7 @@ master_doc = 'index'
 project = u'Tabulate for WordPress'
 copyright = u'2016, Sam Wilson'
 version = '2.7'
-release = '2.7.17'
+release = '2.7.18'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
