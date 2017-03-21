@@ -23,14 +23,18 @@ class ExportTest extends TestBase {
 
 		// Add some data to the table.
 		$test_table = $this->db->get_table( 'test_types' );
-		$test_table->save_record( array( 'title' => 'One' ) );
-		$test_table->save_record( array( 'title' => 'Two' ) );
+		$test_table->save_record( array(
+			'title' => 'One',
+		) );
+		$test_table->save_record( array(
+			'title' => 'Two',
+		) );
 		$filename = $test_table->export();
 		$this->assertFileExists( $filename );
 		$csv = '"ID","Title"' . "\r\n"
 			. '"1","One"' . "\r\n"
 			. '"2","Two"' . "\r\n";
-		$this->assertEquals( $csv, file_get_contents( $filename ) );
+		$this->assertEquals( $csv, $this->filesystem->get_contents( $filename ) );
 	}
 
 	/**
@@ -48,20 +52,26 @@ class ExportTest extends TestBase {
 		);
 		$db = new WordPress\Tabulate\DB\Database( $this->wpdb );
 		$test_table = $db->get_table( 'point_export_test' );
-		$test_table->save_record( array( 'title' => 'Test', 'geo_loc' => 'POINT(10.1 20.2)' ) );
+		$test_table->save_record( array(
+			'title' => 'Test',
+			'geo_loc' => 'POINT(10.1 20.2)',
+		) );
 		$filename = $test_table->export();
 		$this->assertFileExists( $filename );
 		$csv = '"ID","Title","Geo Loc"' . "\r\n"
 			. '"1","Test","POINT(10.1 20.2)"' . "\r\n";
-		$this->assertEquals( $csv, file_get_contents( $filename ) );
+		$this->assertEquals( $csv, $this->filesystem->get_contents( $filename ) );
 
 		// Check nullable.
-		$test_table->save_record( array( 'title' => 'Test 2', 'geo_loc' => null ) );
+		$test_table->save_record( array(
+			'title' => 'Test 2',
+			'geo_loc' => null,
+		) );
 		$filename2 = $test_table->export();
 		$this->assertFileExists( $filename2 );
 		$csv2 = '"ID","Title","Geo Loc"' . "\r\n"
 			. '"1","Test","POINT(10.1 20.2)"' . "\r\n"
 			. '"2","Test 2",""' . "\r\n";
-		$this->assertEquals( $csv2, file_get_contents( $filename2 ) );
+		$this->assertEquals( $csv2, $this->filesystem->get_contents( $filename2 ) );
 	}
 }

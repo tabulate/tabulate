@@ -60,7 +60,9 @@ class SchemaEditingTest extends TestBase {
 	public function rename_table_history() {
 		// Create a record in the table and check its history size.
 		$test_table = $this->db->get_table( 'test_table' );
-		$rec1 = $test_table->save_record( array( 'title' => 'Testing' ) );
+		$rec1 = $test_table->save_record( array(
+			'title' => 'Testing',
+		) );
 		$this->assertEquals( 1, $rec1->id() );
 		$this->assertCount( 4, $rec1->get_changes() );
 
@@ -171,7 +173,9 @@ class SchemaEditingTest extends TestBase {
 		$table = $this->db->create_table( 'new_table' );
 		$table->add_column( 'info', 'integer', 20 );
 		$col = $table->get_column( 'info' );
-		$table->save_record( array( 'info' => 99 ) );
+		$table->save_record( array(
+			'info' => 99,
+		) );
 
 		// Make sure the column starts as we expect.
 		$this->assertEquals( 'INT', $col->get_xtype()['type'] );
@@ -331,7 +335,9 @@ class SchemaEditingTest extends TestBase {
 		// Create a table and add some data to it.
 		$table = $this->db->create_table( 'new_table' );
 		$table->add_column( 'title', 'text_short' );
-		$table->save_record( array( 'title' => 'Test Record' ) );
+		$table->save_record( array(
+			'title' => 'Test Record',
+		) );
 		// Make sure it and the data were added as we expect.
 		$this->assertContains( 'new_table', $this->db->get_table_names() );
 		$this->assertCount( 1, $table->get_records() );

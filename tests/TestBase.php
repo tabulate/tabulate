@@ -19,6 +19,13 @@ abstract class TestBase extends WP_UnitTestCase {
 	protected $db;
 
 	/**
+	 * The global filesystem object.
+	 *
+	 * @var WP_Filesystem_Base
+	 */
+	protected $filesystem;
+
+	/**
 	 * The global wpdb object.
 	 *
 	 * @var wpdb
@@ -32,7 +39,7 @@ abstract class TestBase extends WP_UnitTestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
-		global $wpdb;
+		global $wpdb, $wp_filesystem;
 
 		// Current a test user and make them current.
 		$tester = get_user_by( 'email', 'test@example.com' );
@@ -45,6 +52,10 @@ abstract class TestBase extends WP_UnitTestCase {
 
 		// Get the database.
 		$this->wpdb = $wpdb;
+
+		// Set up the filesystem.
+		WP_Filesystem();
+		$this->filesystem = $wp_filesystem;
 
 		// Prevent parent from enforcing TEMPORARY tables.
 		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );

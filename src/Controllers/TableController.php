@@ -30,6 +30,7 @@ class TableController extends ControllerBase {
 		$table = $db->get_table( $table_name );
 		if ( ! $table ) {
 			add_action( 'admin_notices', function( $table_name ) use ( $table_name ) {
+				// Translators: Error message shown when the table can not be found.
 				$err = __( 'Table "%s" not found.', 'tabulate' );
 				echo "<div class='error'><p>" . sprintf( $err, $table_name ) . "</p></div>";
 			} );
@@ -139,7 +140,9 @@ class TableController extends ControllerBase {
 			$uploaded = false;
 			if ( isset( $_FILES['file'] ) ) {
 				check_admin_referer( 'import-upload' );
-				$uploaded = wp_handle_upload( $_FILES['file'], array( 'action' => $template->action ) );
+				$uploaded = wp_handle_upload( $_FILES['file'], array(
+					'action' => $template->action,
+				) );
 			}
 			$csv_file = new CSV( $hash, $uploaded );
 		} catch ( \Exception $e ) {

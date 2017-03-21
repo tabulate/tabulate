@@ -29,6 +29,8 @@ class Exception extends \Exception {
 				$msg .= '<p>Query was:</p><pre>' . esc_html( $sql ) . '</pre>';
 			}
 		}
-		wp_die( $msg, $title, array( 'back_link' => true ) );
+		wp_die( $msg, $title, array(
+			'back_link' => true,
+		) );
 	}
 }

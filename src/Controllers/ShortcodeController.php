@@ -56,7 +56,7 @@ class ShortcodeController extends ControllerBase {
 		if ( ! isset( $attrs['table'] ) ) {
 			$msg = "The 'table' attribute must be set. Attributes found: [";
 			foreach ( $raw_attrs as $k => $v ) {
-				$msg .= ' ' . htmlentities2( $k ) .' = "' . htmlentities2( $v ) . '" ';
+				$msg .= ' ' . htmlentities2( $k ) . ' = "' . htmlentities2( $v ) . '" ';
 			}
 			$msg .= "]";
 			return $this->error( $msg );

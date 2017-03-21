@@ -34,7 +34,7 @@ class ImportTest extends TestBase {
 	 */
 	private function save_data_file( $data ) {
 		$test_filename = get_temp_dir() . '/test_' . uniqid() . '.csv';
-		file_put_contents( $test_filename, $data );
+		$this->filesystem->put_contents( $test_filename, $data );
 		$uploaded = array(
 			'type' => 'text/csv',
 			'file' => $test_filename,
@@ -55,7 +55,9 @@ class ImportTest extends TestBase {
 		$uploaded = $this->save_data_file( $csv );
 		$csv = new CSV( null, $uploaded );
 		$csv->load_data();
-		$column_map = array( 'title' => 'Title' );
+		$column_map = array(
+			'title' => 'Title',
+		);
 		$csv->import_data( $testtypes_table, $column_map );
 		// Make sure 2 records were imported.
 		$this->assertEquals( 2, $testtypes_table->count_records() );
@@ -76,7 +78,9 @@ class ImportTest extends TestBase {
 	 */
 	public function primary_key() {
 		$testtable = $this->db->get_table( 'test_table' );
-		$rec1 = $testtable->save_record( array( 'title' => 'PK Test' ) );
+		$rec1 = $testtable->save_record( array(
+			'title' => 'PK Test',
+		) );
 		$this->assertEquals( 1, $testtable->count_records() );
 		$this->assertNull( $rec1->description() );
 
@@ -86,7 +90,11 @@ class ImportTest extends TestBase {
 		$uploaded = $this->save_data_file( $csv );
 		$csv = new CSV( null, $uploaded );
 		$csv->load_data();
-		$column_map = array( 'id' => 'ID', 'title' => 'Title', 'description' => 'Description' );
+		$column_map = array(
+			'id' => 'ID',
+			'title' => 'Title',
+			'description' => 'Description',
+		);
 		$csv->import_data( $testtable, $column_map );
 		// Make sure there's still only one record, and that it's been updated.
 		$this->assertEquals( 1, $testtable->count_records() );
@@ -99,7 +107,10 @@ class ImportTest extends TestBase {
 			. '"1","New description"' . "\r\n";
 		$uploaded2 = $this->save_data_file( $csv );
 		$csv2 = new CSV( null, $uploaded2 );
-		$column_map2 = array( 'id' => 'ID', 'description' => 'Description' );
+		$column_map2 = array(
+			'id' => 'ID',
+			'description' => 'Description',
+		);
 		$csv2->import_data( $testtable, $column_map2 );
 		// Make sure there's still only one record, and that it's been updated.
 		$this->assertEquals( 1, $testtable->count_records() );
@@ -115,9 +126,15 @@ class ImportTest extends TestBase {
 	 */
 	public function nullable_foreign_keys() {
 		// Set up foreign record and some other things.
-		$this->db->get_table( 'test_types' )->save_record( [ 'title' => 'A type' ] );
+		$this->db->get_table( 'test_types' )->save_record( [
+			'title' => 'A type',
+		] );
 		$test_table = $this->db->get_table( 'test_table' );
-		$column_map = array( 'id' => 'ID', 'title' => 'Title', 'type_id' => 'Type' );
+		$column_map = array(
+			'id' => 'ID',
+			'title' => 'Title',
+			'type_id' => 'Type',
+		);
 
 		// Import data.
 		$csv_data_1 = '"Title","Type"' . "\r\n"

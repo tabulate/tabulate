@@ -49,7 +49,9 @@ class SchemaTest extends TestBase {
 		$grants = new Grants();
 		$grants->set(
 			array(
-				'test_table' => array( Grants::READ => array( 'administrator' ) ),
+				'test_table' => array(
+					Grants::READ => array( 'administrator' ),
+				),
 			)
 		);
 
@@ -130,7 +132,9 @@ class SchemaTest extends TestBase {
 		$this->assertTrue( $title_col->is_required() );
 
 		// Create a basic record.
-		$widget = array( 'title' => 'Test Item' );
+		$widget = array(
+			'title' => 'Test Item',
+		);
 		$test_table->save_record( $widget );
 		$this->assertEquals( 1, $test_table->count_records() );
 		$widget_records = $test_table->get_records();
@@ -225,7 +229,9 @@ class SchemaTest extends TestBase {
 		$db = new WordPress\Tabulate\DB\Database( $this->wpdb );
 		$tbl = $db->get_table( 'test_varchar_pk' );
 		$this->assertEquals( 'ident', $tbl->get_pk_column()->get_name() );
-		$rec = $tbl->save_record( array( 'ident' => 'TEST123' ) );
+		$rec = $tbl->save_record( array(
+			'ident' => 'TEST123',
+		) );
 		$this->assertEquals( 'TEST123', $rec->get_primary_key() );
 	}
 
@@ -253,7 +259,9 @@ class SchemaTest extends TestBase {
 	public function boolean() {
 		// Set up a test record to work with.
 		$test_table = $this->db->get_table( 'test_table' );
-		$rec = $test_table->save_record( array( 'title' => 'Boolean Test' ) );
+		$rec = $test_table->save_record( array(
+			'title' => 'Boolean Test',
+		) );
 
 		// Default is 'true' and the column IS nullable.
 		$this->assertTrue( $rec->active() );
@@ -261,29 +269,47 @@ class SchemaTest extends TestBase {
 		$this->assertTrue( $test_table->get_column( 'active' )->nullable() );
 
 		// One and zero.
-		$rec2 = $test_table->save_record( array( 'active' => 1 ), $rec->id() );
+		$rec2 = $test_table->save_record( array(
+			'active' => 1,
+		), $rec->id() );
 		$this->assertTrue( $rec2->active() );
-		$rec3 = $test_table->save_record( array( 'active' => '1' ), $rec->id() );
+		$rec3 = $test_table->save_record( array(
+			'active' => '1',
+		), $rec->id() );
 		$this->assertTrue( $rec3->active() );
-		$rec4 = $test_table->save_record( array( 'active' => 0 ), $rec->id() );
+		$rec4 = $test_table->save_record( array(
+			'active' => 0,
+		), $rec->id() );
 		$this->assertFalse( $rec4->active() );
-		$rec5 = $test_table->save_record( array( 'active' => '0' ), $rec->id() );
+		$rec5 = $test_table->save_record( array(
+			'active' => '0',
+		), $rec->id() );
 		$this->assertFalse( $rec5->active() );
 
 		// Yes and No.
-		$rec6 = $test_table->save_record( array( 'active' => 'Yes' ), $rec->id() );
+		$rec6 = $test_table->save_record( array(
+			'active' => 'Yes',
+		), $rec->id() );
 		$this->assertTrue( $rec6->active() );
-		$rec7 = $test_table->save_record( array( 'active' => 'No' ), $rec->id() );
+		$rec7 = $test_table->save_record( array(
+			'active' => 'No',
+		), $rec->id() );
 		$this->assertFalse( $rec7->active() );
 
 		// True and false. WPCS OK.
-		$rec8 = $test_table->save_record( array( 'active' => 'TRUE' ), $rec->id() );
+		$rec8 = $test_table->save_record( array(
+			'active' => 'TRUE',
+		), $rec->id() );
 		$this->assertTrue( $rec8->active() );
-		$rec9 = $test_table->save_record( array( 'active' => 'false' ), $rec->id() );
+		$rec9 = $test_table->save_record( array(
+			'active' => 'false',
+		), $rec->id() );
 		$this->assertFalse( $rec9->active() );
 
 		// Empty equals null.
-		$rec10 = $test_table->save_record( array( 'active' => '' ), $rec->id() );
+		$rec10 = $test_table->save_record( array(
+			'active' => '',
+		), $rec->id() );
 		$this->assertNull( $rec10->active() );
 	}
 
@@ -341,7 +367,9 @@ class SchemaTest extends TestBase {
 		$this->wpdb->query( $sql );
 		$db = new WordPress\Tabulate\DB\Database( $this->wpdb );
 		$tbl = $db->get_table( 'provided_pk' );
-		$rec = $tbl->save_record( array( 'code' => 'TEST' ) );
+		$rec = $tbl->save_record( array(
+			'code' => 'TEST',
+		) );
 		$this->assertEquals( 'TEST', $rec->get_primary_key() );
 	}
 

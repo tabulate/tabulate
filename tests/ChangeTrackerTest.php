@@ -45,7 +45,9 @@ class ChangeTrackerTest extends TestBase {
 	 */
 	public function basic() {
 		$test_table = $this->db->get_table( 'test_types' );
-		$rec = $test_table->save_record( array( 'title' => 'One' ) );
+		$rec = $test_table->save_record( array(
+			'title' => 'One',
+		) );
 
 		// Initial changeset and changes.
 		$changes1 = $rec->get_changes();
@@ -57,7 +59,9 @@ class ChangeTrackerTest extends TestBase {
 		$this->assertEquals( 'One', $changes1_rec->new_value );
 
 		// Modify one value, and inspect the new change record.
-		$rec2 = $test_table->save_record( array( 'title' => 'Two' ), $rec->id() );
+		$rec2 = $test_table->save_record( array(
+			'title' => 'Two',
+		), $rec->id() );
 		$changes2 = $rec2->get_changes();
 		$this->assertCount( 3, $changes2 );
 		$changes2_rec = array_shift( $changes2 );
@@ -73,7 +77,10 @@ class ChangeTrackerTest extends TestBase {
 	 */
 	public function changeset_comment() {
 		$test_types = $this->db->get_table( 'test_types' );
-		$rec = $test_types->save_record( array( 'title' => 'One', 'changeset_comment' => 'Testing.' ) );
+		$rec = $test_types->save_record( array(
+			'title' => 'One',
+			'changeset_comment' => 'Testing.',
+		) );
 		$changes = $rec->get_changes();
 		$change = array_pop( $changes );
 		$this->assertEquals( "Testing.", $change->comment );
@@ -105,7 +112,10 @@ class ChangeTrackerTest extends TestBase {
 		$this->assertFalse( Grants::current_user_can( Grants::CREATE, ChangeTracker::changes_name() ) );
 		// Succcessfully save a record.
 		$test_table = $this->db->get_table( 'test_table' );
-		$rec = $test_table->save_record( array( 'title' => 'One', 'changeset_comment' => 'Testing.' ) );
+		$rec = $test_table->save_record( array(
+			'title' => 'One',
+			'changeset_comment' => 'Testing.',
+		) );
 		$this->assertEquals( 1, $rec->id() );
 	}
 
@@ -117,9 +127,14 @@ class ChangeTrackerTest extends TestBase {
 	public function fk_titles() {
 		// Set up data.
 		$test_types = $this->db->get_table( 'test_types' );
-		$type = $test_types->save_record( array( 'title' => 'The Type' ) );
+		$type = $test_types->save_record( array(
+			'title' => 'The Type',
+		) );
 		$test_table = $this->db->get_table( 'test_table' );
-		$rec = $test_table->save_record( array( 'title' => 'A Record', 'type_id' => $type->id() ) );
+		$rec = $test_table->save_record( array(
+			'title' => 'A Record',
+			'type_id' => $type->id(),
+		) );
 		// Test.
 		$changes = $rec->get_changes();
 		$change = $changes[3];
@@ -135,8 +150,12 @@ class ChangeTrackerTest extends TestBase {
 	public function delete() {
 		// Create two, to make sure only one is deleted.
 		$test_types = $this->db->get_table( 'test_types' );
-		$test_types->save_record( array( 'title' => 'First Type' ) );
-		$test_types->save_record( array( 'title' => 'Second Type' ) );
+		$test_types->save_record( array(
+			'title' => 'First Type',
+		) );
+		$test_types->save_record( array(
+			'title' => 'Second Type',
+		) );
 		$this->assertEquals( 2, $test_types->count_records() );
 		$test_types->delete_record( 2 );
 		$this->assertEquals( 1, $test_types->count_records() );
@@ -144,7 +163,9 @@ class ChangeTrackerTest extends TestBase {
 		$this->assertEquals( 1, $changesets->count_records() );
 
 		// Create another record, and delete it.
-		$rec3 = $test_types->save_record( array( 'title' => 'Third Type' ) );
+		$rec3 = $test_types->save_record( array(
+			'title' => 'Third Type',
+		) );
 		$this->assertEquals( 2, $test_types->count_records() );
 		$changesets->reset();
 		$this->assertEquals( 2, $changesets->count_records() );

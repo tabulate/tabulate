@@ -194,12 +194,14 @@ class Table {
 		// Validate the column name.
 		$valid_columm = in_array( $column, array_keys( $this->get_columns() ), true );
 		if ( ! $valid_columm ) {
+			// translators: Error message shown when a filter is passed an invalid field name.
 			$msg = __( '"%1$s" is not a valid column of table "%2$s".', 'tabulate' );
 			throw new Exception( sprintf( $msg, $column, $this->get_name() ) );
 		}
 		// Validate the operator.
 		$valid_operator = in_array( $operator, array_keys( $this->operators ), true );
 		if ( ! $valid_operator ) {
+			// translators: Error message shown when a filter is passed an invalid operator.
 			$msg = __( '"%s" is not a valid operator.', 'tabulate' );
 			throw new Exception( sprintf( $msg, $operator ) );
 		}
@@ -207,6 +209,7 @@ class Table {
 		$empty_value_allowed = ( strpos( $operator, 'empty' ) === false && ! empty( $value ) );
 		$valid_value = (strpos( $operator, 'empty' ) !== false) || $empty_value_allowed;
 		if ( ! $valid_operator ) {
+			// translators: Error message shown when a filter is passed an invalid value.
 			$msg = __( '"%s" is not a valid value.', 'tabulate' );
 			throw new Exception( sprintf( $msg, $value ) );
 		}
@@ -419,7 +422,10 @@ class Table {
 			}
 			$this->alias_count++;
 		}
-		return array( 'join_clause' => $join_clause, 'column_alias' => $column_alias );
+		return array(
+			'join_clause' => $join_clause,
+			'column_alias' => $column_alias,
+		);
 	}
 
 	/**
@@ -1082,17 +1088,23 @@ class Table {
 		$rec = $this->get_record( $pk_value );
 		$wpdb = $this->database->get_wpdb();
 		$wpdb->hide_errors();
-		$del = $wpdb->delete( $this->get_name(), array( $this->get_pk_column()->get_name() => $pk_value ) );
+		$del = $wpdb->delete( $this->get_name(), array(
+			$this->get_pk_column()->get_name() => $pk_value,
+		) );
 		if ( false === $del ) {
 			throw new Exception( $wpdb->last_error );
 		}
 		foreach ( $rec->get_changes() as $change ) {
-			$where_1 = array( 'changeset_id' => $change->changeset_id );
+			$where_1 = array(
+				'changeset_id' => $change->changeset_id,
+			);
 			$del_changes = $wpdb->delete( ChangeTracker::changes_name(), $where_1 );
 			if ( false === $del_changes ) {
 				throw new Exception( $wpdb->last_error );
 			}
-			$where_2 = array( 'id' => $change->changeset_id );
+			$where_2 = array(
+				'id' => $change->changeset_id,
+			);
 			$del_changesets = $wpdb->delete( ChangeTracker::changesets_name(), $where_2 );
 			if ( false === $del_changesets ) {
 				throw new Exception( $wpdb->last_error );

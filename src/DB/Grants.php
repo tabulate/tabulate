@@ -63,7 +63,9 @@ class Grants {
 	 * @return string[]
 	 */
 	public function get_roles() {
-		$roles = array( self::ANON_ROLE => 'Anonymous User' );
+		$roles = array(
+			self::ANON_ROLE => 'Anonymous User',
+		);
 		foreach ( wp_roles()->roles as $role_name => $role ) {
 			$roles[ $role_name ] = $role['name'];
 		}

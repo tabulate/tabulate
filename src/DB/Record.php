@@ -51,7 +51,7 @@ class Record {
 	 * @param mixed  $value The value to set.
 	 */
 	public function __set( $name, $value ) {
-		$this->data->$name = $value;
+		$this->data->{$name} = $value;
 	}
 
 	/**

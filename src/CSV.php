@@ -224,8 +224,8 @@ class CSV {
 						'messages' => $col_errors,
 					);
 				}
-			}
-		}
+			}// End foreach().
+		}// End for().
 		return $errors;
 	}
 

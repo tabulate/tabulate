@@ -60,7 +60,7 @@ add_shortcode( TABULATE_SLUG, array( $shortcode, 'run' ) );
 
 // Dashboard widget.
 add_action( 'wp_dashboard_setup', function() {
-	wp_add_dashboard_widget( TABULATE_SLUG . 'dashboard_widget', 'Tabulate', function(){
+	wp_add_dashboard_widget( TABULATE_SLUG . 'dashboard_widget', 'Tabulate', function() {
 		$template = new \WordPress\Tabulate\Template( 'quick_jump.html' );
 		echo $template->render();
 	} );
