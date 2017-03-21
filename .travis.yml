@@ -16,9 +16,9 @@ php:
 # WordPress versions to be tested against.
 # Include the highest patch versions of the last 3 versions (including the current one), as well as master.
 env:
-    - WP_VERSION=4.4.5
-    - WP_VERSION=4.5.4
-    - WP_VERSION=4.6.1
+    - WP_VERSION=4.5.7
+    - WP_VERSION=4.6.4
+    - WP_VERSION=4.7.3
     - WP_VERSION=master
 
 # Clones WordPress and configures our testing environment.
@@ -38,5 +38,6 @@ before_script:
 
 # Run the actual tests.
 script:
-    - phpunit
-    - vendor/bin/phpcs --standard=phpcs.xml -s
+    - composer validate
+    - vendor/bin/phpcs -s
+    - vendor/bin/phpunit
