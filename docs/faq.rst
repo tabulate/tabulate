@@ -39,17 +39,25 @@ and then:
 #. make sure your MySQL server user has write-access to the directory to which the CSV files are written,
    and your web server user has read access to the same directory.
 #. If those don't work, you can change WordPress's temporary-files' directory
-   by creating the ``wp-content/tmp/`` directory and adding the following to your ``wp-config.php``:
-   ``define( 'WP_TEMP_DIR', ABSPATH . 'wp-content/tmp/' );``.
+   by creating the ``wp-content/tmp/`` directory and adding the following to your ``wp-config.php``::
+
+       define( 'WP_TEMP_DIR', ABSPATH . 'wp-content/tmp/' );
 
 .. _debug mode: https://codex.wordpress.org/Debugging_in_WordPress
 .. _FILE privilege: https://dev.mysql.com/doc/refman/5.7/en/privileges-provided.html#priv_file
 
-Note that the MySQL server may be running with the ``--secure-file-priv`` variable_
+MySQL's ``secure_file_priv`` variable
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Note that the MySQL server may be running with the ``secure_file_priv`` variable_
 (you can check this with ``SHOW VARIABLES LIKE "secure_file_priv"``), and in this
 case the web server also needs to be able to read files from that same directory.
 It is probably better to *disable* secure-file-priv (by setting it to an empty value)
-rather than setting it to a widely-readable directory (such as ``/tmp``).
+rather than setting it to a widely-readable directory (such as ``/tmp``)
+because then you can control who can read the directories that *are* used by it.
+
+This is a global variable that needs to be changed in MySQL's server-configuration file;
+it cannot be set dynamically at runtime.
 
 .. _variable: https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html#sysvar_secure_file_priv
 

@@ -125,14 +125,14 @@ class Menus {
 		// Discern the controller name, based on an explicit request parameter, or
 		// the trailing part of the page slug (i.e. after 'tabulate_').
 		$controller_name = 'home';
-		if ( isset( $request['controller'] ) ) {
+		if ( isset( $request['controller'] ) && strlen( $request['controller'] ) > 0 ) {
 			$controller_name = $request['controller'];
 		} elseif ( isset( $request['page'] ) && strlen( $request['page'] ) > $slug_lenth ) {
 			$controller_name = substr( $request['page'], $slug_lenth + 1 );
 		}
 
 		// Create the controller and run the action.
-		$controller_classname = 'WordPress\\Tabulate\\Controllers\\' . ucfirst( $controller_name ) . 'Controller';
+		$controller_classname = '\\WordPress\\Tabulate\\Controllers\\' . ucfirst( $controller_name ) . 'Controller';
 		$controller = new $controller_classname( $this->wpdb );
 		$action = ! empty( $request['action'] ) ? $request['action'] : 'index';
 		unset( $request['page'], $request['controller'], $request['action'] );
