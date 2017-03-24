@@ -17,7 +17,14 @@ Do note that if a table is not accessible to the browsing user then nothing will
 Keep in mind that you can grant access to non-logged-in users to view tables if you wish
 (via the Grants page in the Admin Area).
 
- .. _shortcode: http://codex.wordpress.org/Shortcode
+When pasting example shortcode syntax from this page into the visual editor in WordPress,
+be sure to use the 'paste as text' toolbar button: |paste-as-text|
+(otherwise, you will get an error such as "The 'table' attribute must be set"
+even though it looks like you've set that attribute).
+If you are using the text editor, this problem shouldn't arise.
+
+.. |paste-as-text| image:: img/paste-as-text.png
+.. _shortcode: https://codex.wordpress.org/Shortcode
 
 Table format
 ------------
@@ -33,14 +40,14 @@ If the additional parameter ``search`` is provided (and given any value at all; 
 then a record-filtering form will be displayed.
 
 List format
-------------
+-----------
 
 Example: ``[tabulate format=list table=widgets]``
 
 The list format displays a comma-separated list of all of the titles of the records from the table specified.
 
 Form format
-------------
+-----------
 
 Example: ``[tabulate format=form table=widgets]``
 
