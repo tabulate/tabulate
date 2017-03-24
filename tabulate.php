@@ -28,21 +28,26 @@ if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 }
 require __DIR__ . '/vendor/autoload.php';
 
-// This file contains the only global usages of wpdb; it's injected from here to
-// everywhere else.
-global $wpdb;
+// Get global variables and set up the filesystem.
+// This file contains the only global usages of these (other than in the TestBase class);
+// they're injected from here to everywhere else.
+if ( ! function_exists( 'WP_filesystem' ) ) {
+	include ABSPATH . "wp-admin/includes/file.php";
+}
+WP_Filesystem();
+global $wpdb, $wp_filesystem;
 
 // Set up the menus; their callbacks do the actual dispatching to controllers.
-$menus = new \WordPress\Tabulate\Menus( $wpdb );
+$menus = new \WordPress\Tabulate\Menus( $wpdb, $wp_filesystem );
 $menus->init();
 
 // Add grants-checking callback.
 add_filter( 'user_has_cap', '\\WordPress\\Tabulate\\DB\\Grants::check', 0, 3 );
 
 // Activation hooks. Uninstall is handled by uninstall.php.
-register_activation_hook( __FILE__, '\\WordPress\\Tabulate\\DB\\ChangeTracker::activate' );
-register_activation_hook( __FILE__, '\\WordPress\\Tabulate\\DB\\Reports::activate' );
-register_activation_hook(__FILE__, function() {
+add_action( 'activate_' . TABULATE_SLUG, '\\WordPress\\Tabulate\\DB\\ChangeTracker::activate' );
+add_action( 'activate_' . TABULATE_SLUG, '\\WordPress\\Tabulate\\DB\\Reports::activate' );
+add_action( 'activate_' . TABULATE_SLUG, function() {
 	// Clean up out-of-date option.
 	delete_option( TABULATE_SLUG . '_managed_tables' );
 });

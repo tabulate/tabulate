@@ -724,16 +724,15 @@ class Table {
 
 		$params = $this->apply_filters( $sql );
 
+		$fs = $this->get_database()->get_filesystem();
 		$filename = $this->get_database()->get_tmp_dir() . uniqid( 'tabulate_' ) . '.csv';
 		if ( DIRECTORY_SEPARATOR === '\\' ) {
 			// Clean Windows slashes, for MySQL's benefit.
 			$filename = str_replace( '\\', '/', $filename );
 		}
-		// Clear out any old copy.
-		if ( file_exists( $filename ) ) {
-			unlink( $filename );
-		}
-		// Build the final SQL, appending the column headers in a UNION.
+		// Clear out any old copy (the delete method will check for existence).
+		$fs->delete( $filename );
+		// Build the final SQL, prepending the column headers in a UNION.
 		$sql = 'SELECT "' . join( '", "', $column_headers ) . '"'
 			. ' UNION ' . $sql
 			. ' INTO OUTFILE "' . $filename . '" '
@@ -749,10 +748,10 @@ class Table {
 		$wpdb->hide_errors();
 		$wpdb->query( $sql );
 		// Make sure it exported.
-		if ( ! file_exists( $filename ) ) {
+		if ( ! $fs->exists( $filename ) ) {
 			// Note that this error message is quoted in the documentation.
 			$msg = "Unable to create temporary export file:<br /><code>$filename</code>";
-			Exception::wp_die( $msg, 'Export failed', $wpdb->last_error, $sql ); // WPCS: XSS OK.
+			Exception::wp_die( $msg, 'Export failed', $wpdb->last_error, $sql );
 		}
 		$wpdb->show_errors();
 		// Give the filename back to the controller, to send to the client.

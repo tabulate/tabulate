@@ -53,7 +53,7 @@ class ImportTest extends TestBase {
 			. '"1","One"' . "\r\n"
 			. '"2","Two"' . "\r\n";
 		$uploaded = $this->save_data_file( $csv );
-		$csv = new CSV( null, $uploaded );
+		$csv = new CSV( $this->filesystem, null, $uploaded );
 		$csv->load_data();
 		$column_map = array(
 			'title' => 'Title',
@@ -88,7 +88,7 @@ class ImportTest extends TestBase {
 		$csv = '"ID","Title","Description"' . "\r\n"
 			. '"1","One","A description"' . "\r\n";
 		$uploaded = $this->save_data_file( $csv );
-		$csv = new CSV( null, $uploaded );
+		$csv = new CSV( $this->filesystem, null, $uploaded );
 		$csv->load_data();
 		$column_map = array(
 			'id' => 'ID',
@@ -106,7 +106,7 @@ class ImportTest extends TestBase {
 		$csv = '"ID","Description"' . "\r\n"
 			. '"1","New description"' . "\r\n";
 		$uploaded2 = $this->save_data_file( $csv );
-		$csv2 = new CSV( null, $uploaded2 );
+		$csv2 = new CSV( $this->filesystem, null, $uploaded2 );
 		$column_map2 = array(
 			'id' => 'ID',
 			'description' => 'Description',
@@ -140,7 +140,7 @@ class ImportTest extends TestBase {
 		$csv_data_1 = '"Title","Type"' . "\r\n"
 			. '"One","A type"' . "\r\n";
 		$csv_file_1 = $this->save_data_file( $csv_data_1 );
-		$csv = new CSV( null, $csv_file_1 );
+		$csv = new CSV( $this->filesystem, null, $csv_file_1 );
 		$csv->import_data( $test_table, $column_map );
 
 		// Check imported data.
@@ -152,7 +152,7 @@ class ImportTest extends TestBase {
 			. '"1","Changed FK",""' . "\n";
 		$csv_file_2 = $this->save_data_file( $csv_data_2 );
 		$this->assertNotEquals( $csv_file_1, $csv_file_2 );
-		$csv2 = new CSV( null, $csv_file_2 );
+		$csv2 = new CSV( $this->filesystem, null, $csv_file_2 );
 		$csv2->import_data( $test_table, $column_map );
 
 		// Re-check imported data.

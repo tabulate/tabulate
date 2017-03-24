@@ -28,6 +28,13 @@ class Database {
 	protected $table_names;
 
 	/**
+	 * The filesystem.
+	 *
+	 * @var \WP_Filesystem_Base
+	 */
+	protected $filesystem;
+
+	/**
 	 * The list of all tables that the user can read.
 	 *
 	 * @var Table[]
@@ -41,6 +48,24 @@ class Database {
 	 */
 	public function __construct( $wpdb ) {
 		$this->wpdb = $wpdb;
+	}
+
+	/**
+	 * Set the filesystem.
+	 *
+	 * @param \WP_Filesystem_Base $filesystem The filesystem object.
+	 */
+	public function set_filesystem( \WP_Filesystem_Base $filesystem ) {
+		$this->filesystem = $filesystem;
+	}
+
+	/**
+	 * Get the filesystem.
+	 *
+	 * @return \WP_Filesystem_Base
+	 */
+	public function get_filesystem() {
+		return $this->filesystem;
 	}
 
 	/**
@@ -180,11 +205,16 @@ class Database {
 	 * Always has a trailing slash.
 	 *
 	 * @return string Full path of the directory.
+	 * @throws Exception If the directory is not writable.
 	 */
 	public function get_tmp_dir() {
 		$query = "SHOW VARIABLES LIKE 'secure_file_priv';";
-		$dir = $this->get_wpdb()->get_var( $query, 1 );
-		$out = empty( $dir ) ? get_temp_dir() : $dir;
-		return rtrim( $out, '/' ) . '/';
+		$db_dir = $this->get_wpdb()->get_var( $query, 1 );
+		$dir = empty( $db_dir ) ? get_temp_dir() : $db_dir;
+		$out = rtrim( $dir, '/' ) . '/';
+		if ( ! $this->get_filesystem()->is_writable( $out ) ) {
+			throw new Exception( "Unable to write to temporary directory $out" );
+		}
+		return $out;
 	}
 }

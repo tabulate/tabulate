@@ -9,6 +9,7 @@
 namespace WordPress\Tabulate;
 
 use WordPress\Tabulate\DB\ChangeTracker;
+use WordPress\Tabulate\DB\Record;
 
 /**
  * A class for parsing a CSV file has either just been uploaded (i.e. $_FILES is
@@ -38,6 +39,13 @@ class CSV {
 	public $hash = false;
 
 	/**
+	 * The filesystem.
+	 *
+	 * @var \WP_Filesystem_Base
+	 */
+	protected $filesystem;
+
+	/**
 	 * Create a new CSV object based on a file.
 	 *
 	 * 1. If a file is being uploaded (i.e. `$_FILES['file']` is set), attempt
@@ -48,10 +56,12 @@ class CSV {
 	 * In either case, if a valid CSV file cannot be found and parsed, throw an
 	 * exception.
 	 *
-	 * @param string $hash The hash of an in-progress import.
-	 * @param array  $uploaded The result of wp_handle_upload().
+	 * @param \WP_Filesystem_Base $filesystem The filesystem object.
+	 * @param string|boolean      $hash The hash of an in-progress import, or false.
+	 * @param string[]|boolean    $uploaded The result of wp_handle_upload(), or false.
 	 */
-	public function __construct( $hash = false, $uploaded = false ) {
+	public function __construct( $filesystem, $hash = false, $uploaded = false ) {
+		$this->filesystem = $filesystem;
 		if ( $uploaded ) {
 			$this->save_file( $uploaded );
 		}
@@ -100,11 +110,10 @@ class CSV {
 
 		// Get all rows.
 		$this->data = array();
-		$file = fopen( $file_path, 'r' );
-		while ( $line = fgetcsv( $file ) ) {
-			$this->data[] = $line;
+		$lines = $this->filesystem->get_contents_array( $file_path );
+		foreach ( $lines as $line ) {
+			$this->data[] = str_getcsv( $line );
 		}
-		fclose( $file );
 
 		// Extract headers.
 		$this->headers = $this->data[0];
@@ -135,7 +144,7 @@ class CSV {
 	 * column headers in the CSV (so we don't have to distinguish between
 	 * not-matching and matching-on-empty-string).
 	 *
-	 * @param array $column_map The map from column headings to indices.
+	 * @param string[] $column_map The map from column headings to indices.
 	 * @return array Keys are CSV indexes, values are DB column names
 	 */
 	private function remap( $column_map ) {
@@ -177,7 +186,7 @@ class CSV {
 		$errors = array();
 		$row_count = $this->row_count();
 		for ( $row_num = 1; $row_num <= $row_count; $row_num++ ) {
-			$pk_set = isset( $this->data[ $row_num ][ $pk_col_num ] );
+			$pk_set = $pk_col_num && isset( $this->data[ $row_num ][ $pk_col_num ] );
 			foreach ( $this->data[ $row_num ] as $col_num => $value ) {
 				if ( ! isset( $heads[ $col_num ] ) ) {
 					continue;
@@ -278,7 +287,7 @@ class CSV {
 	 *
 	 * @param DB\Column $column The column to check in.
 	 * @param string    $value  The value to validate.
-	 * @return false|array false if the value is valid, error array otherwise.
+	 * @return false|string False if the value is valid, error message otherwise.
 	 */
 	protected function validate_foreign_key( $column, $value ) {
 		$foreign_table = $column->get_referenced_table();
@@ -297,7 +306,7 @@ class CSV {
 	 *
 	 * @param DB\Table $foreign_table The table from which to fetch rows.
 	 * @param string   $value The value to match against the title column.
-	 * @return Database_Result
+	 * @return Record[] The foreign records.
 	 */
 	protected function get_fk_rows( $foreign_table, $value ) {
 		$foreign_table->reset_filters();
@@ -311,6 +320,7 @@ class CSV {
 	 * @param DB\Table  $table  The table to check in.
 	 * @param DB\Column $column The column to check.
 	 * @param mixed     $value  The value to look for.
+	 * @return boolean
 	 */
 	protected function value_exists( $table, $column, $value ) {
 		$db = $table->get_database()->get_wpdb();

@@ -55,8 +55,8 @@ class ChangeTracker {
 	/**
 	 * Create a new change tracker.
 	 *
-	 * @param \WordPress\Tabulate\DB\wpdb $wpdb The global wpdb object.
-	 * @param string                      $comment The user's comment about the change.
+	 * @param \wpdb  $wpdb The global wpdb object.
+	 * @param string $comment The user's comment about the change.
 	 */
 	public function __construct( $wpdb, $comment = null ) {
 		$this->wpdb = $wpdb;

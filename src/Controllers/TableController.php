@@ -24,9 +24,11 @@ class TableController extends ControllerBase {
 	 * Tabulate overview page.
 	 *
 	 * @param string $table_name The name of the table to get.
+	 * @return Table|string The table, or an HTML error message.
 	 */
 	protected function get_table( $table_name ) {
 		$db = new Database( $this->wpdb );
+		$db->set_filesystem( $this->filesystem );
 		$table = $db->get_table( $table_name );
 		if ( ! $table ) {
 			add_action( 'admin_notices', function( $table_name ) use ( $table_name ) {
@@ -144,7 +146,7 @@ class TableController extends ControllerBase {
 					'action' => $template->action,
 				) );
 			}
-			$csv_file = new CSV( $hash, $uploaded );
+			$csv_file = new CSV( $this->filesystem, $hash, $uploaded );
 		} catch ( \Exception $e ) {
 			$template->add_notice( 'error', $e->getMessage() );
 			return $template->render();
@@ -165,7 +167,7 @@ class TableController extends ControllerBase {
 		if ( $csv_file->loaded() && isset( $_POST['preview'] ) ) {
 			check_admin_referer( 'import-preview' );
 			$template->stage = $template->stages[2];
-			$template->columns = serialize( $_POST['columns'] );
+			$template->columns = wp_json_encode( $_POST['columns'], [ true ] );
 			$errors = array();
 			// Make sure all required columns are selected.
 			foreach ( $table->get_columns() as $col ) {
@@ -195,7 +197,7 @@ class TableController extends ControllerBase {
 			check_admin_referer( 'import-finish' );
 			$template->stage = $template->stages[3];
 			$this->wpdb->query( 'BEGIN' );
-			$result = $csv_file->import_data( $table, unserialize( wp_unslash( $_POST['columns'] ) ) );
+			$result = $csv_file->import_data( $table, json_decode( wp_unslash( $_POST['columns'] ), true ) );
 			$this->wpdb->query( 'COMMIT' );
 			$template->add_notice( 'updated', 'Import complete; ' . $result . ' rows imported.' );
 		}
@@ -207,7 +209,7 @@ class TableController extends ControllerBase {
 	 * A calendar for tables with a date column.
 	 *
 	 * @param string[] $args The request parameters.
-	 * @return type
+	 * @return string The calendar HTML.
 	 */
 	public function calendar( $args ) {
 		// @todo Validate args.
@@ -270,7 +272,7 @@ class TableController extends ControllerBase {
 		header( 'Content-type: text/csv; charset=UTF-8' );
 		header( 'Content-Disposition: attachment; filename="' . $download_name . '"' );
 		echo "\xEF\xBB\xBF";
-		readfile( $filename );
+		echo $table->get_database()->get_filesystem()->get_contents( $filename );
 		exit;
 	}
 
@@ -298,7 +300,7 @@ class TableController extends ControllerBase {
 		// And remove them from the list of supplied values.
 		$recs = $table->get_records( false );
 		foreach ( $recs as $rec ) {
-			$key = array_search( $rec->get_title(), $values );
+			$key = array_search( $rec->get_title(), $values, true );
 			if ( false !== $key ) {
 				unset( $values[ $key ] );
 			}

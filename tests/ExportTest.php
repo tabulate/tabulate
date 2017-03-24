@@ -50,8 +50,7 @@ class ExportTest extends TestBase {
 			. ' geo_loc POINT NULL DEFAULT NULL'
 			. ');'
 		);
-		$db = new WordPress\Tabulate\DB\Database( $this->wpdb );
-		$test_table = $db->get_table( 'point_export_test' );
+		$test_table = $this->db->get_table( 'point_export_test' );
 		$test_table->save_record( array(
 			'title' => 'Test',
 			'geo_loc' => 'POINT(10.1 20.2)',

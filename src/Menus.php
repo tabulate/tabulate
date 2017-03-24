@@ -7,6 +7,8 @@
 
 namespace WordPress\Tabulate;
 
+use WordPress\Tabulate\Controllers\ControllerBase;
+
 /**
  * This class is an attempt to group all functionality around managing the menus
  * in the Admin Area in one place. It includes adding scripts and stylesheets.
@@ -21,6 +23,13 @@ class Menus {
 	protected $wpdb;
 
 	/**
+	 * The global filesystem object
+	 *
+	 * @var \WP_Filesystem_Base
+	 */
+	protected $filesystem;
+
+	/**
 	 * The page output is stored between being called/created in
 	 * self::dispatch() and output in self::add_menu_pages()
 	 *
@@ -32,10 +41,12 @@ class Menus {
 	 * Create a new Menus object, supplying it with the database so that it
 	 * doesn't have to use a global.
 	 *
-	 * @param \wpdb $wpdb The global wpdb object.
+	 * @param \wpdb               $wpdb The global wpdb object.
+	 * @param \WP_Filesystem_Base $filesystem The global filesystem object.
 	 */
-	public function __construct( $wpdb ) {
+	public function __construct( $wpdb, \WP_Filesystem_Base $filesystem ) {
 		$this->wpdb = $wpdb;
+		$this->filesystem = $filesystem;
 	}
 
 	/**
@@ -134,6 +145,7 @@ class Menus {
 		// Create the controller and run the action.
 		$controller_classname = '\\WordPress\\Tabulate\\Controllers\\' . ucfirst( $controller_name ) . 'Controller';
 		$controller = new $controller_classname( $this->wpdb );
+		$controller->set_filesystem( $this->filesystem );
 		$action = ! empty( $request['action'] ) ? $request['action'] : 'index';
 		unset( $request['page'], $request['controller'], $request['action'] );
 		try {

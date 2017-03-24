@@ -28,6 +28,13 @@ abstract class ControllerBase {
 	protected $get;
 
 	/**
+	 * The global filesystem object.
+	 *
+	 * @var \WP_Filesystem_Base
+	 */
+	protected $filesystem;
+
+	/**
 	 * Create the controller, with the global database and query string.
 	 *
 	 * @param \wpdb    $wpdb The global wpdb object.
@@ -39,12 +46,21 @@ abstract class ControllerBase {
 	}
 
 	/**
+	 * Set the filesystem.
+	 *
+	 * @param \WP_Filesystem_Base $filesystem The filesystem object.
+	 */
+	public function set_filesystem( \WP_Filesystem_Base $filesystem ) {
+		$this->filesystem = $filesystem;
+	}
+
+	/**
 	 * Send specified content to the client as a downloadable file.
 	 *
-	 * @param string $ext The file extension.
-	 * @param string $mime The mime-type of the file.
-	 * @param type   $content The file's content.
-	 * @param string $download_name The name of the file, for the user to download.
+	 * @param string         $ext The file extension.
+	 * @param string         $mime The mime-type of the file.
+	 * @param string         $content The file's contents.
+	 * @param string|boolean $download_name The name of the file, for the user to download.
 	 */
 	protected function send_file( $ext, $mime, $content, $download_name = false ) {
 		$download_name = ($download_name ?: date( 'Y-m-d' ) ) . '.' . $ext;
