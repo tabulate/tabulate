@@ -31,7 +31,7 @@ class TableController extends ControllerBase {
 		$db->set_filesystem( $this->filesystem );
 		$table = $db->get_table( $table_name );
 		if ( ! $table ) {
-			add_action( 'admin_notices', function( $table_name ) use ( $table_name ) {
+			add_action( 'admin_notices', function() use ( $table_name ) {
 				// Translators: Error message shown when the table can not be found.
 				$err = __( 'Table "%s" not found.', 'tabulate' );
 				echo "<div class='error'><p>" . sprintf( $err, $table_name ) . "</p></div>";
