@@ -167,7 +167,7 @@ class TableController extends ControllerBase {
 		if ( $csv_file->loaded() && isset( $_POST['preview'] ) ) {
 			check_admin_referer( 'import-preview' );
 			$template->stage = $template->stages[2];
-			$template->columns = wp_json_encode( $_POST['columns'], [ true ] );
+			$template->columns = wp_json_encode( $_POST['columns'] );
 			$errors = array();
 			// Make sure all required columns are selected.
 			foreach ( $table->get_columns() as $col ) {
@@ -197,7 +197,8 @@ class TableController extends ControllerBase {
 			check_admin_referer( 'import-finish' );
 			$template->stage = $template->stages[3];
 			$this->wpdb->query( 'BEGIN' );
-			$result = $csv_file->import_data( $table, json_decode( wp_unslash( $_POST['columns'] ), true ) );
+			$column_map = json_decode( wp_unslash( $_POST['columns'] ), true );
+			$result = $csv_file->import_data( $table, $column_map );
 			$this->wpdb->query( 'COMMIT' );
 			$template->add_notice( 'updated', 'Import complete; ' . $result . ' rows imported.' );
 		}

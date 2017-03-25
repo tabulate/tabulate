@@ -237,12 +237,24 @@ jQuery(document).ready(function ($) {
 	});
 	// Fire keyup manually.
 	$(".tabulate-filters textarea").change();
-	// Change the controller, action, and page num of the form depending on which button was clicked.
+
+	/**
+	 * Table filter form submission (also in the shortcode):
+	 * Change the controller, action, and page num of the form depending on which button was clicked,
+	 * by extracting those from the data attributes of the button element.
+	 */
 	$(".tabulate-filters button").click(function(e) {
-		$(this).parents("form").find("input[name='controller']").val($(this).data("controller"));
-		$(this).parents("form").find("input[name='action']").val($(this).data("action"));
-		$(this).parents("form").find("input[name='p']").val($(this).data("p"));
-		$(this).parents("form").find("input[name='tabulate_p']").val($(this).data("p"));
+		if ($(this).data("controller")) {
+			$(this).parents("form").find("input[name='controller']").val($(this).data("controller"));
+		}
+		if ($(this).data("action")) {
+			$(this).parents("form").find("input[name='action']").val($(this).data("action"));
+		}
+		if ($(this).data("p")) {
+			// Both of these 'page' parameters are used.
+			$(this).parents("form").find("input[name='p']").val($(this).data("p"));
+			$( this ).parents( "form" ).find( "input[name='tabulate_p']" ).val( $( this ).data( "p" ) );
+		}
 	});
 
 

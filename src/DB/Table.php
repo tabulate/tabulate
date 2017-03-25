@@ -454,7 +454,7 @@ class Table {
 		if ( $with_pagination ) {
 			$records_per_page = $this->get_records_per_page();
 			$sql .= ' LIMIT ' . $records_per_page;
-			if ( $this->page() > 1 ) {
+			if ( $this->get_current_page_num() > 1 ) {
 				$sql .= ' OFFSET ' . ($records_per_page * ($this->get_current_page_num() - 1));
 			}
 		}
@@ -489,11 +489,17 @@ class Table {
 
 	/**
 	 * Set the current page number (the first page is page 1).
+	 * If you set this to be greater than the total page count,
+	 * it will be reduced to that number.
 	 *
 	 * @param integer $new_page_num The new page number.
 	 */
 	public function set_current_page_num( $new_page_num ) {
-		$this->current_page_num = $new_page_num;
+		if ( $this->current_page_num > $this->get_page_count() ) {
+			$this->current_page_num = $this->get_page_count();
+		} else {
+			$this->current_page_num = $new_page_num;
+		}
 	}
 
 	/**
@@ -667,20 +673,6 @@ class Table {
 	 */
 	public function get_page_count() {
 		return ceil( $this->count_records() / $this->get_records_per_page() );
-	}
-
-	/**
-	 * Get or set the current page.
-	 *
-	 * @param integer $page The page number.
-	 * @return integer Current page
-	 */
-	public function page( $page = false ) {
-		if ( false !== $page ) {
-			$this->current_page_num = $page;
-		} else {
-			return $this->current_page_num;
-		}
 	}
 
 	/**
@@ -1258,10 +1250,10 @@ class Table {
 	/**
 	 * Get a fully-qualified URL to a Back End page for this table.
 	 *
-	 * @param string   $action Which action to use ('index', 'import', etc.).
-	 * @param string[] $extra_params Other query string parameters to add.
-	 * @param string   $controller Which controller to use ('table', 'record', etc.).
-	 * @return string  The full URL.
+	 * @param string           $action Which action to use ('index', 'import', etc.).
+	 * @param string[]|boolean $extra_params Other query string parameters to add.
+	 * @param string           $controller Which controller to use ('table', 'record', etc.).
+	 * @return string The full URL.
 	 */
 	public function get_url( $action = 'index', $extra_params = false, $controller = 'table' ) {
 		$params = array(
