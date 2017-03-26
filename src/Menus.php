@@ -7,7 +7,12 @@
 
 namespace WordPress\Tabulate;
 
-use WordPress\Tabulate\Controllers\ControllerBase;
+use Exception;
+use WordPress\Tabulate\DB\Exception as TabulateException;
+use WordPress\Tabulate\DB\Table;
+use WP_Admin_Bar;
+use WP_Filesystem_Base;
+use wpdb;
 
 /**
  * This class is an attempt to group all functionality around managing the menus
@@ -18,14 +23,14 @@ class Menus {
 	/**
 	 * The global wpdb object.
 	 *
-	 * @var \wpdb
+	 * @var wpdb
 	 */
 	protected $wpdb;
 
 	/**
 	 * The global filesystem object
 	 *
-	 * @var \WP_Filesystem_Base
+	 * @var WP_Filesystem_Base
 	 */
 	protected $filesystem;
 
@@ -41,10 +46,10 @@ class Menus {
 	 * Create a new Menus object, supplying it with the database so that it
 	 * doesn't have to use a global.
 	 *
-	 * @param \wpdb               $wpdb The global wpdb object.
-	 * @param \WP_Filesystem_Base $filesystem The global filesystem object.
+	 * @param wpdb               $wpdb The global wpdb object.
+	 * @param WP_Filesystem_Base $filesystem The global filesystem object.
 	 */
-	public function __construct( $wpdb, \WP_Filesystem_Base $filesystem ) {
+	public function __construct( $wpdb, WP_Filesystem_Base $filesystem ) {
 		$this->wpdb = $wpdb;
 		$this->filesystem = $filesystem;
 	}
@@ -88,15 +93,15 @@ class Menus {
 	 * Admin Bar new-content menu. If there are more than ten, none are added
 	 * because the menu would get too long. Not sure how this should be fixed.
 	 *
-	 * @global \WP_Admin_Bar $wp_admin_bar
-	 * @global \wpdb $wpdb
+	 * @global WP_Admin_Bar $wp_admin_bar
+	 * @global wpdb $wpdb
 	 */
 	public function admin_bar_menu() {
 		global $wp_admin_bar, $wpdb;
 		$db = new DB\Database( $wpdb );
 		$tables = $db->get_tables();
 		if ( count( $tables ) > 10 ) {
-			return false;
+			return;
 		}
 		foreach ( $tables as $table ) {
 			if ( ! DB\Grants::current_user_can( DB\Grants::CREATE, $table->get_name() ) ) {
@@ -144,13 +149,16 @@ class Menus {
 
 		// Create the controller and run the action.
 		$controller_classname = '\\WordPress\\Tabulate\\Controllers\\' . ucfirst( $controller_name ) . 'Controller';
+		if ( ! class_exists( $controller_classname ) ) {
+			TabulateException::wp_die( "Controller '$controller_name' not found", 'Error', "Class doesn't exist: $controller_classname" );
+		}
 		$controller = new $controller_classname( $this->wpdb );
 		$controller->set_filesystem( $this->filesystem );
 		$action = ! empty( $request['action'] ) ? $request['action'] : 'index';
 		unset( $request['page'], $request['controller'], $request['action'] );
 		try {
 			$this->output = $controller->$action( $request );
-		} catch ( \Exception $e ) {
+		} catch ( Exception $e ) {
 			$this->output = '<h1>An error occured</h1><div class="error"><p>' . $e->getMessage() . '</p></div>';
 			if ( WP_DEBUG ) {
 				$this->output .= '<h2>Stack trace</h2><pre>' . $e->getTraceAsString() . '</pre>';
