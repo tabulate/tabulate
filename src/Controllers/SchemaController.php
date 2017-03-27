@@ -90,6 +90,7 @@ class SchemaController extends ControllerBase {
 		}
 
 		// Update columns.
+		$previous_column_name = '';
 		foreach ( $args['columns'] as $col_info ) {
 			// Validate inputs.
 			$old_col_name = isset( $col_info['old_name'] ) ? $col_info['old_name'] : null;
@@ -102,20 +103,22 @@ class SchemaController extends ControllerBase {
 			$unique = isset( $col_info['unique'] );
 			$comment = isset( $col_info['comment'] ) ? $col_info['comment'] : null;
 			$target_table = isset( $col_info['target_table'] ) ? $db->get_table( $col_info['target_table'] ) : null;
-			$after = isset( $col_info['after'] ) ? $col_info['after'] : null;
 
 			// Change existing or insert new column.
 			$altered = false;
 			if ( $old_col_name ) {
 				$col = $table->get_column( $col_info['old_name'] );
 				if ( $col instanceof Column ) {
-					$col->alter( $new_col_name, $xtype, $size, $nullable, $default, $auto_increment, $unique, $comment, $target_table, $after );
+					$col->alter( $new_col_name, $xtype, $size, $nullable, $default, $auto_increment, $unique, $comment, $target_table, $previous_column_name );
 					$altered = true;
 				}
 			}
 			if ( ! $altered && ! empty( $new_col_name ) ) {
-				$table->add_column( $new_col_name, $xtype, $size, $nullable, $default, $auto_increment, $unique, $comment, $target_table, $after );
+				$table->add_column( $new_col_name, $xtype, $size, $nullable, $default, $auto_increment, $unique, $comment, $target_table, $previous_column_name );
 			}
+
+			// Put the next column after this one.
+			$previous_column_name = $new_col_name;
 		}
 
 		// Finish up.

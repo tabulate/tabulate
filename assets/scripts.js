@@ -78,6 +78,10 @@ jQuery(document).ready(function ($) {
 		}
 	});
 	$("form.tabulate-schema select[name*='xtype']").change();
+
+	/**
+	 * Move schema-editing rows up and down, also disabling arrows at the top and bottom where required.
+	 */
 	$("form.tabulate-schema a.move").click(function() {
 		var $tr = $(this).parents("tr");
 		$tr.hide();
@@ -87,9 +91,16 @@ jQuery(document).ready(function ($) {
 		if ($(this).hasClass("move-down")) {
 			$tr.next("tr").after($tr);
 		}
+		// Hide the top up arrow and the bottom down arrow.
+		hide_arrows($(this).parents("tbody"));
+		// Show the moved row.
 		$tr.show("slow");
 	});
-
+	hide_arrows($("form.tabulate-schema tbody"));
+	function hide_arrows($table_body) {
+		$table_body.find("a.move").css("visibility", "visible");
+		$table_body.find("a.move:first, a.move:last").css("visibility", "hidden");
+	}
 
 	/**
 	 * Make sure .disabled buttons are properly disabled.
