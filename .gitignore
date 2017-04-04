@@ -1,6 +1,7 @@
-/vendor
-/.svn
+/vendor/
+/.svn/
 /testdox.html
 /svn_ignore_list.txt
-/components
-/docs/_build
+/docs/_build/
+/assets/components/
+

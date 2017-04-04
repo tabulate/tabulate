@@ -8,7 +8,9 @@
 namespace WordPress\Tabulate;
 
 use Exception;
+use WordPress\Tabulate\DB\ChangeTracker;
 use WordPress\Tabulate\DB\Exception as TabulateException;
+use WordPress\Tabulate\DB\Reports;
 use WordPress\Tabulate\DB\Table;
 use WP_Admin_Bar;
 use WP_Filesystem_Base;
@@ -68,6 +70,17 @@ class Menus {
 	}
 
 	/**
+	 * The main plugin activation method. This is called from tabulate.php and from the TestBase class.
+	 */
+	public function activation() {
+		// Add change-tracker and reports' tables.
+		ChangeTracker::activate( $this->wpdb );
+		Reports::activate( $this->wpdb );
+		// Clean up out-of-date option.
+		delete_option( TABULATE_SLUG . '_managed_tables' );
+	}
+
+	/**
 	 * Add Tabulate's menu items to the main admin menu.
 	 *
 	 * @return void
@@ -111,7 +124,7 @@ class Menus {
 				'parent' => 'new-content',
 				'id'     => TABULATE_SLUG . '-' . $table->get_name(),
 				'title'  => $table->get_title(),
-				'href'   => $table->get_url( 'index', null, 'record' ),
+				'href'   => $table->get_url( 'index', false, 'record' ),
 			) );
 		}
 	}
@@ -193,14 +206,14 @@ class Menus {
 		wp_register_script( 'tabulate-maskedinput', $maskedinput_url, array( 'jquery' ), '1.4.1', true );
 		$timepicker_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery-ui-timepicker-addon.min.js';
 		wp_register_script( 'tabulate-timepicker', $timepicker_url, array( 'jquery-ui-datepicker' ), TABULATE_VERSION, true );
-		$onmivore_url = plugins_url( TABULATE_SLUG ) . '/assets/leaflet/leaflet-omnivore.min.js';
-		wp_register_script( 'tabulate-onmivore', $onmivore_url, array( 'tabulate-leaflet' ), TABULATE_VERSION, true );
-		$leaflet_url = plugins_url( TABULATE_SLUG ) . '/assets/leaflet/leaflet.js';
+		$omnivore_url = plugins_url( TABULATE_SLUG ) . '/assets/leaflet-omnivore.min.js';
+		wp_register_script( 'tabulate-omnivore', $omnivore_url, array( 'tabulate-leaflet' ), '0.3.1', true );
+		$leaflet_url = plugins_url( TABULATE_SLUG ) . '/assets/components/leaflet/js/leaflet.min.js';
 		wp_register_script( 'tabulate-leaflet', $leaflet_url, null, TABULATE_VERSION, true );
 
 		// Enqueue Tabulate's scripts.
 		$script_url = plugins_url( TABULATE_SLUG ) . '/assets/scripts.js';
-		$deps = array( 'jquery-ui-autocomplete', 'tabulate-leaflet', 'tabulate-maskedinput', 'tabulate-timepicker' );
+		$deps = array( 'jquery-ui-autocomplete', 'tabulate-omnivore', 'tabulate-maskedinput', 'tabulate-timepicker' );
 		if ( Util::is_plugin_active( 'rest-api/plugin.php' ) ) {
 			$deps[] = 'wp-api';
 		}
@@ -215,12 +228,10 @@ class Menus {
 		// Add stylesheets.
 		$timepicker_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery-ui-timepicker-addon.css';
 		wp_enqueue_style( 'tabulate-timepicker', $timepicker_url, null, TABULATE_VERSION );
-		$leaflet_css_url = plugins_url( TABULATE_SLUG ) . '/assets/leaflet/leaflet.css';
+		$leaflet_css_url = plugins_url( TABULATE_SLUG ) . '/assets/components/leaflet/css/leaflet.css';
 		wp_enqueue_style( 'tabulate-leaflet', $leaflet_css_url, null, TABULATE_VERSION );
-		$jqueryui_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery-ui/jquery-ui.min.css';
+		$jqueryui_url = plugins_url( TABULATE_SLUG ) . '/assets/components/jquery-ui/themes/base/jquery-ui.min.css';
 		wp_enqueue_style( 'tabulate-jquery-ui', $jqueryui_url, null, TABULATE_VERSION );
-		$jqueryui_theme_url = plugins_url( TABULATE_SLUG ) . '/assets/jquery-ui/jquery-ui.theme.min.css';
-		wp_enqueue_style( 'tabulate-jquery-ui-theme', $jqueryui_theme_url, null, TABULATE_VERSION );
 		$style_url = plugins_url( TABULATE_SLUG ) . '/assets/style.css';
 		wp_enqueue_style( 'tabulate-styles', $style_url, null, TABULATE_VERSION );
 	}

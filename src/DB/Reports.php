@@ -95,10 +95,9 @@ class Reports {
 	/**
 	 * On plugin activation, create the required database tables.
 	 *
-	 * @global \wpdb $wpdb
+	 * @param \wpdb $wpdb The global database object.
 	 */
-	public static function activate() {
-		global $wpdb;
+	public static function activate( \wpdb $wpdb ) {
 		$db = new Database( $wpdb );
 
 		if ( ! $db->get_table( self::reports_table_name() ) ) {

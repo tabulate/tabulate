@@ -7,10 +7,10 @@
  * License: GPL-2.0+
  * Text Domain: tabulate
  * Domain Path: /languages
- * Version: 2.8.2
+ * Version: 2.8.3
  */
 
-define( 'TABULATE_VERSION', '2.8.2' );
+define( 'TABULATE_VERSION', '2.8.3' );
 define( 'TABULATE_SLUG', 'tabulate' );
 
 // Load textdomain.
@@ -45,16 +45,10 @@ $menus->init();
 add_filter( 'user_has_cap', '\\WordPress\\Tabulate\\DB\\Grants::check', 0, 3 );
 
 // Activation hooks. Uninstall is handled by uninstall.php.
-add_action( 'activate_' . TABULATE_SLUG, '\\WordPress\\Tabulate\\DB\\ChangeTracker::activate' );
-add_action( 'activate_' . TABULATE_SLUG, '\\WordPress\\Tabulate\\DB\\Reports::activate' );
-add_action( 'activate_' . TABULATE_SLUG, function() {
-	// Clean up out-of-date option.
-	delete_option( TABULATE_SLUG . '_managed_tables' );
-});
+register_activation_hook( __FILE__, [ $menus, 'activation' ] );
 
 // Register JSON API.
-add_action( 'rest_api_init', function() {
-	global $wpdb;
+add_action( 'rest_api_init', function() use ( $wpdb ) {
 	$api_controller = new \WordPress\Tabulate\Controllers\ApiController( $wpdb, $_GET );
 	$api_controller->register_routes();
 } );

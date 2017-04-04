@@ -114,8 +114,8 @@ class ChangeTracker {
 	 * This method is called prior to a record being saved, and will open a new
 	 * changeset if required, and save the old record for later use.
 	 *
-	 * @param Table $table The table into which the record is being saved.
-	 * @param type  $pk_value The primary key of the record being saved. May be null.
+	 * @param Table  $table The table into which the record is being saved.
+	 * @param string $pk_value The primary key of the record being saved. May be null.
 	 * @return boolean
 	 */
 	public function before_save( Table $table, $pk_value ) {
@@ -181,10 +181,9 @@ class ChangeTracker {
 	/**
 	 * On plugin activation, create two new database tables.
 	 *
-	 * @global \WordPress\Tabulate\DB\wpdb $wpdb
+	 * @param \wpdb $wpdb The global database object.
 	 */
-	public static function activate() {
-		global $wpdb;
+	public static function activate( \wpdb $wpdb ) {
 		$db = new Database( $wpdb );
 		if ( ! $db->get_table( self::changesets_name() ) ) {
 			$sql = "CREATE TABLE IF NOT EXISTS `" . self::changesets_name() . "` (

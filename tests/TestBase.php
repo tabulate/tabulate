@@ -65,7 +65,8 @@ abstract class TestBase extends WP_UnitTestCase {
 		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
 
 		// Activate.
-		do_action( 'activate_tabulate' );
+		$menus = new \WordPress\Tabulate\Menus( $this->wpdb, $this->filesystem );
+		$menus->activation();
 
 		// Create some testing tables and link them together.
 		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_table`' );
