@@ -67,6 +67,14 @@ jQuery(document).ready(function ($) {
 			$size.prop("disabled", true);
 			$targetTable.prop("disabled", true);
 			$autoInc.prop("disabled", true);
+		} else if (xtype === 'datetime') {
+			$size.prop("disabled", true);
+			$targetTable.prop("disabled", true);
+			$autoInc.prop("disabled", true);
+		} else if (xtype === 'time') {
+			$size.prop("disabled", true);
+			$targetTable.prop("disabled", true);
+			$autoInc.prop("disabled", true);
 		} else if (xtype === 'point') {
 			$size.prop("disabled", true);
 			$targetTable.prop("disabled", true);
