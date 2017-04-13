@@ -11,8 +11,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 project = u'Tabulate for WordPress'
 copyright = u'2016, Sam Wilson'
-version = '2.8'
-release = '2.8.4'
+version = '2.9'
+release = '2.9.0'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
