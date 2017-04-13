@@ -79,6 +79,10 @@ jQuery(document).ready(function ($) {
 			$size.prop("disabled", true);
 			$targetTable.prop("disabled", true);
 			$autoInc.prop("disabled", true);
+		} else if (xtype === 'enum') {
+			$size.prop("disabled", false).prop("required", true);
+			$targetTable.prop("disabled", true);
+			$autoInc.prop("disabled", true);
 		} else {
 			$size.prop("disabled", false);
 			$targetTable.prop("disabled", true);

@@ -96,7 +96,7 @@ class SchemaController extends ControllerBase {
 			$old_col_name = isset( $col_info['old_name'] ) ? $col_info['old_name'] : null;
 			$new_col_name = isset( $col_info['new_name'] ) ? $col_info['new_name'] : null;
 			$xtype = isset( $col_info['xtype'] ) ? $col_info['xtype'] : null;
-			$size = isset( $col_info['size'] ) ? $col_info['size'] : null;
+			$size = isset( $col_info['size'] ) ? wp_unslash( $col_info['size'] ) : null;
 			$nullable = isset( $col_info['nullable'] );
 			$default = isset( $col_info['default'] ) ? $col_info['default'] : null;
 			$auto_increment = isset( $args['auto_increment'] ) && $args['auto_increment'] === $old_col_name;

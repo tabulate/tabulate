@@ -131,6 +131,12 @@ class SchemaEditingTest extends TestBase {
 
 		$def5 = Column::get_column_definition( 'can_do', 'boolean', 5, false, '', true, false, 'Can it do this thing?' );
 		$this->assertEquals( "`can_do` TINYINT(1) NOT NULL COMMENT 'Can it do this thing?'", $def5 );
+
+		// Enum options can be provided either quoted or not.
+		$def6 = Column::get_column_definition( 'which_one', 'enum', 'one,two,three' );
+		$this->assertEquals( "`which_one` ENUM('one','two','three') NULL DEFAULT NULL", $def6 );
+		$def6 = Column::get_column_definition( 'which_one', 'enum', '"four", "five", "six"' );
+		$this->assertEquals( '`which_one` ENUM("four", "five", "six") NULL DEFAULT NULL', $def6 );
 	}
 
 	/**
@@ -405,5 +411,19 @@ class SchemaEditingTest extends TestBase {
 		$this->assertTrue( $type_col->is_foreign_key() );
 		$this->assertEquals( 'types', $type_col->get_referenced_table()->get_name() );
 		$this->assertArrayHasKey( 'widgets.the_type', $types->get_referencing_tables() );
+	}
+
+	/**
+	 * Make sure we can create and modify enum columns.
+	 *
+	 * @test
+	 */
+	public function enum_fields() {
+		$widgets = $this->db->create_table( 'widgets' );
+		$options_string = '"first","second"';
+		$widgets->add_column( 'class', 'enum', $options_string, null, null, null, null, null );
+		$options = [ 'first', 'second' ];
+		$this->assertEquals( "'first','second'", $widgets->get_column( 'class' )->get_size() );
+		$this->assertEquals( array_combine( $options, $options ), $widgets->get_column( 'class' )->get_options() );
 	}
 }

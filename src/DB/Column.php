@@ -291,6 +291,13 @@ class Column {
 				'sizes' => 0,
 				'options' => array(),
 			),
+			'enum' => array(
+				'name' => 'enum',
+				'title' => 'Fixed list',
+				'type' => 'ENUM',
+				'sizes' => 0,
+				'options' => array(),
+			),
 		);
 	}
 
@@ -354,7 +361,7 @@ class Column {
 	}
 
 	/**
-	 * Get this column's size.
+	 * Get this column's size, or (for ENUM columns) its CSV options string.
 	 *
 	 * @return string The size of this column.
 	 */
@@ -362,6 +369,9 @@ class Column {
 		$size = $this->size;
 		if ( 'decimal' === $this->get_type() ) {
 			$size = "$this->precision,$this->scale";
+		}
+		if ( 'enum' === $this->get_type() ) {
+			return "'" . join( "','", $this->get_options() ) . "'";
 		}
 		return $size;
 	}
@@ -662,15 +672,24 @@ class Column {
 		$xtypes = self::get_xtypes();
 		$xtype = ( isset( $xtypes[ $xtype_name ] ) ) ? $xtypes[ $xtype_name ] : $xtypes['text_short'];
 		$type_str = $xtype['type'];
-		// Size.
+		// Size or options.
 		$size_str = '';
-		if ( $xtype['sizes'] > 0 ) {
+		if ( is_numeric( $xtype['sizes'] ) && $xtype['sizes'] > 0 ) {
 			$size_str = '(' . ( $size ? : 50 ) . ')';
+		}
+		if ( 'enum' === $xtype_name ) {
+			// If not already wraped in quotes, explode and quote each option.
+			if ( 0 === preg_match( '/^["\'].*["\']$/', $size ) ) {
+				$size = "'" . join( "','", explode( ',', $size ) ) . "'";
+			}
+			$size_str = "($size)";
 		}
 		if ( 'boolean' === $xtype_name ) {
 			$size_str = '(1)';
 		}
+		// Nullable.
 		$null_str = (true === $nullable) ? 'NULL' : 'NOT NULL';
+		// Default.
 		$default_str = '';
 		if ( 'text_long' !== $xtype_name ) {
 			$default_str = ! empty( $default ) ? "DEFAULT '$default'" : ( $nullable ? 'DEFAULT NULL' : '' );
