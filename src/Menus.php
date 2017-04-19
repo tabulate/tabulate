@@ -57,7 +57,7 @@ class Menus {
 			require_once ABSPATH . "wp-admin/includes/file.php";
 			WP_Filesystem();
 		}
-		$this->filesystem = new WP_Filesystem_Direct([]);
+		$this->filesystem = new WP_Filesystem_Direct( [] );
 	}
 
 	/**
