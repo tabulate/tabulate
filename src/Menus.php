@@ -11,9 +11,8 @@ use Exception;
 use WordPress\Tabulate\DB\ChangeTracker;
 use WordPress\Tabulate\DB\Exception as TabulateException;
 use WordPress\Tabulate\DB\Reports;
-use WordPress\Tabulate\DB\Table;
 use WP_Admin_Bar;
-use WP_Filesystem_Base;
+use WP_Filesystem_Direct;
 use wpdb;
 
 /**
@@ -32,7 +31,7 @@ class Menus {
 	/**
 	 * The global filesystem object
 	 *
-	 * @var WP_Filesystem_Base
+	 * @var WP_Filesystem_Direct
 	 */
 	protected $filesystem;
 
@@ -48,12 +47,26 @@ class Menus {
 	 * Create a new Menus object, supplying it with the database so that it
 	 * doesn't have to use a global.
 	 *
-	 * @param wpdb               $wpdb The global wpdb object.
-	 * @param WP_Filesystem_Base $filesystem The global filesystem object.
+	 * @param wpdb $wpdb The global wpdb object.
 	 */
-	public function __construct( $wpdb, WP_Filesystem_Base $filesystem ) {
+	public function __construct( $wpdb ) {
 		$this->wpdb = $wpdb;
-		$this->filesystem = $filesystem;
+		if ( ! class_exists( WP_Filesystem_Direct::class ) ) {
+			// We don't use the global $wp_filesystem because it may be FTP or similar,
+			// but we do initialize it here in order to use WP_Filesystem_Direct.
+			require_once ABSPATH . "wp-admin/includes/file.php";
+			WP_Filesystem();
+		}
+		$this->filesystem = new WP_Filesystem_Direct([]);
+	}
+
+	/**
+	 * Get the filesystem used for exports etc.
+	 *
+	 * @return WP_Filesystem_Direct
+	 */
+	public function get_filesystem() {
+		return $this->filesystem;
 	}
 
 	/**

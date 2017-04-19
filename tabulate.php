@@ -28,17 +28,13 @@ if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 }
 require __DIR__ . '/vendor/autoload.php';
 
-// Get global variables and set up the filesystem.
-// This file contains the only global usages of these (other than in the TestBase class);
+// Get the global database.
+// This file contains the only global variables other than in the TestBase class;
 // they're injected from here to everywhere else.
-if ( ! function_exists( 'WP_filesystem' ) ) {
-	include ABSPATH . "wp-admin/includes/file.php";
-}
-WP_Filesystem();
-global $wpdb, $wp_filesystem;
+global $wpdb;
 
 // Set up the menus; their callbacks do the actual dispatching to controllers.
-$menus = new \WordPress\Tabulate\Menus( $wpdb, $wp_filesystem );
+$menus = new \WordPress\Tabulate\Menus( $wpdb );
 $menus->init();
 
 // Add grants-checking callback.

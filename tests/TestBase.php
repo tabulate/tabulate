@@ -39,7 +39,7 @@ abstract class TestBase extends WP_UnitTestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
-		global $wpdb, $wp_filesystem;
+		global $wpdb;
 
 		// Current a test user and make them current.
 		$tester = get_user_by( 'email', 'test@example.com' );
@@ -53,20 +53,14 @@ abstract class TestBase extends WP_UnitTestCase {
 		// Get the database.
 		$this->wpdb = $wpdb;
 
-		// Set up the filesystem.
-		if ( ! function_exists( 'WP_filesystem' ) ) {
-			include ABSPATH . "wp-admin/includes/file.php";
-		}
-		WP_Filesystem();
-		$this->filesystem = $wp_filesystem;
-
 		// Prevent parent from enforcing TEMPORARY tables.
 		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
 		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
 
 		// Activate.
-		$menus = new \WordPress\Tabulate\Menus( $this->wpdb, $this->filesystem );
+		$menus = new \WordPress\Tabulate\Menus( $this->wpdb );
 		$menus->activation();
+		$this->filesystem = $menus->get_filesystem();
 
 		// Create some testing tables and link them together.
 		$this->wpdb->query( 'DROP TABLE IF EXISTS `test_table`' );
@@ -96,7 +90,7 @@ abstract class TestBase extends WP_UnitTestCase {
 		);
 		$this->wpdb->query( 'SET FOREIGN_KEY_CHECKS=1' );
 		$this->db = new WordPress\Tabulate\DB\Database( $this->wpdb );
-		$this->db->set_filesystem( $this->filesystem );
+		$this->db->set_filesystem( $menus->get_filesystem() );
 	}
 
 	/**
