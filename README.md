@@ -61,11 +61,11 @@ Development is managed on GitHub: https://github.com/tabulate/tabulate
 
 ## Installation
 
-See http://tabulate.readthedocs.org/en/latest/install.html
+See (http://tabulate.readthedocs.org/en/latest/install.html)
 
 ## Frequently Asked Questions
 
-See http://tabulate.readthedocs.org/en/latest/faq.html
+See (http://tabulate.readthedocs.org/en/latest/faq.html)
 
 ## Screenshots
 
@@ -76,7 +76,7 @@ See http://tabulate.readthedocs.org/en/latest/faq.html
 ## Changelog
 
 This is a reverse-chronologically ordered list of breaking or major changes to Tabulate.
-A full list of all changes can be found at https://github.com/tabulate/tabulate/commits/master
+A full list of all changes can be found at (https://github.com/tabulate/tabulate/commits/master)
 
 * January 2016: Version 2.5, introduced schema editing.
 * October 2015: Version 2, switching to version 2 of the WP-API plugin.
@@ -97,4 +97,4 @@ No custom database tables are modified during upgrade, activation, deactivation,
 or uninstallation.
 
 For more information, please see the user manual:
-http://tabulate.readthedocs.org/en/latest/install.html
+(http://tabulate.readthedocs.org/en/latest/install.html)

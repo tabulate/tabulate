@@ -51,12 +51,10 @@ class Menus {
 	 */
 	public function __construct( $wpdb ) {
 		$this->wpdb = $wpdb;
-		if ( ! function_exists( 'WP_Filesystem' ) ) {
-			// We don't use the global $wp_filesystem because it may be FTP or similar,
-			// but we do initialize it here in order to use WP_Filesystem_Direct.
-			require_once ABSPATH . "wp-admin/includes/file.php";
-			WP_Filesystem();
-		}
+		// We don't use the global $wp_filesystem because it may be FTP or similar,
+		// but we do initialize it here in order to use WP_Filesystem_Direct.
+		require_once ABSPATH . "wp-admin/includes/file.php";
+		WP_Filesystem();
 		require_once ABSPATH . "wp-admin/includes/class-wp-filesystem-direct.php";
 		$this->filesystem = new WP_Filesystem_Direct( [] );
 	}
