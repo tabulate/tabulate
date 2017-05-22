@@ -567,7 +567,6 @@ class Column {
 			$this->get_default(),
 			$this->is_auto_increment(),
 			$this->is_unique(),
-			$this->is_primary_key(),
 			$this->get_comment(),
 			$this->get_referenced_table()
 		);
@@ -589,7 +588,7 @@ class Column {
 	 * @throws Exception If unable to alter the table.
 	 */
 	public function alter( $new_name = null, $xtype_name = null, $size = null, $nullable = null, $default = null, $auto_increment = null, $unique = null, $comment = null, $target_table = null, $after = null ) {
-		// Any that have not been set explicitely should be unchanged.
+		// Any that have not been set explicitly should be unchanged.
 		$new_name = ! is_null( $new_name ) ? (string) $new_name : $this->get_name();
 		$xtype_name = ! is_null( $xtype_name ) ? (string) $xtype_name : $this->get_xtype()['name'];
 		$size = ! is_null( $size ) ? $size : $this->get_size();
@@ -617,7 +616,7 @@ class Column {
 			}
 		}
 
-		// Drop the FK if it exists; it'll be re-created after.
+		// Drop any foreign keys if they exist; they'll be re-created after.
 		if ( $this->is_foreign_key() ) {
 			$fks_sql = 'SELECT CONSTRAINT_NAME AS fk_name FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS '
 				. ' WHERE TABLE_SCHEMA = SCHEMA() '
@@ -636,7 +635,7 @@ class Column {
 		$wpdb->hide_errors();
 		$altered = $wpdb->query( $sql );
 		if ( false === $altered ) {
-			$err = "Unable to alter '" . $table->get_name() . "." . $this->get_name() . "' "
+			$err = "Unable to alter '" . $table->get_name() . "." . $this->get_name() . "'"
 				. " &mdash; $wpdb->last_error &mdash; <code>$sql</code>";
 			throw new Exception( $err );
 		}

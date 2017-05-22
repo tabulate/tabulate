@@ -411,6 +411,16 @@ class SchemaEditingTest extends TestBase {
 		$this->assertTrue( $type_col->is_foreign_key() );
 		$this->assertEquals( 'types', $type_col->get_referenced_table()->get_name() );
 		$this->assertArrayHasKey( 'widgets.the_type', $types->get_referencing_tables() );
+
+		// And to alter the foreign table.
+		// ... 1. Add a column.
+		$types->add_column('description', 'long_text');
+		$this->assertContains('description', array_keys($types->get_columns()));
+		// ... 2. Change that column to give it a comment.
+		$types_id_col = $types->get_column('description');
+		$this->assertEquals('', $types_id_col->get_comment());
+		$types_id_col->alter(null, null, null, null, null, null, null, 'The ID.');
+		$this->assertEquals('The ID.', $types_id_col->get_comment());
 	}
 
 	/**
