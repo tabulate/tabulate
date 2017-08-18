@@ -2,8 +2,8 @@
 * Contributors: samwilson
 * Donate link: https://www.bushheritage.org.au/donatenow
 * Tags: MySQL, databases, tables, data, CRUD, import, export, CSV, shortcode, OpenStreetMap, KML
-* Requires at least: 4.5
-* Tested up to: 4.7
+* Requires at least: 4.6
+* Tested up to: 4.8
 * Stable tag: trunk
 * License: GPLv2 or later
 * License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -25,7 +25,7 @@ CSV import/export; access-control; foreign-keys; and lots more.
 This plugin provides a simple user-friendly interface to tables in your database.
 Somewhat akin to phpMyAdmin, but easier to use and more focused on end users.
 
-The documentation can be found at http://tabulate.readthedocs.org/
+The documentation can be found at https://tabulate.readthedocs.org/
 
 Features (in no particular order):
 
@@ -52,7 +52,7 @@ Features (in no particular order):
     can provide when updating data.
 9.  The `[tabulate]` shortcode can be used to embed tables, lists, row-counts,
     and data-entry forms into WordPress content. For more details,
-    [read the documentation](http://tabulate.readthedocs.org/en/latest/shortcode.html).
+    [read the documentation](https://tabulate.readthedocs.org/en/latest/shortcode.html).
 10. Tables with *point* columns can be exported to KML and OpenStreetMap XML.
     Also, data entry for these columns is done with a small slippy map, on which
     a marker can be placed.
@@ -65,7 +65,7 @@ See (http://tabulate.readthedocs.org/en/latest/install.html)
 
 ## Frequently Asked Questions
 
-See (http://tabulate.readthedocs.org/en/latest/faq.html)
+See (https://tabulate.readthedocs.org/en/latest/faq.html)
 
 ## Screenshots
 

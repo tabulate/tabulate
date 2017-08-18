@@ -84,7 +84,7 @@ class ShortcodeController extends ControllerBase {
 	 * @return string The error HTML.
 	 */
 	protected function error( $message = '' ) {
-		$url = "http://tabulate.readthedocs.io/en/latest/shortcode.html";
+		$url = "https://tabulate.readthedocs.io/en/latest/shortcode.html";
 		return "<div class='tabulate shortcode-error'>"
 			. "<h3>Tabulate shortcode error:</h3> "
 			. "<p class='message'>$message</p>"

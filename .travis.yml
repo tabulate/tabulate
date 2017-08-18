@@ -15,10 +15,11 @@ php:
 
 # WordPress versions to be tested against.
 # Include the highest patch versions of the last 3 versions (including the current one), as well as master.
+# When updating this, also update the "Requires at least" and "Tested up to" in README.md.
 env:
-    - WP_VERSION=4.5.7
-    - WP_VERSION=4.6.4
-    - WP_VERSION=4.7.3
+    - WP_VERSION=4.6.6
+    - WP_VERSION=4.7.5
+    - WP_VERSION=4.8.1
     - WP_VERSION=master
 
 # Clones WordPress and configures our testing environment.
