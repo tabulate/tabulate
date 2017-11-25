@@ -2,8 +2,8 @@
 * Contributors: samwilson
 * Donate link: https://www.bushheritage.org.au/donatenow
 * Tags: MySQL, databases, tables, data, CRUD, import, export, CSV, shortcode, OpenStreetMap, KML
-* Requires at least: 4.6
-* Tested up to: 4.8
+* Requires at least: 4.7
+* Tested up to: 4.9
 * Requires PHP: 5.6
 * Stable tag: trunk
 * License: GPLv2 or later
