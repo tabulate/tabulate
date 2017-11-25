@@ -26,7 +26,7 @@ CSV import/export; access-control; foreign-keys; and lots more.
 This plugin provides a simple user-friendly interface to tables in your database.
 Somewhat akin to phpMyAdmin, but easier to use and more focused on end users.
 
-The documentation can be found at https://tabulate.readthedocs.org/
+The documentation can be found at [tabulate.readthedocs.org](https://tabulate.readthedocs.org/).
 
 Features (in no particular order):
 
@@ -41,9 +41,8 @@ Features (in no particular order):
     validation, and previewing prior to final import. If an imported row has a
     value for the Primary Key, the existing row will be overwritten.
 4.  Data can be exported to CSV, including after filters have been applied. 
-5.  A quick-jump navigation box (located top right of every page) can be
-    activated by installing the [WordPress REST API (Version 2)](https://wordpress.org/plugins/rest-api/)
-    plugin. The quick-jump box is also added as a Dashboard widget.
+5.  A quick-jump navigation box is located top right of every page,
+    and can also be added as a Dashboard widget.
 6.  Records in tables with *date* columns can be viewed in a calendar.
 7.  Entity Relationship Diagrams (drawn with [GraphViz](http://graphviz.org/))
     can be automatically generated, with any specified subset of tables. Foreign
@@ -58,15 +57,16 @@ Features (in no particular order):
     Also, data entry for these columns is done with a small slippy map, on which
     a marker can be placed.
 
-Development is managed on GitHub: https://github.com/tabulate/tabulate
+Development is managed on GitHub
+at [github.com/tabulate/tabulate](https://github.com/tabulate/tabulate)
 
 ## Installation
 
-See (http://tabulate.readthedocs.org/en/latest/install.html)
+See [tabulate.readthedocs.org/en/latest/install.html](http://tabulate.readthedocs.org/en/latest/install.html)
 
 ## Frequently Asked Questions
 
-See (https://tabulate.readthedocs.org/en/latest/faq.html)
+See [tabulate.readthedocs.org/en/latest/faq.html](https://tabulate.readthedocs.org/en/latest/faq.html)
 
 ## Screenshots
 
@@ -79,6 +79,7 @@ See (https://tabulate.readthedocs.org/en/latest/faq.html)
 This is a reverse-chronologically ordered list of breaking or major changes to Tabulate.
 A full list of all changes can be found at (https://github.com/tabulate/tabulate/commits/master)
 
+* November 2017: Version 2.10, removed dependency on the REST API plugin (which is not in core).
 * January 2016: Version 2.5, introduced schema editing.
 * October 2015: Version 2, switching to version 2 of the WP-API plugin.
 * July 2015: Version 1, with basic functionality and after having
@@ -97,5 +98,5 @@ that it's added (but you will be warned before this happens, don't worry).
 No custom database tables are modified during upgrade, activation, deactivation,
 or uninstallation.
 
-For more information, please see the user manual:
-(http://tabulate.readthedocs.org/en/latest/install.html)
+For more information,
+please see [the user manual](http://tabulate.readthedocs.org/en/latest/install.html).
