@@ -225,10 +225,7 @@ class Menus {
 
 		// Enqueue Tabulate's scripts.
 		$script_url = plugins_url( TABULATE_SLUG ) . '/assets/scripts.js';
-		$deps = array( 'jquery-ui-autocomplete', 'tabulate-omnivore', 'tabulate-maskedinput', 'tabulate-timepicker' );
-		if ( Util::is_plugin_active( 'rest-api/plugin.php' ) ) {
-			$deps[] = 'wp-api';
-		}
+		$deps = array( 'jquery-ui-autocomplete', 'tabulate-omnivore', 'tabulate-maskedinput', 'tabulate-timepicker', 'wp-api' );
 		wp_enqueue_script( 'tabulate-scripts', $script_url, $deps, TABULATE_VERSION, true );
 
 		// Javascript page variables.

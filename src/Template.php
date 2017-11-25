@@ -50,7 +50,7 @@ class Template {
 	/**
 	 * Create a new template either with a file-based Twig template, or a Twig string.
 	 *
-	 * @global type $wpdb
+	 * @global \wpdb $wpdb
 	 * @param string|false $template_name   The name of a Twig file to render.
 	 * @param string|false $template_string A Twig string to render.
 	 */
@@ -66,7 +66,6 @@ class Template {
 		$this->data = array(
 			'tabulate_version' => TABULATE_VERSION,
 			'notices' => $notices,
-			'wp_api' => Util::is_plugin_active( 'rest-api/plugin.php' ),
 			'tfo_graphviz' => Util::is_plugin_active( 'tfo-graphviz/tfo-graphviz.php' ),
 			'wpdb_prefix' => $wpdb->prefix,
 			'current_user_is_admin' => current_user_can( 'promote_users' ),

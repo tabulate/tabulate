@@ -120,91 +120,86 @@ jQuery(document).ready(function ($) {
 	$("button.disabled").prop("disabled", true);
 
 	/**
-	 * Set up the bits that use WP_API.
 	 * Make sure the WP-API nonce is always set on AJAX requests.
 	 */
-	if (typeof wpApiSettings !== 'undefined') {
-		$.ajaxSetup({
-			headers: { 'X-WP-Nonce': wpApiSettings.nonce }
-		});
+	$.ajaxSetup({
+		headers: { 'X-WP-Nonce': wpApiSettings.nonce }
+	});
 
-
-		/**
-		 * Jump between tables.
-		 */
-		// Get the table list.
-		$.getJSON(wpApiSettings.root + "tabulate/tables", function( tableNames ) {
-			for ( var t in tableNames ) {
-				var table = tableNames[t];
-				var url = tabulate.admin_url + "&controller=table&table=" + table.value;
-				var $li = $("<li><a href='" + url + "'>" + table.label + "</a></li>");
-				$li.hide();
-				$("#tabulate-quick-jump").append($li);
-			}
-		});
-		// Show the table list.
-		$("#tabulate-quick-jump label").click(function(event) {
-			event.preventDefault();
-			//event.stopPropagation();
-			var $quickJump = $(this).parents("#tabulate-quick-jump");
-			$quickJump.toggleClass('expanded');
-			if ($quickJump.hasClass('expanded')) {
-				$quickJump.find("li[class!='filter']").show();
-				$quickJump.find("input").focus().keyup();
+	/**
+	 * Jump between tables.
+	 */
+	// Get the table list.
+	$.getJSON(wpApiSettings.root + "tabulate/tables", function( tableNames ) {
+		for ( var t in tableNames ) {
+			var table = tableNames[t];
+			var url = tabulate.admin_url + "&controller=table&table=" + table.value;
+			var $li = $("<li><a href='" + url + "'>" + table.label + "</a></li>");
+			$li.hide();
+			$("#tabulate-quick-jump").append($li);
+		}
+	});
+	// Show the table list.
+	$("#tabulate-quick-jump label").click(function(event) {
+		event.preventDefault();
+		//event.stopPropagation();
+		var $quickJump = $(this).parents("#tabulate-quick-jump");
+		$quickJump.toggleClass('expanded');
+		if ($quickJump.hasClass('expanded')) {
+			$quickJump.find("li[class!='filter']").show();
+			$quickJump.find("input").focus().keyup();
+		} else {
+			$quickJump.find("li[class!='filter']").hide();
+		}
+	});
+	// Close the table list by clicking anywhere else.
+	$(document).click(function(e) {
+		if ($(e.target).parents('#tabulate-quick-jump').length == 0) {
+			$('#tabulate-quick-jump.expanded label').click();
+		}
+	});
+	// Filter the table list.
+	$("#tabulate-quick-jump input").keyup(function() {
+		var s = $(this).val().toLowerCase();
+		$(this).parents("#tabulate-quick-jump").find("li[class!='filter']").each(function(){
+			var t = $(this).text().toLowerCase();
+			if (t.indexOf(s) == -1) {
+				$(this).hide();
 			} else {
-				$quickJump.find("li[class!='filter']").hide();
+				$(this).show();
 			}
 		});
-		// Close the table list by clicking anywhere else.
-		$(document).click(function(e) {
-			if ($(e.target).parents('#tabulate-quick-jump').length == 0) {
-				$('#tabulate-quick-jump.expanded label').click();
+	});
+
+
+	/**
+	 * Handle foreign-key select lists (autocomplete when greater than N options).
+	 */
+	$(".tabulate .foreign-key .form-control:input").each(function() {
+		// Autocomplete.
+		$(this).autocomplete({
+			source: wpApiSettings.root + "tabulate/fk/" + $(this).data('fk-table'),
+			select: function( event, ui ) {
+				event.preventDefault();
+				$(this).val(ui.item.label);
+				$(this).closest(".foreign-key").find(".actual-value").val(ui.item.value);
+				$(this).closest(".foreign-key").find(".input-group-addon").text(ui.item.value);
 			}
 		});
-		// Filter the table list.
-		$("#tabulate-quick-jump input").keyup(function() {
-			var s = $(this).val().toLowerCase();
-			$(this).parents("#tabulate-quick-jump").find("li[class!='filter']").each(function(){
-				var t = $(this).text().toLowerCase();
-				if (t.indexOf(s) == -1) {
-					$(this).hide();
-				} else {
-					$(this).show();
-				}
-			});
+		// Clear actual-value if emptied.
+		$(this).change(function(){
+			if ($(this).val().length === 0) {
+				$(this).closest(".foreign-key").find(".actual-value").val("");
+				$(this).closest(".foreign-key").find(".input-group-addon").text("");
+			}
 		});
-
-
-		/**
-		 * Handle foreign-key select lists (autocomplete when greater than N options).
-		 */
-		$(".tabulate .foreign-key .form-control:input").each(function() {
-			// Autocomplete.
-			$(this).autocomplete({
-				source: wpApiSettings.root + "tabulate/fk/" + $(this).data('fk-table'),
-				select: function( event, ui ) {
-					event.preventDefault();
-					$(this).val(ui.item.label);
-					$(this).closest(".foreign-key").find(".actual-value").val(ui.item.value);
-					$(this).closest(".foreign-key").find(".input-group-addon").text(ui.item.value);
-				}
-			});
-			// Clear actual-value if emptied.
-			$(this).change(function(){
-				if ($(this).val().length === 0) {
-					$(this).closest(".foreign-key").find(".actual-value").val("");
-					$(this).closest(".foreign-key").find(".input-group-addon").text("");
-				}
-			});
-			// Clear entered text if no value was selected.
-			$(this).on("blur", function() {
-				if ($(this).closest(".foreign-key").find(".actual-value").val().length === 0) {
-					$(this).val("");
-				}
-			});
+		// Clear entered text if no value was selected.
+		$(this).on("blur", function() {
+			if ($(this).closest(".foreign-key").find(".actual-value").val().length === 0) {
+				$(this).val("");
+			}
 		});
-
-	} // if (typeof wpApiSettings !== 'undefined')
+	});
 
 
 	/**
