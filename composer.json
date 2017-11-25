@@ -10,8 +10,10 @@
 	"autoload-dev": {
 		"classmap": [ "tests/TestBase.php" ]
 	},
-	"platform": {
-		"php": "5.6"
+	"config": {
+		"platform": {
+			"php": "5.6"
+		}
 	},
 	"require": {
 		"php": "^5.6|^7.0",
