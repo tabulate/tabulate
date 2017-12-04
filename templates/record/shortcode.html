@@ -1,7 +1,7 @@
 {% include 'notices.html' %}
 
 <form method="post" action="{{record.get_url('save')}}" class="tabulate tabulate-record">
-	<input type="hidden" name="_wpnonce" value="{{wp_create_nonce('tabulate-record-'~record.id)}}" />
+	{{wp_nonce_field('tabulate-record-'~record.get_primary_key())|raw}}
 
 	{% for column in table.get_columns %}
 	<div class="form-group">
