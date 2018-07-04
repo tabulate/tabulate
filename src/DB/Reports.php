@@ -98,6 +98,7 @@ class Reports {
 	 * @param \wpdb $wpdb The global database object.
 	 */
 	public static function activate( \wpdb $wpdb ) {
+		$wpdb->show_errors();
 		$db = new Database( $wpdb );
 
 		if ( ! $db->get_table( self::reports_table_name() ) ) {

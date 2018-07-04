@@ -15,7 +15,7 @@ tracker at https://github.com/tabulate/tabulate/issues
 What modifications does Tabulate make to the database?
 ------------------------------------------------------
 
-Two database tables are created, and one option_, all prefixed with `tabulate_`.
+Four database tables are created, and one option_, all prefixed with `tabulate_`.
 When Tabulate is uninstalled, all of these are deleted (but custom tables are not touched).
 
 .. _option: http://codex.wordpress.org/Option_Reference
