@@ -104,13 +104,18 @@ class Reports {
 		if ( ! $db->get_table( self::reports_table_name() ) ) {
 			$sql = "CREATE TABLE IF NOT EXISTS `" . self::reports_table_name() . "` (
 				`id` INT(4) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
-				`title` varchar(200) NOT NULL UNIQUE,
+				`title` varchar(191) NOT NULL UNIQUE,
 				`description` text NOT NULL,
 				`mime_type` varchar(50) NOT NULL DEFAULT 'text/html',
 				`file_extension` varchar(10) DEFAULT NULL COMMENT 'If defined, this report will be downloaded.',
 				`template` text NOT NULL COMMENT 'The Twig template used to display this report.'
 				) ENGINE=InnoDB;";
 			$wpdb->query( $sql );
+		}
+		// Reduce length of title column to floor(767/4) = 191 characters. GH60.
+		$title_size = $db->get_table( self::reports_table_name() )->get_column( 'title' )->get_size();
+		if ( $title_size == 200 ) {
+			$wpdb->query( "ALTER TABLE `" . self::reports_table_name() . "` MODIFY `title` VARCHAR(191) NOT NULL" );
 		}
 
 		if ( ! $db->get_table( self::report_sources_table_name() ) ) {
