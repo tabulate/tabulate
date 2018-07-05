@@ -2,7 +2,7 @@
 # Adapted from https://github.com/tierra/wordpress-plugin-tests/blob/master/.travis.yml
 
 # Use Travis CI's faster Docker-based infrastructure.
-sudo: false
+sudo: required
 
 # Tell Travis CI we're using PHP.
 language: php
