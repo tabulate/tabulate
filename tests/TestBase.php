@@ -48,7 +48,8 @@ abstract class TestBase extends WP_UnitTestCase {
 		} else {
 			$tester_id = $tester->ID;
 		}
-		wp_set_current_user( $tester_id );
+		$current_user = wp_set_current_user( $tester_id );
+		$current_user->add_cap( 'promote_users' );
 
 		// Get the database.
 		$this->wpdb = $wpdb;

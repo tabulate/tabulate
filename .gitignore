@@ -4,4 +4,5 @@
 /svn_ignore_list.txt
 /docs/_build/
 /.idea/
+/phpunit.xml
 
