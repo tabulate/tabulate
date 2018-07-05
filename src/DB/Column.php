@@ -363,7 +363,7 @@ class Column {
 	/**
 	 * Get this column's size, or (for ENUM columns) its CSV options string.
 	 *
-	 * @return string The size of this column.
+	 * @return int|string The size of this column.
 	 */
 	public function get_size() {
 		$size = $this->size;

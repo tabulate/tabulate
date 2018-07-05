@@ -111,10 +111,11 @@ class Reports {
 				`template` text NOT NULL COMMENT 'The Twig template used to display this report.'
 				) ENGINE=InnoDB;";
 			$wpdb->query( $sql );
+			$db->reset();
 		}
 		// Reduce length of title column to floor(767/4) = 191 characters. GH60.
 		$title_size = $db->get_table( self::reports_table_name() )->get_column( 'title' )->get_size();
-		if ( $title_size == 200 ) {
+		if ( 200 === $title_size ) {
 			$wpdb->query( "ALTER TABLE `" . self::reports_table_name() . "` MODIFY `title` VARCHAR(191) NOT NULL" );
 		}
 
