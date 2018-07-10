@@ -1,4 +1,5 @@
-# Tabulate
+<p align="center"><img src="assets/leaflet/images/logo/logotype_horizontal.png" alt="tabulate" height="100px"></p>
+
 * Contributors: samwilson
 * Donate link: https://www.bushheritage.org.au/donatenow
 * Tags: MySQL, databases, tables, data, CRUD, import, export, CSV, shortcode, OpenStreetMap, KML
