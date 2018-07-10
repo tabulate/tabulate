@@ -6,6 +6,13 @@ Tabulate User Manual
 ====================
 
 Tabulate is a user-friendly plugin for WordPress designed to make it easy to work with relational tabular data.
+For more information, please read the :ref:`intro`.
+
+* WordPress plugin page: https://wordpress.org/plugins/tabulate
+* Support forum: https://wordpress.org/support/plugin/tabulate
+* Documentation: https://tabulate.readthedocs.org
+* Source code: https://github.com/tabulate/tabulate
+* Issue tracker: https://github.com/tabulate/tabulate/issues
 
 Quick-start
 -----------
@@ -39,8 +46,8 @@ The stable_ version of the documentation, therefore, is complete and can be read
 |---| the latest_ version, however, may at times be a bit *avant-garde*
 and not (yet) make any sense with respect to what you'll see on an installed site.
 
-.. _stable: http://tabulate.readthedocs.org/en/stable/index.html
-.. _latest: http://tabulate.readthedocs.org/en/latest/index.html
+.. _stable: https://tabulate.readthedocs.org/en/stable/index.html
+.. _latest: https://tabulate.readthedocs.org/en/latest/index.html
 
 Contents
 --------
@@ -52,4 +59,5 @@ Contents
    intro
    install
    shortcode
+   reports
    faq
