@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/leaflet/images/logo/logotype_horizontal.png" alt="tabulate" height="100px"></p>
+# Tabulate
 
 * Contributors: samwilson
 * Donate link: https://www.bushheritage.org.au/donatenow
@@ -9,6 +9,8 @@
 * Stable tag: trunk
 * License: GPLv2 or later
 * License URI: http://www.gnu.org/licenses/gpl-2.0.html
+
+![Tabulate](assets/logo/logotype_horizontal.png)
 
 Manage relational tabular data using the full power of your MySQL database.
 CSV import/export; access-control; foreign-keys; and lots more.
